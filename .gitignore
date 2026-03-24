@@ -1,0 +1,26 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# macOS
+.DS_Store
+
+# Backend (Maven)
+backend/target/
+
+# Frontend (npm)
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+
+# Electron
+electron/node_modules/
+electron/dist/
+
+# Environment
+.env
+.env.local
+
+# Logs
+*.log
