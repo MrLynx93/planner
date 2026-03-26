@@ -1,0 +1,447 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 1
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_date
+                  type: DATE
+                  constraints:
+                    nullable: true
+              - column:
+                  name: opening_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: closing_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 2
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: groups
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 3
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: teacher
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 4
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: child
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 5
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: child_group_assignment
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: child_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cga_child
+                    references: child(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_cga_group
+                    references: groups(id)
+              - column:
+                  name: from_date
+                  type: DATE
+                  constraints:
+                    nullable: false
+              - column:
+                  name: to_date
+                  type: DATE
+
+  - changeSet:
+      id: 6
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex_teacher
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexteacher_annex
+                    references: annex(id)
+              - column:
+                  name: teacher_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexteacher_teacher
+                    references: teacher(id)
+              - column:
+                  name: default_group_id
+                  type: INT
+                  constraints:
+                    foreignKeyName: fk_annexteacher_group
+                    references: groups(id)
+
+  - changeSet:
+      id: 7
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex_group
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexgroup_annex
+                    references: annex(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexgroup_group
+                    references: groups(id)
+
+  - changeSet:
+      id: 8
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: rule
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    foreignKeyName: fk_rule_group
+                    references: groups(id)
+              - column:
+                  name: teacher_id
+                  type: INT
+                  constraints:
+                    foreignKeyName: fk_rule_teacher
+                    references: teacher(id)
+              - column:
+                  name: int_value
+                  type: INT
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 9
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex_rule
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexrule_annex
+                    references: annex(id)
+              - column:
+                  name: rule_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexrule_rule
+                    references: rule(id)
+
+  - changeSet:
+      id: 10
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: time_block
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: teacher_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_timeblock_teacher
+                    references: teacher(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_timeblock_group
+                    references: groups(id)
+              - column:
+                  name: day_of_week
+                  type: VARCHAR(20)
+              - column:
+                  name: start_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 11
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex_time_block
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annextimeblock_annex
+                    references: annex(id)
+              - column:
+                  name: time_block_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annextimeblock_timeblock
+                    references: time_block(id)
+
+  - changeSet:
+      id: 12
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: time_block_modification_group
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tbmodgroup_annex
+                    references: annex(id)
+              - column:
+                  name: reason
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: note
+                  type: VARCHAR(1000)
+
+  - changeSet:
+      id: 13
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: time_block_modification
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: modification_group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tbmod_modgroup
+                    references: time_block_modification_group(id)
+              - column:
+                  name: type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_block_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tbmod_timeblock
+                    references: time_block(id)
+              - column:
+                  name: date
+                  type: DATE
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 14
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: closed_day
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: date
+                  type: DATE
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: reason
+                  type: VARCHAR(500)
