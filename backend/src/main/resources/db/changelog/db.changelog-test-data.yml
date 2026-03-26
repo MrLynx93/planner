@@ -1,0 +1,871 @@
+databaseChangeLog:
+
+  # ── 1. Annex ────────────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-1
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex
+            columns:
+              - column: { name: name,         value: "Rok szkolny 2025/2026" }
+              - column: { name: start_date,    valueDate: "2025-09-01" }
+              - column: { name: end_date,      value: null }
+              - column: { name: opening_time,  value: "06:30:00" }
+              - column: { name: closing_time,  value: "17:00:00" }
+
+  # ── 2. Groups ───────────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-2
+      author: mateusz
+      changes:
+        - insert:
+            tableName: groups
+            columns:
+              - column: { name: name, value: "Biedronki" }
+        - insert:
+            tableName: groups
+            columns:
+              - column: { name: name, value: "Motylki" }
+        - insert:
+            tableName: groups
+            columns:
+              - column: { name: name, value: "Słoneczka" }
+
+  # ── 3. Teachers ─────────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-3
+      author: mateusz
+      changes:
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Anna" }
+              - column: { name: last_name,  value: "Kowalska" }
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Maria" }
+              - column: { name: last_name,  value: "Wiśniewska" }
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Katarzyna" }
+              - column: { name: last_name,  value: "Nowak" }
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Joanna" }
+              - column: { name: last_name,  value: "Wójcik" }
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Agnieszka" }
+              - column: { name: last_name,  value: "Kowalczyk" }
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Ewa" }
+              - column: { name: last_name,  value: "Kamińska" }
+
+  # ── 4. Children ─────────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-4
+      author: mateusz
+      changes:
+        - insert:
+            tableName: child
+            columns:
+              - column: { name: first_name, value: "Zofia" }
+              - column: { name: last_name,  value: "Malinowska" }
+        - insert:
+            tableName: child
+            columns:
+              - column: { name: first_name, value: "Jan" }
+              - column: { name: last_name,  value: "Nowicki" }
+        - insert:
+            tableName: child
+            columns:
+              - column: { name: first_name, value: "Maja" }
+              - column: { name: last_name,  value: "Zielińska" }
+        - insert:
+            tableName: child
+            columns:
+              - column: { name: first_name, value: "Piotr" }
+              - column: { name: last_name,  value: "Wiśniewski" }
+        - insert:
+            tableName: child
+            columns:
+              - column: { name: first_name, value: "Lena" }
+              - column: { name: last_name,  value: "Wróblewska" }
+        - insert:
+            tableName: child
+            columns:
+              - column: { name: first_name, value: "Mikołaj" }
+              - column: { name: last_name,  value: "Kaczmarek" }
+
+  # ── 5. Annex ↔ Groups ───────────────────────────────────────────────────────
+  - changeSet:
+      id: td-5
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_group
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: group_id, valueNumeric: 1 }
+        - insert:
+            tableName: annex_group
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: group_id, valueNumeric: 2 }
+        - insert:
+            tableName: annex_group
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: group_id, valueNumeric: 3 }
+
+  # ── 6. Annex ↔ Teachers (with default group) ────────────────────────────────
+  - changeSet:
+      id: td-6
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,         valueNumeric: 1 }
+              - column: { name: teacher_id,        valueNumeric: 1 }
+              - column: { name: default_group_id,  valueNumeric: 1 }
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,         valueNumeric: 1 }
+              - column: { name: teacher_id,        valueNumeric: 2 }
+              - column: { name: default_group_id,  valueNumeric: 1 }
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,         valueNumeric: 1 }
+              - column: { name: teacher_id,        valueNumeric: 3 }
+              - column: { name: default_group_id,  valueNumeric: 2 }
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,         valueNumeric: 1 }
+              - column: { name: teacher_id,        valueNumeric: 4 }
+              - column: { name: default_group_id,  valueNumeric: 2 }
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,         valueNumeric: 1 }
+              - column: { name: teacher_id,        valueNumeric: 5 }
+              - column: { name: default_group_id,  valueNumeric: 3 }
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,         valueNumeric: 1 }
+              - column: { name: teacher_id,        valueNumeric: 6 }
+              - column: { name: default_group_id,  valueNumeric: 3 }
+
+  # ── 7. Child → Group assignments ────────────────────────────────────────────
+  - changeSet:
+      id: td-7
+      author: mateusz
+      changes:
+        - insert:
+            tableName: child_group_assignment
+            columns:
+              - column: { name: child_id,   valueNumeric: 1 }
+              - column: { name: group_id,   valueNumeric: 1 }
+              - column: { name: from_date,  valueDate: "2025-09-01" }
+        - insert:
+            tableName: child_group_assignment
+            columns:
+              - column: { name: child_id,   valueNumeric: 2 }
+              - column: { name: group_id,   valueNumeric: 1 }
+              - column: { name: from_date,  valueDate: "2025-09-01" }
+        - insert:
+            tableName: child_group_assignment
+            columns:
+              - column: { name: child_id,   valueNumeric: 3 }
+              - column: { name: group_id,   valueNumeric: 2 }
+              - column: { name: from_date,  valueDate: "2025-09-01" }
+        - insert:
+            tableName: child_group_assignment
+            columns:
+              - column: { name: child_id,   valueNumeric: 4 }
+              - column: { name: group_id,   valueNumeric: 2 }
+              - column: { name: from_date,  valueDate: "2025-09-01" }
+        - insert:
+            tableName: child_group_assignment
+            columns:
+              - column: { name: child_id,   valueNumeric: 5 }
+              - column: { name: group_id,   valueNumeric: 3 }
+              - column: { name: from_date,  valueDate: "2025-09-01" }
+        - insert:
+            tableName: child_group_assignment
+            columns:
+              - column: { name: child_id,   valueNumeric: 6 }
+              - column: { name: group_id,   valueNumeric: 3 }
+              - column: { name: from_date,  valueDate: "2025-09-01" }
+
+  # ── 8. Rules ────────────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-8
+      author: mateusz
+      changes:
+        # TEACHER_MONTHLY_HOURS_MIN — 160 h/month per teacher
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: teacher_id, valueNumeric: 1 }
+              - column: { name: int_value,  valueNumeric: 160 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: teacher_id, valueNumeric: 2 }
+              - column: { name: int_value,  valueNumeric: 160 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: teacher_id, valueNumeric: 3 }
+              - column: { name: int_value,  valueNumeric: 160 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: teacher_id, valueNumeric: 4 }
+              - column: { name: int_value,  valueNumeric: 160 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: teacher_id, valueNumeric: 5 }
+              - column: { name: int_value,  valueNumeric: 160 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: teacher_id, valueNumeric: 6 }
+              - column: { name: int_value,  valueNumeric: 160 }
+        # GROUP_MIN_TEACHERS — at least 2 teachers per group at all times
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,      value: "GROUP_MIN_TEACHERS" }
+              - column: { name: group_id,  valueNumeric: 1 }
+              - column: { name: int_value, valueNumeric: 2 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,      value: "GROUP_MIN_TEACHERS" }
+              - column: { name: group_id,  valueNumeric: 2 }
+              - column: { name: int_value, valueNumeric: 2 }
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,      value: "GROUP_MIN_TEACHERS" }
+              - column: { name: group_id,  valueNumeric: 3 }
+              - column: { name: int_value, valueNumeric: 2 }
+
+  # ── 9. Annex ↔ Rules ────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-9
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 1 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 2 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 3 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 4 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 5 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 6 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 7 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 8 }
+        - insert:
+            tableName: annex_rule
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: rule_id,  valueNumeric: 9 }
+
+  # ── 10. Time blocks (TEMPLATE) ───────────────────────────────────────────────
+  # Anna Kowalska (id=1) — Biedronki (id=1) — early shift 06:30–14:30
+  - changeSet:
+      id: td-10
+      author: mateusz
+      changes:
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 1 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 1 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 1 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 1 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 1 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        # Maria Wiśniewska (id=2) — Biedronki (id=1) — late shift 09:00–17:00
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 2 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 2 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 2 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 2 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 2 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        # Katarzyna Nowak (id=3) — Motylki (id=2) — early shift
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 3 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 3 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 3 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 3 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 3 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        # Joanna Wójcik (id=4) — Motylki (id=2) — late shift
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 4 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 4 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 4 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 4 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 4 }
+              - column: { name: group_id,    valueNumeric: 2 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        # Agnieszka Kowalczyk (id=5) — Słoneczka (id=3) — early shift
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 5 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 5 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 5 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 5 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 5 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        # Ewa Kamińska (id=6) — Słoneczka (id=3) — late shift
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 6 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 6 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 6 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 6 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 6 }
+              - column: { name: group_id,    valueNumeric: 3 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+
+  # ── 11. Annex ↔ Time blocks ──────────────────────────────────────────────────
+  - changeSet:
+      id: td-11
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 1 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 2 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 3 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 4 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 5 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 6 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 7 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 8 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 9 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 10 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 11 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 12 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 13 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 14 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 15 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 16 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 17 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 18 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 19 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 20 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 21 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 22 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 23 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 24 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 25 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 26 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 27 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 28 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 29 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 30 }
+
+  # ── 12. MODIFICATION time blocks ─────────────────────────────────────────────
+  # These are one-off blocks used by ADD modifications (no day_of_week needed)
+  - changeSet:
+      id: td-12
+      author: mateusz
+      changes:
+        # id=31 — Maria covers Anna's early shift in Biedronki (TIME_OFF replacement)
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,       value: "MODIFICATION" }
+              - column: { name: teacher_id, valueNumeric: 2 }
+              - column: { name: group_id,   valueNumeric: 1 }
+              - column: { name: start_time, value: "06:30:00" }
+              - column: { name: end_time,   value: "14:30:00" }
+        # id=32 — Joanna takes Katarzyna's early shift in Motylki (EXCHANGE)
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,       value: "MODIFICATION" }
+              - column: { name: teacher_id, valueNumeric: 4 }
+              - column: { name: group_id,   valueNumeric: 2 }
+              - column: { name: start_time, value: "06:30:00" }
+              - column: { name: end_time,   value: "14:30:00" }
+        # id=33 — Katarzyna takes Joanna's late shift in Motylki (EXCHANGE)
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,       value: "MODIFICATION" }
+              - column: { name: teacher_id, valueNumeric: 3 }
+              - column: { name: group_id,   valueNumeric: 2 }
+              - column: { name: start_time, value: "09:00:00" }
+              - column: { name: end_time,   value: "17:00:00" }
+
+  # ── 13. Modification groups ───────────────────────────────────────────────────
+  - changeSet:
+      id: td-13
+      author: mateusz
+      changes:
+        # id=1 — Anna sick on 2025-10-06 (Monday)
+        - insert:
+            tableName: time_block_modification_group
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: reason,   value: "TIME_OFF" }
+              - column: { name: note,     value: "Anna Kowalska - zwolnienie lekarskie, zastępstwo Maria Wiśniewska" }
+        # id=2 — Katarzyna and Joanna swap Wednesday 2025-10-08
+        - insert:
+            tableName: time_block_modification_group
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: reason,   value: "EXCHANGE" }
+              - column: { name: note,     value: "Zamiana zmian Katarzyna Nowak / Joanna Wójcik, środa 08.10" }
+
+  # ── 14. Modifications ─────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-14
+      author: mateusz
+      changes:
+        # TIME_OFF — group id=1
+        # Remove Anna's Monday template block
+        - insert:
+            tableName: time_block_modification
+            columns:
+              - column: { name: modification_group_id, valueNumeric: 1 }
+              - column: { name: type,                  value: "REMOVE" }
+              - column: { name: time_block_id,         valueNumeric: 1 }
+              - column: { name: date,                  valueDate: "2025-10-06" }
+        # Add Maria covering Anna's early shift
+        - insert:
+            tableName: time_block_modification
+            columns:
+              - column: { name: modification_group_id, valueNumeric: 1 }
+              - column: { name: type,                  value: "ADD" }
+              - column: { name: time_block_id,         valueNumeric: 31 }
+              - column: { name: date,                  valueDate: "2025-10-06" }
+        # EXCHANGE — group id=2
+        # Remove Katarzyna's early Wednesday template block
+        - insert:
+            tableName: time_block_modification
+            columns:
+              - column: { name: modification_group_id, valueNumeric: 2 }
+              - column: { name: type,                  value: "REMOVE" }
+              - column: { name: time_block_id,         valueNumeric: 13 }
+              - column: { name: date,                  valueDate: "2025-10-08" }
+        # Remove Joanna's late Wednesday template block
+        - insert:
+            tableName: time_block_modification
+            columns:
+              - column: { name: modification_group_id, valueNumeric: 2 }
+              - column: { name: type,                  value: "REMOVE" }
+              - column: { name: time_block_id,         valueNumeric: 18 }
+              - column: { name: date,                  valueDate: "2025-10-08" }
+        # Add Joanna doing Katarzyna's early shift
+        - insert:
+            tableName: time_block_modification
+            columns:
+              - column: { name: modification_group_id, valueNumeric: 2 }
+              - column: { name: type,                  value: "ADD" }
+              - column: { name: time_block_id,         valueNumeric: 32 }
+              - column: { name: date,                  valueDate: "2025-10-08" }
+        # Add Katarzyna doing Joanna's late shift
+        - insert:
+            tableName: time_block_modification
+            columns:
+              - column: { name: modification_group_id, valueNumeric: 2 }
+              - column: { name: type,                  value: "ADD" }
+              - column: { name: time_block_id,         valueNumeric: 33 }
+              - column: { name: date,                  valueDate: "2025-10-08" }
