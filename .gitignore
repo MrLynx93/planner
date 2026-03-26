@@ -24,3 +24,4 @@ electron/dist/
 
 # Logs
 *.log
+/.mvn/
