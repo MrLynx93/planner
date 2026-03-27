@@ -389,6 +389,15 @@ databaseChangeLog:
               - column: { name: type,        value: "TEMPLATE" }
               - column: { name: teacher_id,  valueNumeric: 2 }
               - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "07:45:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 2 }
+              - column: { name: group_id,    valueNumeric: 1 }
               - column: { name: day_of_week, value: "TUESDAY" }
               - column: { name: start_time,  value: "09:00:00" }
               - column: { name: end_time,    value: "17:00:00" }
@@ -869,3 +878,200 @@ databaseChangeLog:
               - column: { name: type,                  value: "ADD" }
               - column: { name: time_block_id,         valueNumeric: 33 }
               - column: { name: date,                  valueDate: "2025-10-08" }
+
+  # ── 15. Extra teachers ───────────────────────────────────────────────────────
+  # Beata (id=7) and Tomasz (id=8) added to test solo and 3-teacher overlap layouts
+  - changeSet:
+      id: td-15
+      author: mateusz
+      changes:
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Beata" }
+              - column: { name: last_name,  value: "Lewandowska" }
+        - insert:
+            tableName: teacher
+            columns:
+              - column: { name: first_name, value: "Tomasz" }
+              - column: { name: last_name,  value: "Brzozowski" }
+
+  # ── 16. Extra group ──────────────────────────────────────────────────────────
+  - changeSet:
+      id: td-16
+      author: mateusz
+      changes:
+        - insert:
+            tableName: groups
+            columns:
+              - column: { name: name, value: "Żabki" }
+
+  # ── 17. Annex ↔ extra teachers ───────────────────────────────────────────────
+  - changeSet:
+      id: td-17
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,        valueNumeric: 1 }
+              - column: { name: teacher_id,       valueNumeric: 7 }
+              - column: { name: default_group_id, valueNumeric: 4 }
+        - insert:
+            tableName: annex_teacher
+            columns:
+              - column: { name: annex_id,        valueNumeric: 1 }
+              - column: { name: teacher_id,       valueNumeric: 8 }
+              - column: { name: default_group_id, valueNumeric: 4 }
+
+  # ── 18. Annex ↔ extra group ──────────────────────────────────────────────────
+  - changeSet:
+      id: td-18
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_group
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: group_id, valueNumeric: 4 }
+
+  # ── 19. Extra TEMPLATE time blocks ───────────────────────────────────────────
+  #
+  # Żabki (group 4) schedule:
+  #   Mon–Wed: Beata 06:30–14:30 + Tomasz 09:00–17:00  → 2-teacher overlap
+  #   Thu:     Biedronki only (see below)               → no Żabki block
+  #   Fri:     Tomasz 06:30–17:00 alone                 → SOLO teacher layout
+  #
+  # Biedronki (group 1) Thursday:
+  #   Anna 06:30–14:30 (block id=4, existing)
+  #   Maria 09:00–17:00 (block id=9, existing)
+  #   Beata 09:30–14:00 (block id=37, new)              → 3-TEACHER overlap layout
+  - changeSet:
+      id: td-19
+      author: mateusz
+      changes:
+        # Beata — Żabki — Mon/Tue/Wed early shift (ids 34–36)
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 7 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 7 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 7 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "14:30:00" }
+        # Beata — Biedronki — Thursday covering mid-shift (id=37)
+        # Creates a 3-teacher overlap with Anna (06:30–14:30) and Maria (09:00–17:00)
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 7 }
+              - column: { name: group_id,    valueNumeric: 1 }
+              - column: { name: day_of_week, value: "THURSDAY" }
+              - column: { name: start_time,  value: "09:30:00" }
+              - column: { name: end_time,    value: "14:00:00" }
+        # Tomasz — Żabki — Mon/Tue/Wed late shift (ids 38–40)
+        # Overlaps with Beata → 2-teacher layout in Żabki Mon–Wed
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 8 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "MONDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 8 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "TUESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 8 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "WEDNESDAY" }
+              - column: { name: start_time,  value: "09:00:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+        # Tomasz — Żabki — Friday full day alone (id=41)
+        # SOLO teacher: no other blocks in Żabki on Friday → single full-width block
+        - insert:
+            tableName: time_block
+            columns:
+              - column: { name: type,        value: "TEMPLATE" }
+              - column: { name: teacher_id,  valueNumeric: 8 }
+              - column: { name: group_id,    valueNumeric: 4 }
+              - column: { name: day_of_week, value: "FRIDAY" }
+              - column: { name: start_time,  value: "06:30:00" }
+              - column: { name: end_time,    value: "17:00:00" }
+
+  # ── 20. Annex ↔ extra time blocks ────────────────────────────────────────────
+  - changeSet:
+      id: td-20
+      author: mateusz
+      changes:
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 34 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 35 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 36 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 37 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 38 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 39 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 40 }
+        - insert:
+            tableName: annex_time_block
+            columns:
+              - column: { name: annex_id, valueNumeric: 1 }
+              - column: { name: time_block_id, valueNumeric: 41 }
