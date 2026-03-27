@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "Planer"
+  },
+  "nav": {
+    "sections": {
+      "schedule": "Plan",
+      "management": "Zarządzanie"
+    },
+    "items": {
+      "groupSchedule": "Grupy",
+      "teacherSchedule": "Nauczyciele",
+      "annexes": "Aneksy",
+      "teachers": "Nauczyciele",
+      "groups": "Grupy",
+      "children": "Dzieci",
+      "rules": "Reguły",
+      "closedDays": "Dni zamknięcia"
+    }
+  },
+  "sidebar": {
+    "collapse": "Zwiń pasek boczny",
+    "expand": "Rozwiń pasek boczny"
+  },
+  "pages": {
+    "groupSchedule": {
+      "title": "Plan grup",
+      "comingSoon": "Widok kalendarza wkrótce."
+    },
+    "teacherSchedule": {
+      "title": "Plan nauczycieli",
+      "comingSoon": "Widok kalendarza wkrótce."
+    },
+    "annexes": { "title": "Aneksy" },
+    "teachers": { "title": "Nauczyciele" },
+    "groups": { "title": "Grupy" },
+    "children": { "title": "Dzieci" },
+    "rules": { "title": "Reguły" },
+    "closedDays": { "title": "Dni zamknięcia" }
+  },
+  "common": {
+    "comingSoon": "Wkrótce."
+  }
+}

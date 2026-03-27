@@ -1,0 +1,44 @@
+{
+  "app": {
+    "name": "Planner"
+  },
+  "nav": {
+    "sections": {
+      "schedule": "Schedule",
+      "management": "Management"
+    },
+    "items": {
+      "groupSchedule": "Groups",
+      "teacherSchedule": "Teachers",
+      "annexes": "Annexes",
+      "teachers": "Teachers",
+      "groups": "Groups",
+      "children": "Children",
+      "rules": "Rules",
+      "closedDays": "Closed Days"
+    }
+  },
+  "sidebar": {
+    "collapse": "Collapse sidebar",
+    "expand": "Expand sidebar"
+  },
+  "pages": {
+    "groupSchedule": {
+      "title": "Group Schedule",
+      "comingSoon": "Calendar view coming soon."
+    },
+    "teacherSchedule": {
+      "title": "Teacher Schedule",
+      "comingSoon": "Calendar view coming soon."
+    },
+    "annexes": { "title": "Annexes" },
+    "teachers": { "title": "Teachers" },
+    "groups": { "title": "Groups" },
+    "children": { "title": "Children" },
+    "rules": { "title": "Rules" },
+    "closedDays": { "title": "Closed Days" }
+  },
+  "common": {
+    "comingSoon": "Coming soon."
+  }
+}

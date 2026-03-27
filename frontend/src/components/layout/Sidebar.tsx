@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import {
   CalendarDays,
   Users,
@@ -11,27 +12,28 @@ import {
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
+  Languages,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NavItem {
-  label: string
+  labelKey: string
   to: string
   icon: React.ElementType
 }
 
 const scheduleItems: NavItem[] = [
-  { label: 'Groups', to: '/schedule/groups', icon: LayoutGrid },
-  { label: 'Teachers', to: '/schedule/teachers', icon: User },
+  { labelKey: 'nav.items.groupSchedule', to: '/schedule/groups', icon: LayoutGrid },
+  { labelKey: 'nav.items.teacherSchedule', to: '/schedule/teachers', icon: User },
 ]
 
 const managementItems: NavItem[] = [
-  { label: 'Annexes', to: '/annexes', icon: Building2 },
-  { label: 'Teachers', to: '/teachers', icon: Users },
-  { label: 'Groups', to: '/groups', icon: LayoutGrid },
-  { label: 'Children', to: '/children', icon: Baby },
-  { label: 'Rules', to: '/rules', icon: Scale },
-  { label: 'Closed Days', to: '/closed-days', icon: XCircle },
+  { labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 },
+  { labelKey: 'nav.items.teachers', to: '/teachers', icon: Users },
+  { labelKey: 'nav.items.groups', to: '/groups', icon: LayoutGrid },
+  { labelKey: 'nav.items.children', to: '/children', icon: Baby },
+  { labelKey: 'nav.items.rules', to: '/rules', icon: Scale },
+  { labelKey: 'nav.items.closedDays', to: '/closed-days', icon: XCircle },
 ]
 
 function SidebarSection({
@@ -43,6 +45,8 @@ function SidebarSection({
   items: NavItem[]
   collapsed: boolean
 }) {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-0.5">
       {!collapsed && (
@@ -55,7 +59,7 @@ function SidebarSection({
         <NavLink
           key={item.to}
           to={item.to}
-          title={collapsed ? item.label : undefined}
+          title={collapsed ? t(item.labelKey as Parameters<typeof t>[0]) : undefined}
           className={({ isActive }) =>
             cn(
               'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
@@ -68,7 +72,7 @@ function SidebarSection({
           }
         >
           <item.icon className="h-4 w-4 shrink-0" />
-          {!collapsed && <span>{item.label}</span>}
+          {!collapsed && <span>{t(item.labelKey as Parameters<typeof t>[0])}</span>}
         </NavLink>
       ))}
     </div>
@@ -77,6 +81,9 @@ function SidebarSection({
 
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
+  const { t, i18n } = useTranslation()
+
+  const otherLang = i18n.language.startsWith('pl') ? 'en' : 'pl'
 
   return (
     <aside
@@ -95,7 +102,7 @@ export function Sidebar() {
         {!collapsed && (
           <div className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5 text-primary" />
-            <span className="text-sm font-semibold">Planner</span>
+            <span className="text-sm font-semibold">{t('app.name')}</span>
           </div>
         )}
         {collapsed && <CalendarDays className="h-5 w-5 text-primary" />}
@@ -105,7 +112,7 @@ export function Sidebar() {
             'rounded-md p-1 text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors',
             collapsed && 'mt-0'
           )}
-          aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          aria-label={collapsed ? t('sidebar.expand') : t('sidebar.collapse')}
         >
           {collapsed ? (
             <ChevronRight className="h-4 w-4" />
@@ -118,16 +125,31 @@ export function Sidebar() {
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-2 py-3">
         <SidebarSection
-          title="Schedule"
+          title={t('nav.sections.schedule')}
           items={scheduleItems}
           collapsed={collapsed}
         />
         <SidebarSection
-          title="Management"
+          title={t('nav.sections.management')}
           items={managementItems}
           collapsed={collapsed}
         />
       </nav>
+
+      {/* Language switcher */}
+      <div className="border-t border-border p-2">
+        <button
+          onClick={() => i18n.changeLanguage(otherLang)}
+          title={collapsed ? otherLang.toUpperCase() : undefined}
+          className={cn(
+            'flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground',
+            collapsed && 'justify-center px-2'
+          )}
+        >
+          <Languages className="h-4 w-4 shrink-0" />
+          {!collapsed && <span>{otherLang.toUpperCase()}</span>}
+        </button>
+      </div>
     </aside>
   )
 }
