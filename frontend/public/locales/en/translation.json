@@ -38,7 +38,16 @@
     "rules": { "title": "Rules" },
     "closedDays": { "title": "Closed Days" }
   },
+  "schedule": {
+    "selectGroup": "Select group",
+    "selectAnnex": "Select annex",
+    "prevWeek": "Previous week",
+    "nextWeek": "Next week",
+    "today": "Today",
+    "modification": "Modification"
+  },
   "common": {
-    "comingSoon": "Coming soon."
+    "comingSoon": "Coming soon.",
+    "loading": "Loading..."
   }
 }

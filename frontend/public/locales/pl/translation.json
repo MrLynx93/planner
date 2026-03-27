@@ -38,7 +38,16 @@
     "rules": { "title": "Reguły" },
     "closedDays": { "title": "Dni zamknięcia" }
   },
+  "schedule": {
+    "selectGroup": "Wybierz grupę",
+    "selectAnnex": "Wybierz aneks",
+    "prevWeek": "Poprzedni tydzień",
+    "nextWeek": "Następny tydzień",
+    "today": "Dziś",
+    "modification": "Modyfikacja"
+  },
   "common": {
-    "comingSoon": "Wkrótce."
+    "comingSoon": "Wkrótce.",
+    "loading": "Ładowanie..."
   }
 }
