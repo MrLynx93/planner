@@ -12,15 +12,36 @@ A **Preschool Teacher Scheduling Application** for a director to manage teacher 
 
 ## Tech Stack
 
-| Layer       | Technology                          |
-|-------------|-------------------------------------|
-| Frontend    | React (TypeScript)                  |
-| Backend     | Spring Boot (Java)                  |
-| Database    | PostgreSQL (web) / H2 embedded (Electron) |
-| Desktop     | Electron (Spring Boot embedded as subprocess) |
-| Build tools | Maven (backend), npm (frontend)     |
-| Formatting  | Prettier (frontend)                 |
-| DB Migrations | Liquibase                         |
+| Layer         | Technology                                      |
+|---------------|-------------------------------------------------|
+| Frontend      | React (TypeScript)                              |
+| Backend       | Spring Boot (Java)                              |
+| Database      | PostgreSQL (web) / H2 embedded (Electron)       |
+| Desktop       | Electron (Spring Boot embedded as subprocess)   |
+| Build tools   | Maven (backend), Vite + npm (frontend)          |
+| Formatting    | Prettier (frontend)                             |
+| DB Migrations | Liquibase                                       |
+
+### Frontend Stack
+
+| Concern        | Choice                          |
+|----------------|---------------------------------|
+| Styling        | Tailwind CSS                    |
+| Components     | shadcn/ui (Radix UI primitives) |
+| Data fetching  | Redux Toolkit + RTK Query       |
+| Routing        | React Router                    |
+
+### Frontend UI Design
+
+| Decision       | Choice                                                                 |
+|----------------|------------------------------------------------------------------------|
+| Navigation     | Collapsible left sidebar (icon-only on tablet)                         |
+| Primary view   | Group view — time-axis calendar (Y = time, X = Mon–Fri), teacher blocks colour-coded per teacher |
+| Secondary view | Teacher view — same layout, group blocks colour-coded per group        |
+| Visual style   | Clean, light background, richly colour-coded blocks                    |
+| CRUD screens   | Full pages navigated via sidebar                                       |
+| Responsive     | Sidebar collapses on tablet; calendar grid scrolls horizontally        |
+| Modifications  | Visually distinct from template blocks (e.g. dashed border)           |
 
 ---
 
