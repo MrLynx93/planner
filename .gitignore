@@ -8,14 +8,18 @@
 
 # Backend (Maven)
 backend/target/
+backend/*.db
+backend/*.trace.db
 
 # Frontend (npm)
 frontend/node_modules/
+frontend/node/
 frontend/dist/
 frontend/build/
 
 # Electron
 electron/node_modules/
+electron/node/
 electron/dist/
 
 # Environment
