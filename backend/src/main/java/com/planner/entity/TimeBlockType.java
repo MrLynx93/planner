@@ -1,4 +1,4 @@
-package com.planner.entity.enums;
+package com.planner.entity;
 
 public enum TimeBlockType {
     TEMPLATE,

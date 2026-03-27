@@ -1,6 +1,5 @@
 package com.planner.entity;
 
-import com.planner.entity.enums.RuleType;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
