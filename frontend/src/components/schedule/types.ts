@@ -23,6 +23,16 @@ export interface AnnexGroupDto {
   groupName: string
 }
 
+export interface AnnexTeacherDto {
+  id: number
+  annexId: number
+  teacherId: number
+  firstName: string
+  lastName: string
+  defaultGroupId: number | null
+  defaultGroupName: string | null
+}
+
 // Matches AnnexTimeBlockDto from backend
 export interface ScheduleBlock {
   id: number

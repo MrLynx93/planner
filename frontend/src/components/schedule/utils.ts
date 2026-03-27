@@ -1,6 +1,6 @@
 import type { DayOfWeek } from './types'
 
-export const HOUR_HEIGHT_PX = 64
+export const HOUR_HEIGHT_PX = 48
 
 export const WEEK_DAYS: DayOfWeek[] = [
   'MONDAY',
@@ -39,7 +39,7 @@ export function totalGridHeight(openingTime: string, closingTime: string): numbe
 /** Integer hours to render grid lines: [7, 8, ..., 17] for "07:00"–"17:00" */
 export function hoursRange(openingTime: string, closingTime: string): number[] {
   const startHour = Math.floor(timeToMinutes(openingTime) / 60)
-  const endHour = Math.ceil(timeToMinutes(closingTime) / 60)
+  const endHour = Math.floor(timeToMinutes(closingTime) / 60)
   return Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i)
 }
 

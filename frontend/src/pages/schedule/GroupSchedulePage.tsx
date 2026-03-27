@@ -65,9 +65,10 @@ export function GroupSchedulePage() {
         annexes={annexes}
         selectedAnnexId={selectedAnnexId}
         onAnnexChange={handleAnnexChange}
-        groups={groups}
-        selectedGroupId={selectedGroupId}
-        onGroupChange={setSelectedGroupId}
+        filterItems={groups.map(g => ({ id: g.groupId, label: g.groupName }))}
+        selectedFilterId={selectedGroupId}
+        onFilterChange={setSelectedGroupId}
+        filterPlaceholder={t('schedule.selectGroup')}
         weekStart={weekStart}
         onWeekChange={setWeekStart}
       />

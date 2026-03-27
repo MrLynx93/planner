@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { AnnexDto, AnnexGroupDto, ScheduleBlock } from '@/components/schedule/types'
+import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, ScheduleBlock } from '@/components/schedule/types'
 
 export const annexesApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -11,6 +11,10 @@ export const annexesApi = api.injectEndpoints({
       query: annexId => `/annexes/${annexId}/groups`,
       providesTags: ['AnnexGroup'],
     }),
+    getAnnexTeachers: builder.query<AnnexTeacherDto[], number>({
+      query: annexId => `/annexes/${annexId}/teachers`,
+      providesTags: ['AnnexTeacher'],
+    }),
     getAnnexTimeBlocks: builder.query<ScheduleBlock[], number>({
       query: annexId => `/annexes/${annexId}/time-blocks`,
       providesTags: ['AnnexTimeBlock'],
@@ -21,5 +25,6 @@ export const annexesApi = api.injectEndpoints({
 export const {
   useGetAnnexesQuery,
   useGetAnnexGroupsQuery,
+  useGetAnnexTeachersQuery,
   useGetAnnexTimeBlocksQuery,
 } = annexesApi

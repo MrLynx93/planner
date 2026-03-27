@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
-import type { AnnexDto, AnnexGroupDto } from './types'
+import type { AnnexDto } from './types'
 import { getWeekDays, addWeeks, getWeekStart } from './utils'
 
 interface Props {
@@ -8,9 +8,10 @@ interface Props {
   selectedAnnexId: number | null
   onAnnexChange: (id: number | null) => void
 
-  groups: AnnexGroupDto[]
-  selectedGroupId: number | null
-  onGroupChange: (id: number | null) => void
+  filterItems: { id: number; label: string }[]
+  selectedFilterId: number | null
+  onFilterChange: (id: number | null) => void
+  filterPlaceholder: string
 
   weekStart: Date
   onWeekChange: (weekStart: Date) => void
@@ -26,9 +27,10 @@ export function ScheduleHeader({
   annexes,
   selectedAnnexId,
   onAnnexChange,
-  groups,
-  selectedGroupId,
-  onGroupChange,
+  filterItems,
+  selectedFilterId,
+  onFilterChange,
+  filterPlaceholder,
   weekStart,
   onWeekChange,
 }: Props) {
@@ -58,13 +60,13 @@ export function ScheduleHeader({
 
       <select
         className={selectClass}
-        value={selectedGroupId ?? ''}
-        onChange={e => onGroupChange(e.target.value ? Number(e.target.value) : null)}
+        value={selectedFilterId ?? ''}
+        onChange={e => onFilterChange(e.target.value ? Number(e.target.value) : null)}
       >
-        <option value="">{t('schedule.selectGroup')}</option>
-        {groups.map(g => (
-          <option key={g.id} value={g.groupId}>
-            {g.groupName}
+        <option value="">{filterPlaceholder}</option>
+        {filterItems.map(item => (
+          <option key={item.id} value={item.id}>
+            {item.label}
           </option>
         ))}
       </select>
