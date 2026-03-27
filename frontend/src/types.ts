@@ -1,0 +1,67 @@
+export interface TeacherDto {
+  id: number | null
+  firstName: string
+  lastName: string
+}
+
+export interface GroupDto {
+  id: number | null
+  name: string
+}
+
+export interface ChildDto {
+  id: number | null
+  firstName: string
+  lastName: string
+}
+
+export interface ChildGroupAssignmentDto {
+  id: number | null
+  childId: number
+  childFirstName: string
+  childLastName: string
+  groupId: number
+  groupName: string
+  fromDate: string
+  toDate: string | null
+}
+
+export interface ClosedDayDto {
+  id: number | null
+  date: string
+  reason: string
+}
+
+export type RuleType =
+  | 'TEACHER_MONTHLY_HOURS_MIN'
+  | 'TEACHER_MAX_HOURS_PER_DAY'
+  | 'GROUP_MIN_TEACHERS'
+  | 'TEACHER_MAX_FREE_HOURS_MONTHLY'
+
+export const ALL_RULE_TYPES: RuleType[] = [
+  'TEACHER_MONTHLY_HOURS_MIN',
+  'TEACHER_MAX_HOURS_PER_DAY',
+  'GROUP_MIN_TEACHERS',
+  'TEACHER_MAX_FREE_HOURS_MONTHLY',
+]
+
+export const RULE_NEEDS_TEACHER: RuleType[] = [
+  'TEACHER_MONTHLY_HOURS_MIN',
+  'TEACHER_MAX_HOURS_PER_DAY',
+  'TEACHER_MAX_FREE_HOURS_MONTHLY',
+]
+
+export const RULE_NEEDS_GROUP: RuleType[] = ['GROUP_MIN_TEACHERS']
+
+export interface AnnexRuleDto {
+  id: number | null
+  annexId: number | null
+  ruleId: number | null
+  ruleType: RuleType
+  groupId: number | null
+  groupName: string | null
+  teacherId: number | null
+  teacherFirstName: string | null
+  teacherLastName: string | null
+  intValue: number
+}

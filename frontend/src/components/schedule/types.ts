@@ -8,7 +8,7 @@ export type DayOfWeek =
   | 'SUNDAY'
 
 export interface AnnexDto {
-  id: number
+  id: number | null
   name: string
   startDate: string      // "YYYY-MM-DD"
   endDate: string | null

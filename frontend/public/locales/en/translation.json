@@ -31,12 +31,46 @@
       "title": "Teacher Schedule",
       "comingSoon": "Calendar view coming soon."
     },
-    "annexes": { "title": "Annexes" },
-    "teachers": { "title": "Teachers" },
-    "groups": { "title": "Groups" },
-    "children": { "title": "Children" },
-    "rules": { "title": "Rules" },
-    "closedDays": { "title": "Closed Days" }
+    "annexes": {
+      "title": "Annexes",
+      "add": "Add Annex",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "openingTime": "Opening Time",
+      "closingTime": "Closing Time"
+    },
+    "teachers": {
+      "title": "Teachers",
+      "add": "Add Teacher"
+    },
+    "groups": {
+      "title": "Groups",
+      "add": "Add Group"
+    },
+    "children": {
+      "title": "Children",
+      "add": "Add Child",
+      "assignments": "Assignments",
+      "addAssignment": "Add Assignment",
+      "group": "Group",
+      "fromDate": "From",
+      "toDate": "To",
+      "active": "active"
+    },
+    "rules": {
+      "title": "Rules",
+      "add": "Add Rule",
+      "ruleType": "Rule Type",
+      "value": "Value",
+      "teacher": "Teacher",
+      "group": "Group"
+    },
+    "closedDays": {
+      "title": "Closed Days",
+      "add": "Add Closed Day",
+      "date": "Date",
+      "reason": "Reason"
+    }
   },
   "schedule": {
     "selectGroup": "Select group",
@@ -47,8 +81,24 @@
     "today": "Today",
     "modification": "Modification"
   },
+  "ruleTypes": {
+    "TEACHER_MONTHLY_HOURS_MIN": "Min monthly hours (teacher)",
+    "TEACHER_MAX_HOURS_PER_DAY": "Max hours per day (teacher)",
+    "GROUP_MIN_TEACHERS": "Min teachers (group)",
+    "TEACHER_MAX_FREE_HOURS_MONTHLY": "Max free hours/month (teacher)"
+  },
   "common": {
     "comingSoon": "Coming soon.",
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "noItems": "No items yet.",
+    "add": "Add",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel",
+    "name": "Name",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "confirmDelete": "Are you sure you want to delete this item?"
   }
 }

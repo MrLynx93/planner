@@ -31,12 +31,46 @@
       "title": "Plan nauczycieli",
       "comingSoon": "Widok kalendarza wkrótce."
     },
-    "annexes": { "title": "Aneksy" },
-    "teachers": { "title": "Nauczyciele" },
-    "groups": { "title": "Grupy" },
-    "children": { "title": "Dzieci" },
-    "rules": { "title": "Reguły" },
-    "closedDays": { "title": "Dni zamknięcia" }
+    "annexes": {
+      "title": "Aneksy",
+      "add": "Dodaj aneks",
+      "startDate": "Data rozpoczęcia",
+      "endDate": "Data zakończenia",
+      "openingTime": "Godzina otwarcia",
+      "closingTime": "Godzina zamknięcia"
+    },
+    "teachers": {
+      "title": "Nauczyciele",
+      "add": "Dodaj nauczyciela"
+    },
+    "groups": {
+      "title": "Grupy",
+      "add": "Dodaj grupę"
+    },
+    "children": {
+      "title": "Dzieci",
+      "add": "Dodaj dziecko",
+      "assignments": "Przydziały",
+      "addAssignment": "Dodaj przydział",
+      "group": "Grupa",
+      "fromDate": "Od",
+      "toDate": "Do",
+      "active": "aktywny"
+    },
+    "rules": {
+      "title": "Reguły",
+      "add": "Dodaj regułę",
+      "ruleType": "Typ reguły",
+      "value": "Wartość",
+      "teacher": "Nauczyciel",
+      "group": "Grupa"
+    },
+    "closedDays": {
+      "title": "Dni zamknięcia",
+      "add": "Dodaj dzień zamknięcia",
+      "date": "Data",
+      "reason": "Powód"
+    }
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",
@@ -47,8 +81,24 @@
     "today": "Dziś",
     "modification": "Modyfikacja"
   },
+  "ruleTypes": {
+    "TEACHER_MONTHLY_HOURS_MIN": "Min. godzin miesięcznie (nauczyciel)",
+    "TEACHER_MAX_HOURS_PER_DAY": "Maks. godzin dziennie (nauczyciel)",
+    "GROUP_MIN_TEACHERS": "Min. nauczycieli (grupa)",
+    "TEACHER_MAX_FREE_HOURS_MONTHLY": "Maks. wolnych godzin/miesiąc (nauczyciel)"
+  },
   "common": {
     "comingSoon": "Wkrótce.",
-    "loading": "Ładowanie..."
+    "loading": "Ładowanie...",
+    "noItems": "Brak elementów.",
+    "add": "Dodaj",
+    "edit": "Edytuj",
+    "delete": "Usuń",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "name": "Nazwa",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "confirmDelete": "Czy na pewno chcesz usunąć ten element?"
   }
 }
