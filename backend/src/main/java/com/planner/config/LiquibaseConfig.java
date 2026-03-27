@@ -5,6 +5,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Profile;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
 
 import javax.sql.DataSource;
 
@@ -39,4 +41,27 @@ public class LiquibaseConfig {
         liquibase.setChangeLog("classpath:db/changelog/db.changelog-test-data.yml");
         return liquibase;
     }
+
+    @Bean
+    @Profile("h2")
+    @DependsOn({ "liquibase", "testDataLiquibase" })
+    public LocalContainerEntityManagerFactoryBean entityManagerFactory(DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(dataSource);
+        em.setPackagesToScan("com.planner.entity");
+        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        return em;
+    }
+
+    @Bean
+    @Profile("postgres")
+    @DependsOn("liquibasePostgres")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactoryPostgres(DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(dataSource);
+        em.setPackagesToScan("com.planner.entity");
+        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        return em;
+    }
+
 }
