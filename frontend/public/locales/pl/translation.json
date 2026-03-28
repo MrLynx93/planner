@@ -5,12 +5,18 @@
   "nav": {
     "sections": {
       "schedule": "Plan",
+      "draftAnnex": "Szkic aneksu",
       "management": "Zarządzanie"
     },
     "items": {
       "groupSchedule": "Grupy",
       "teacherSchedule": "Nauczyciele",
       "annexes": "Aneksy",
+      "draftAnnexSettings": "Ustawienia ogólne",
+      "draftAnnexTeachers": "Nauczyciele",
+      "draftAnnexGroups": "Grupy",
+      "draftAnnexChildren": "Dzieci",
+      "draftAnnexRules": "Reguły",
       "teachers": "Nauczyciele",
       "groups": "Grupy",
       "children": "Dzieci",
@@ -71,6 +77,33 @@
       "teacher": "Nauczyciel",
       "group": "Grupa"
     },
+    "draftAnnex": {
+      "noDraftAnnex": "Brak szkicu aneksu. Utwórz go w sekcji Aneksy.",
+      "settings": {
+        "title": "Ustawienia ogólne"
+      },
+      "teachers": {
+        "title": "Nauczyciele",
+        "add": "Dodaj nauczyciela",
+        "teacher": "Nauczyciel",
+        "defaultGroup": "Domyślna grupa",
+        "noGroup": "Bez grupy"
+      },
+      "groups": {
+        "title": "Grupy",
+        "add": "Dodaj grupę",
+        "group": "Grupa"
+      },
+      "children": {
+        "title": "Dzieci",
+        "add": "Dodaj dziecko",
+        "child": "Dziecko",
+        "group": "Grupa"
+      },
+      "rules": {
+        "title": "Reguły"
+      }
+    },
     "closedDays": {
       "title": "Dni zamknięcia",
       "add": "Dodaj dzień zamknięcia",
@@ -105,6 +138,7 @@
     "name": "Nazwa",
     "firstName": "Imię",
     "lastName": "Nazwisko",
-    "confirmDelete": "Czy na pewno chcesz usunąć ten element?"
+    "confirmDelete": "Czy na pewno chcesz usunąć ten element?",
+    "saved": "Zapisano."
   }
 }

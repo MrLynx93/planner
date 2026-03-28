@@ -5,12 +5,18 @@
   "nav": {
     "sections": {
       "schedule": "Schedule",
+      "draftAnnex": "Draft Annex",
       "management": "Management"
     },
     "items": {
       "groupSchedule": "Groups",
       "teacherSchedule": "Teachers",
       "annexes": "Annexes",
+      "draftAnnexSettings": "General Settings",
+      "draftAnnexTeachers": "Teachers",
+      "draftAnnexGroups": "Groups",
+      "draftAnnexChildren": "Children",
+      "draftAnnexRules": "Rules",
       "teachers": "Teachers",
       "groups": "Groups",
       "children": "Children",
@@ -71,6 +77,33 @@
       "teacher": "Teacher",
       "group": "Group"
     },
+    "draftAnnex": {
+      "noDraftAnnex": "No draft annex. Create one in the Annexes section.",
+      "settings": {
+        "title": "General Settings"
+      },
+      "teachers": {
+        "title": "Teachers",
+        "add": "Add Teacher",
+        "teacher": "Teacher",
+        "defaultGroup": "Default Group",
+        "noGroup": "No group"
+      },
+      "groups": {
+        "title": "Groups",
+        "add": "Add Group",
+        "group": "Group"
+      },
+      "children": {
+        "title": "Children",
+        "add": "Add Child",
+        "child": "Child",
+        "group": "Group"
+      },
+      "rules": {
+        "title": "Rules"
+      }
+    },
     "closedDays": {
       "title": "Closed Days",
       "add": "Add Closed Day",
@@ -105,6 +138,7 @@
     "name": "Name",
     "firstName": "First name",
     "lastName": "Last name",
-    "confirmDelete": "Are you sure you want to delete this item?"
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "saved": "Saved."
   }
 }

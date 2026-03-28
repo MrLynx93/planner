@@ -13,6 +13,7 @@ import {
   ChevronRight,
   LayoutGrid,
   Languages,
+  Settings,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -25,6 +26,14 @@ interface NavItem {
 const scheduleItems: NavItem[] = [
   { labelKey: 'nav.items.groupSchedule', to: '/schedule/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.teacherSchedule', to: '/schedule/teachers', icon: User },
+]
+
+const draftAnnexItems: NavItem[] = [
+  { labelKey: 'nav.items.draftAnnexSettings', to: '/draft-annex/settings', icon: Settings },
+  { labelKey: 'nav.items.draftAnnexTeachers', to: '/draft-annex/teachers', icon: Users },
+  { labelKey: 'nav.items.draftAnnexGroups', to: '/draft-annex/groups', icon: LayoutGrid },
+  { labelKey: 'nav.items.draftAnnexChildren', to: '/draft-annex/children', icon: Baby },
+  { labelKey: 'nav.items.draftAnnexRules', to: '/draft-annex/rules', icon: Scale },
 ]
 
 const managementItems: NavItem[] = [
@@ -132,6 +141,11 @@ export function Sidebar() {
         <SidebarSection
           title={t('nav.sections.management')}
           items={managementItems}
+          collapsed={collapsed}
+        />
+        <SidebarSection
+          title={t('nav.sections.draftAnnex')}
+          items={draftAnnexItems}
           collapsed={collapsed}
         />
       </nav>

@@ -8,6 +8,11 @@ import { GroupsPage } from '@/pages/GroupsPage'
 import { ChildrenPage } from '@/pages/ChildrenPage'
 import { RulesPage } from '@/pages/RulesPage'
 import { ClosedDaysPage } from '@/pages/ClosedDaysPage'
+import { DraftAnnexSettingsPage } from '@/pages/draft-annex/DraftAnnexSettingsPage'
+import { DraftAnnexTeachersPage } from '@/pages/draft-annex/DraftAnnexTeachersPage'
+import { DraftAnnexGroupsPage } from '@/pages/draft-annex/DraftAnnexGroupsPage'
+import { DraftAnnexChildrenPage } from '@/pages/draft-annex/DraftAnnexChildrenPage'
+import { DraftAnnexRulesPage } from '@/pages/draft-annex/DraftAnnexRulesPage'
 
 function App() {
   return (
@@ -22,6 +27,11 @@ function App() {
         <Route path="/children" element={<ChildrenPage />} />
         <Route path="/rules" element={<RulesPage />} />
         <Route path="/closed-days" element={<ClosedDaysPage />} />
+        <Route path="/draft-annex/settings" element={<DraftAnnexSettingsPage />} />
+        <Route path="/draft-annex/teachers" element={<DraftAnnexTeachersPage />} />
+        <Route path="/draft-annex/groups" element={<DraftAnnexGroupsPage />} />
+        <Route path="/draft-annex/children" element={<DraftAnnexChildrenPage />} />
+        <Route path="/draft-annex/rules" element={<DraftAnnexRulesPage />} />
       </Route>
     </Routes>
   )
