@@ -1,0 +1,75 @@
+databaseChangeLog:
+
+  # ── 1. Add state to annex ────────────────────────────────────────────────────
+  - changeSet:
+      id: 2-1
+      author: mateusz
+      changes:
+        - addColumn:
+            tableName: annex
+            columns:
+              - column:
+                  name: state
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                  defaultValue: DRAFT
+
+  # ── 2. Create annex_child_group ──────────────────────────────────────────────
+  - changeSet:
+      id: 2-2
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex_child_group
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_acg_annex
+                    references: annex(id)
+              - column:
+                  name: child_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_acg_child
+                    references: child(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_acg_group
+                    references: groups(id)
+        - addUniqueConstraint:
+            tableName: annex_child_group
+            columnNames: annex_id, child_id
+            constraintName: uq_annex_child_group_annex_child
+
+  # ── 3. Drop child_group_assignment ───────────────────────────────────────────
+  - changeSet:
+      id: 2-3
+      author: mateusz
+      changes:
+        - dropTable:
+            tableName: child_group_assignment
+
+  # ── 4. Make start_date nullable (set by activate(), not by user) ─────────────
+  - changeSet:
+      id: 2-4
+      author: mateusz
+      changes:
+        - dropNotNullConstraint:
+            tableName: annex
+            columnName: start_date
+            columnDataType: DATE

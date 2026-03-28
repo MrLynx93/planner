@@ -41,4 +41,9 @@ public class AnnexController {
     public void delete(@PathVariable Integer id) {
         annexService.delete(id);
     }
+
+    @PostMapping("/{id}/activate")
+    public AnnexDto activate(@PathVariable Integer id) {
+        return annexService.activate(id);
+    }
 }

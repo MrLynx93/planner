@@ -15,15 +15,14 @@ export interface ChildDto {
   lastName: string
 }
 
-export interface ChildGroupAssignmentDto {
+export interface AnnexChildGroupDto {
   id: number | null
+  annexId: number
   childId: number
   childFirstName: string
   childLastName: string
   groupId: number
   groupName: string
-  fromDate: string
-  toDate: string | null
 }
 
 export interface ClosedDayDto {

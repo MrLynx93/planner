@@ -13,6 +13,7 @@ databaseChangeLog:
               - column: { name: end_date,      value: null }
               - column: { name: opening_time,  value: "06:30:00" }
               - column: { name: closing_time,  value: "17:00:00" }
+              - column: { name: state,         value: "CURRENT" }
 
   # ── 2. Groups ───────────────────────────────────────────────────────────────
   - changeSet:
@@ -167,47 +168,47 @@ databaseChangeLog:
               - column: { name: teacher_id,        valueNumeric: 6 }
               - column: { name: default_group_id,  valueNumeric: 3 }
 
-  # ── 7. Child → Group assignments ────────────────────────────────────────────
+  # ── 7. Child → Group assignments (per annex) ────────────────────────────────
   - changeSet:
       id: td-7
       author: mateusz
       changes:
         - insert:
-            tableName: child_group_assignment
+            tableName: annex_child_group
             columns:
-              - column: { name: child_id,   valueNumeric: 1 }
-              - column: { name: group_id,   valueNumeric: 1 }
-              - column: { name: from_date,  valueDate: "2025-09-01" }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: child_id,  valueNumeric: 1 }
+              - column: { name: group_id,  valueNumeric: 1 }
         - insert:
-            tableName: child_group_assignment
+            tableName: annex_child_group
             columns:
-              - column: { name: child_id,   valueNumeric: 2 }
-              - column: { name: group_id,   valueNumeric: 1 }
-              - column: { name: from_date,  valueDate: "2025-09-01" }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: child_id,  valueNumeric: 2 }
+              - column: { name: group_id,  valueNumeric: 1 }
         - insert:
-            tableName: child_group_assignment
+            tableName: annex_child_group
             columns:
-              - column: { name: child_id,   valueNumeric: 3 }
-              - column: { name: group_id,   valueNumeric: 2 }
-              - column: { name: from_date,  valueDate: "2025-09-01" }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: child_id,  valueNumeric: 3 }
+              - column: { name: group_id,  valueNumeric: 2 }
         - insert:
-            tableName: child_group_assignment
+            tableName: annex_child_group
             columns:
-              - column: { name: child_id,   valueNumeric: 4 }
-              - column: { name: group_id,   valueNumeric: 2 }
-              - column: { name: from_date,  valueDate: "2025-09-01" }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: child_id,  valueNumeric: 4 }
+              - column: { name: group_id,  valueNumeric: 2 }
         - insert:
-            tableName: child_group_assignment
+            tableName: annex_child_group
             columns:
-              - column: { name: child_id,   valueNumeric: 5 }
-              - column: { name: group_id,   valueNumeric: 3 }
-              - column: { name: from_date,  valueDate: "2025-09-01" }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: child_id,  valueNumeric: 5 }
+              - column: { name: group_id,  valueNumeric: 3 }
         - insert:
-            tableName: child_group_assignment
+            tableName: annex_child_group
             columns:
-              - column: { name: child_id,   valueNumeric: 6 }
-              - column: { name: group_id,   valueNumeric: 3 }
-              - column: { name: from_date,  valueDate: "2025-09-01" }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: child_id,  valueNumeric: 6 }
+              - column: { name: group_id,  valueNumeric: 3 }
 
   # ── 8. Rules ────────────────────────────────────────────────────────────────
   - changeSet:

@@ -37,7 +37,18 @@
       "startDate": "Data rozpoczęcia",
       "endDate": "Data zakończenia",
       "openingTime": "Godzina otwarcia",
-      "closingTime": "Godzina zamknięcia"
+      "closingTime": "Godzina zamknięcia",
+      "state": "Stan",
+      "states": {
+        "CURRENT": "Aktywny",
+        "FINISHED": "Zakończony",
+        "DRAFT": "Szkic"
+      },
+      "activate": "Aktywuj",
+      "confirmActivate": "Aktywacja tego aneksu zakończy bieżący. Czy na pewno chcesz kontynuować?",
+      "children": "Dzieci",
+      "addChild": "Dodaj dziecko",
+      "child": "Dziecko"
     },
     "teachers": {
       "title": "Nauczyciele",
@@ -50,12 +61,7 @@
     "children": {
       "title": "Dzieci",
       "add": "Dodaj dziecko",
-      "assignments": "Przydziały",
-      "addAssignment": "Dodaj przydział",
-      "group": "Grupa",
-      "fromDate": "Od",
-      "toDate": "Do",
-      "active": "aktywny"
+      "group": "Grupa"
     },
     "rules": {
       "title": "Reguły",

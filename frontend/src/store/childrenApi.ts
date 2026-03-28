@@ -1,5 +1,5 @@
 import { api } from './api'
-import type { ChildDto, ChildGroupAssignmentDto } from '@/types'
+import type { ChildDto } from '@/types'
 
 export const childrenApi = api.injectEndpoints({
   endpoints: builder => ({
@@ -19,14 +19,6 @@ export const childrenApi = api.injectEndpoints({
       query: id => ({ url: `/children/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Child'],
     }),
-    getChildAssignments: builder.query<ChildGroupAssignmentDto[], number>({
-      query: childId => `/children/${childId}/assignments`,
-      providesTags: (_, __, childId) => [{ type: 'Child', id: childId }],
-    }),
-    createChildAssignment: builder.mutation<ChildGroupAssignmentDto, { childId: number; dto: ChildGroupAssignmentDto }>({
-      query: ({ childId, dto }) => ({ url: `/children/${childId}/assignments`, method: 'POST', body: dto }),
-      invalidatesTags: (_, __, { childId }) => [{ type: 'Child', id: childId }],
-    }),
   }),
 })
 
@@ -35,6 +27,4 @@ export const {
   useCreateChildMutation,
   useUpdateChildMutation,
   useDeleteChildMutation,
-  useGetChildAssignmentsQuery,
-  useCreateChildAssignmentMutation,
 } = childrenApi

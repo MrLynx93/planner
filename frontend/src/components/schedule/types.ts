@@ -7,6 +7,8 @@ export type DayOfWeek =
   | 'SATURDAY'
   | 'SUNDAY'
 
+export type AnnexState = 'CURRENT' | 'FINISHED' | 'DRAFT'
+
 export interface AnnexDto {
   id: number | null
   name: string
@@ -14,6 +16,7 @@ export interface AnnexDto {
   endDate: string | null
   openingTime: string    // "HH:mm:ss"
   closingTime: string
+  state: AnnexState
 }
 
 export interface AnnexGroupDto {

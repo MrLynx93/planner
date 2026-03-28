@@ -20,7 +20,7 @@ public class Annex {
     @Column(nullable = false)
     private String name;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(name = "start_date")
     private LocalDate startDate;
 
     @Column(name = "end_date")
@@ -31,4 +31,8 @@ public class Annex {
 
     @Column(name = "closing_time", nullable = false)
     private LocalTime closingTime;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AnnexState state;
 }

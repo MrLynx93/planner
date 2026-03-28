@@ -2,11 +2,14 @@ package com.planner.service;
 
 import com.planner.dto.AnnexDto;
 import com.planner.entity.Annex;
+import com.planner.entity.AnnexState;
 import com.planner.repository.AnnexRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -24,19 +27,47 @@ public class AnnexService {
     }
 
     public AnnexDto create(AnnexDto dto) {
+        if (annexRepository.existsByState(AnnexState.DRAFT)) {
+            throw new IllegalStateException("A DRAFT annex already exists");
+        }
         Annex annex = new Annex();
+        annex.setState(AnnexState.DRAFT);
         apply(annex, dto);
         return toDto(annexRepository.save(annex));
     }
 
     public AnnexDto update(Integer id, AnnexDto dto) {
         Annex annex = getOrThrow(id);
+        if (annex.getState() == AnnexState.FINISHED) {
+            throw new IllegalStateException("Cannot edit a FINISHED annex");
+        }
         apply(annex, dto);
         return toDto(annexRepository.save(annex));
     }
 
     public void delete(Integer id) {
-        annexRepository.delete(getOrThrow(id));
+        Annex annex = getOrThrow(id);
+        if (annex.getState() == AnnexState.FINISHED) {
+            throw new IllegalStateException("Cannot delete a FINISHED annex");
+        }
+        annexRepository.delete(annex);
+    }
+
+    @Transactional
+    public AnnexDto activate(Integer id) {
+        Annex draft = getOrThrow(id);
+        if (draft.getState() != AnnexState.DRAFT) {
+            throw new IllegalStateException("Only a DRAFT annex can be activated");
+        }
+        annexRepository.findByState(AnnexState.CURRENT).ifPresent(current -> {
+            current.setState(AnnexState.FINISHED);
+            current.setEndDate(LocalDate.now());
+            annexRepository.save(current);
+        });
+        draft.setState(AnnexState.CURRENT);
+        draft.setStartDate(LocalDate.now());
+        draft.setEndDate(null);
+        return toDto(annexRepository.save(draft));
     }
 
     public Annex getOrThrow(Integer id) {
@@ -46,8 +77,6 @@ public class AnnexService {
 
     private void apply(Annex annex, AnnexDto dto) {
         annex.setName(dto.name());
-        annex.setStartDate(dto.startDate());
-        annex.setEndDate(dto.endDate());
         annex.setOpeningTime(dto.openingTime());
         annex.setClosingTime(dto.closingTime());
     }
@@ -59,7 +88,8 @@ public class AnnexService {
                 annex.getStartDate(),
                 annex.getEndDate(),
                 annex.getOpeningTime(),
-                annex.getClosingTime()
+                annex.getClosingTime(),
+                annex.getState()
         );
     }
 }

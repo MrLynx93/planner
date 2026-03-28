@@ -14,6 +14,7 @@ export const api = createApi({
     'Group',
     'Child',
     'ClosedDay',
+    'AnnexChildGroup',
   ],
   endpoints: () => ({}),
 })

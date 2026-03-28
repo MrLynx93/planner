@@ -6,116 +6,10 @@ import {
   useCreateChildMutation,
   useUpdateChildMutation,
   useDeleteChildMutation,
-  useGetChildAssignmentsQuery,
-  useCreateChildAssignmentMutation,
 } from '@/store/childrenApi'
-import { useGetGroupsQuery } from '@/store/groupsApi'
 
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
-const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
-
-function ChildAssignments({ child }: { child: ChildDto }) {
-  const { t } = useTranslation()
-  const [adding, setAdding] = useState(false)
-  const [groupId, setGroupId] = useState<number | null>(null)
-  const [fromDate, setFromDate] = useState('')
-
-  const { data: assignments = [] } = useGetChildAssignmentsQuery(child.id!)
-  const { data: groups = [] } = useGetGroupsQuery()
-  const [createAssignment] = useCreateChildAssignmentMutation()
-
-  async function handleAssign() {
-    if (!groupId || !fromDate) return
-    await createAssignment({
-      childId: child.id!,
-      dto: {
-        id: null,
-        childId: child.id!,
-        childFirstName: child.firstName,
-        childLastName: child.lastName,
-        groupId,
-        groupName: '',
-        fromDate,
-        toDate: null,
-      },
-    })
-    setAdding(false)
-    setGroupId(null)
-    setFromDate('')
-  }
-
-  return (
-    <div className="mt-2 pl-4 border-l-2 border-border flex flex-col gap-2">
-      <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground font-medium">{t('pages.children.assignments')}</span>
-        {!adding && (
-          <button
-            className="rounded-md border border-border px-2 py-0.5 text-xs hover:bg-accent transition-colors"
-            onClick={() => setAdding(true)}
-          >
-            {t('pages.children.addAssignment')}
-          </button>
-        )}
-      </div>
-
-      {adding && (
-        <div className="flex gap-2 flex-wrap items-end">
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1">{t('pages.children.group')}</label>
-            <select
-              className={selectClass}
-              value={groupId ?? ''}
-              onChange={e => setGroupId(e.target.value ? Number(e.target.value) : null)}
-            >
-              <option value="">{t('pages.children.group')}</option>
-              {groups.map(g => (
-                <option key={g.id} value={g.id!}>{g.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1">{t('pages.children.fromDate')}</label>
-            <input
-              type="date"
-              className={inputClass}
-              value={fromDate}
-              onChange={e => setFromDate(e.target.value)}
-            />
-          </div>
-          <button
-            className="rounded-md bg-primary text-primary-foreground px-2.5 py-1.5 text-xs hover:bg-primary/90 transition-colors"
-            onClick={handleAssign}
-          >
-            {t('common.save')}
-          </button>
-          <button
-            className="rounded-md border border-border px-2.5 py-1.5 text-xs hover:bg-accent transition-colors"
-            onClick={() => setAdding(false)}
-          >
-            {t('common.cancel')}
-          </button>
-        </div>
-      )}
-
-      {assignments.length === 0 ? (
-        <p className="text-xs text-muted-foreground">{t('common.noItems')}</p>
-      ) : (
-        <div className="flex flex-col gap-1">
-          {assignments.map(a => (
-            <div key={a.id} className="flex items-center gap-3 text-xs">
-              <span className="font-medium">{a.groupName}</span>
-              <span className="text-muted-foreground">
-                {a.fromDate} → {a.toDate ?? t('pages.children.active')}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
 
 export function ChildrenPage() {
   const { t } = useTranslation()
@@ -123,7 +17,6 @@ export function ChildrenPage() {
   const [editTarget, setEditTarget] = useState<'new' | ChildDto | null>(null)
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [expandedId, setExpandedId] = useState<number | null>(null)
 
   const { data: children = [], isLoading } = useGetChildrenQuery()
   const [createChild] = useCreateChildMutation()
@@ -155,11 +48,6 @@ export function ChildrenPage() {
   async function handleDelete(id: number) {
     if (!window.confirm(t('common.confirmDelete'))) return
     await deleteChild(id)
-    if (expandedId === id) setExpandedId(null)
-  }
-
-  function toggleExpand(id: number) {
-    setExpandedId(prev => (prev === id ? null : id))
   }
 
   return (
@@ -229,12 +117,6 @@ export function ChildrenPage() {
                 </span>
                 <button
                   className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
-                  onClick={() => toggleExpand(child.id!)}
-                >
-                  {t('pages.children.assignments')}
-                </button>
-                <button
-                  className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
                   onClick={() => openEdit(child)}
                 >
                   {t('common.edit')}
@@ -246,7 +128,6 @@ export function ChildrenPage() {
                   {t('common.delete')}
                 </button>
               </div>
-              {expandedId === child.id && <ChildAssignments child={child} />}
             </div>
           ))}
         </div>

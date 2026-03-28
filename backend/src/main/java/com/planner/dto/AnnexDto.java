@@ -1,5 +1,7 @@
 package com.planner.dto;
 
+import com.planner.entity.AnnexState;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -9,5 +11,6 @@ public record AnnexDto(
         LocalDate startDate,
         LocalDate endDate,
         LocalTime openingTime,
-        LocalTime closingTime
+        LocalTime closingTime,
+        AnnexState state
 ) {}

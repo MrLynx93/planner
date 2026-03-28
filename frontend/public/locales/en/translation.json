@@ -37,7 +37,18 @@
       "startDate": "Start Date",
       "endDate": "End Date",
       "openingTime": "Opening Time",
-      "closingTime": "Closing Time"
+      "closingTime": "Closing Time",
+      "state": "State",
+      "states": {
+        "CURRENT": "Current",
+        "FINISHED": "Finished",
+        "DRAFT": "Draft"
+      },
+      "activate": "Activate",
+      "confirmActivate": "Activating this annex will close the current one. Are you sure?",
+      "children": "Children",
+      "addChild": "Add Child",
+      "child": "Child"
     },
     "teachers": {
       "title": "Teachers",
@@ -50,12 +61,7 @@
     "children": {
       "title": "Children",
       "add": "Add Child",
-      "assignments": "Assignments",
-      "addAssignment": "Add Assignment",
-      "group": "Group",
-      "fromDate": "From",
-      "toDate": "To",
-      "active": "active"
+      "group": "Group"
     },
     "rules": {
       "title": "Rules",

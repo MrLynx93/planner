@@ -1,7 +1,6 @@
 package com.planner.controller;
 
 import com.planner.dto.ChildDto;
-import com.planner.dto.ChildGroupAssignmentDto;
 import com.planner.service.ChildService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -41,16 +40,5 @@ public class ChildController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(@PathVariable Integer id) {
         childService.delete(id);
-    }
-
-    @GetMapping("/{id}/assignments")
-    public List<ChildGroupAssignmentDto> getAssignments(@PathVariable Integer id) {
-        return childService.getAssignments(id);
-    }
-
-    @PostMapping("/{id}/assignments")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ChildGroupAssignmentDto assign(@PathVariable Integer id, @RequestBody ChildGroupAssignmentDto dto) {
-        return childService.assign(id, dto);
     }
 }

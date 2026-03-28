@@ -1,14 +1,11 @@
 package com.planner.dto;
 
-import java.time.LocalDate;
-
-public record ChildGroupAssignmentDto(
+public record AnnexChildGroupDto(
         Integer id,
+        Integer annexId,
         Integer childId,
         String childFirstName,
         String childLastName,
         Integer groupId,
-        String groupName,
-        LocalDate fromDate,
-        LocalDate toDate
+        String groupName
 ) {}
