@@ -26,11 +26,11 @@ public class Annex {
     @Column(name = "end_date")
     private LocalDate endDate;
 
-    @Column(name = "opening_time", nullable = false)
-    private LocalTime openingTime;
+    @Column(name = "schedule_start_time", nullable = false)
+    private LocalTime scheduleStartTime;
 
-    @Column(name = "closing_time", nullable = false)
-    private LocalTime closingTime;
+    @Column(name = "schedule_end_time", nullable = false)
+    private LocalTime scheduleEndTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

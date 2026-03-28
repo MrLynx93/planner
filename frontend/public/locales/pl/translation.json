@@ -36,8 +36,8 @@
       "add": "Dodaj aneks",
       "startDate": "Data rozpoczęcia",
       "endDate": "Data zakończenia",
-      "openingTime": "Godzina otwarcia",
-      "closingTime": "Godzina zamknięcia",
+      "scheduleStartTime": "Czas rozpoczęcia",
+      "scheduleEndTime": "Czas zakończenia",
       "state": "Stan",
       "states": {
         "CURRENT": "Aktywny",

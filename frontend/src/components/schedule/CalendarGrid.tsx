@@ -47,11 +47,11 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher' }: Props) {
   const { i18n } = useTranslation()
   const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
 
-  const displayOpeningTime = '06:00'
-  const displayClosingTime = '20:00'
-  const openingHour = Math.floor(timeToMinutes(displayOpeningTime) / 60)
-  const hours = hoursRange(displayOpeningTime, displayClosingTime)
-  const gridHeight = totalGridHeight(displayOpeningTime, displayClosingTime)
+  const displayScheduleStartTime = '06:00'
+  const displayScheduleEndTime = '20:00'
+  const openingHour = Math.floor(timeToMinutes(displayScheduleStartTime) / 60)
+  const hours = hoursRange(displayScheduleStartTime, displayScheduleEndTime)
+  const gridHeight = totalGridHeight(displayScheduleStartTime, displayScheduleEndTime)
 
   const dayFmt = new Intl.DateTimeFormat(locale, { weekday: 'short' })
   const dateFmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' })
@@ -114,7 +114,7 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher' }: Props) {
                     <TimeBlock
                       key={block.id}
                       block={block}
-                      openingTime={displayOpeningTime}
+                      scheduleStartTime={displayScheduleStartTime}
                       columnIndex={columnIndex}
                       columnCount={columnCount}
                       colorBy={colorBy}

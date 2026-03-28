@@ -22,8 +22,8 @@ export function formatTime(time: string): string {
 }
 
 /** Pixel offset from the top of the grid for a given time */
-export function timeToTop(time: string, openingTime: string): number {
-  return ((timeToMinutes(time) - timeToMinutes(openingTime)) / 60) * HOUR_HEIGHT_PX
+export function timeToTop(time: string, scheduleStartTime: string): number {
+  return ((timeToMinutes(time) - timeToMinutes(scheduleStartTime)) / 60) * HOUR_HEIGHT_PX
 }
 
 /** Pixel height for a block spanning startTime → endTime */
@@ -32,14 +32,14 @@ export function blockHeight(startTime: string, endTime: string): number {
 }
 
 /** Total grid height in pixels */
-export function totalGridHeight(openingTime: string, closingTime: string): number {
-  return ((timeToMinutes(closingTime) - timeToMinutes(openingTime)) / 60) * HOUR_HEIGHT_PX
+export function totalGridHeight(scheduleStartTime: string, scheduleEndTime: string): number {
+  return ((timeToMinutes(scheduleEndTime) - timeToMinutes(scheduleStartTime)) / 60) * HOUR_HEIGHT_PX
 }
 
 /** Integer hours to render grid lines: [7, 8, ..., 17] for "07:00"–"17:00" */
-export function hoursRange(openingTime: string, closingTime: string): number[] {
-  const startHour = Math.floor(timeToMinutes(openingTime) / 60)
-  const endHour = Math.floor(timeToMinutes(closingTime) / 60)
+export function hoursRange(scheduleStartTime: string, scheduleEndTime: string): number[] {
+  const startHour = Math.floor(timeToMinutes(scheduleStartTime) / 60)
+  const endHour = Math.floor(timeToMinutes(scheduleEndTime) / 60)
   return Array.from({ length: endHour - startHour + 1 }, (_, i) => startHour + i)
 }
 

@@ -14,8 +14,8 @@ export interface AnnexDto {
   name: string
   startDate: string      // "YYYY-MM-DD"
   endDate: string | null
-  openingTime: string    // "HH:mm:ss"
-  closingTime: string
+  scheduleStartTime: string    // "HH:mm:ss"
+  scheduleEndTime: string
   state: AnnexState
 }
 

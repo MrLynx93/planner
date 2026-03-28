@@ -77,8 +77,8 @@ public class AnnexService {
 
     private void apply(Annex annex, AnnexDto dto) {
         annex.setName(dto.name());
-        annex.setOpeningTime(dto.openingTime());
-        annex.setClosingTime(dto.closingTime());
+        annex.setScheduleStartTime(dto.scheduleStartTime());
+        annex.setScheduleEndTime(dto.scheduleEndTime());
     }
 
     public AnnexDto toDto(Annex annex) {
@@ -87,8 +87,8 @@ public class AnnexService {
                 annex.getName(),
                 annex.getStartDate(),
                 annex.getEndDate(),
-                annex.getOpeningTime(),
-                annex.getClosingTime(),
+                annex.getScheduleStartTime(),
+                annex.getScheduleEndTime(),
                 annex.getState()
         );
     }

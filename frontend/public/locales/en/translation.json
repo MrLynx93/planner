@@ -36,8 +36,8 @@
       "add": "Add Annex",
       "startDate": "Start Date",
       "endDate": "End Date",
-      "openingTime": "Opening Time",
-      "closingTime": "Closing Time",
+      "scheduleStartTime": "Schedule Start Time",
+      "scheduleEndTime": "Schedule End Time",
       "state": "State",
       "states": {
         "CURRENT": "Current",

@@ -4,15 +4,15 @@ import { timeToTop, blockHeight, formatTime } from './utils'
 
 interface Props {
   block: ScheduleBlock
-  openingTime: string
+  scheduleStartTime: string
   columnIndex: number
   columnCount: number
   colorBy?: 'teacher' | 'group'
 }
 
-export function TimeBlock({ block, openingTime, columnIndex, columnCount, colorBy = 'teacher' }: Props) {
+export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, colorBy = 'teacher' }: Props) {
   const color = getColorForId(colorBy === 'group' ? block.groupId : block.teacherId)
-  const top = timeToTop(block.startTime, openingTime)
+  const top = timeToTop(block.startTime, scheduleStartTime)
   const height = blockHeight(block.startTime, block.endTime)
   const isModification = block.type === 'MODIFICATION'
 

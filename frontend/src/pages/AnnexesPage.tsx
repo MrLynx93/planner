@@ -28,7 +28,7 @@ function fromTimeInput(time: string): string {
   return time ? `${time}:00` : ''
 }
 
-const emptyForm = { name: '', openingTime: '', closingTime: '' }
+const emptyForm = { name: '', scheduleStartTime: '', scheduleEndTime: '' }
 
 function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
   const { t } = useTranslation()
@@ -183,21 +183,21 @@ export function AnnexesPage() {
     setEditTarget(annex)
     setForm({
       name: annex.name,
-      openingTime: toTimeInput(annex.openingTime),
-      closingTime: toTimeInput(annex.closingTime),
+      scheduleStartTime: toTimeInput(annex.scheduleStartTime),
+      scheduleEndTime: toTimeInput(annex.scheduleEndTime),
     })
   }
 
   async function handleSave() {
-    if (!form.name.trim() || !form.openingTime || !form.closingTime) return
+    if (!form.name.trim() || !form.scheduleStartTime || !form.scheduleEndTime) return
     if (editTarget === 'new') {
       await createAnnex({
         id: null,
         name: form.name.trim(),
         startDate: null,
         endDate: null,
-        openingTime: fromTimeInput(form.openingTime),
-        closingTime: fromTimeInput(form.closingTime),
+        scheduleStartTime: fromTimeInput(form.scheduleStartTime),
+        scheduleEndTime: fromTimeInput(form.scheduleEndTime),
         state: 'DRAFT',
       })
     } else {
@@ -205,8 +205,8 @@ export function AnnexesPage() {
       await updateAnnex({
         ...existing,
         name: form.name.trim(),
-        openingTime: fromTimeInput(form.openingTime),
-        closingTime: fromTimeInput(form.closingTime),
+        scheduleStartTime: fromTimeInput(form.scheduleStartTime),
+        scheduleEndTime: fromTimeInput(form.scheduleEndTime),
       })
     }
     setEditTarget(null)
@@ -258,21 +258,21 @@ export function AnnexesPage() {
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('pages.annexes.openingTime')}</label>
+              <label className="block text-xs text-muted-foreground mb-1">{t('pages.annexes.scheduleStartTime')}</label>
               <input
                 type="time"
                 className={`${inputClass} w-full`}
-                value={form.openingTime}
-                onChange={e => set('openingTime', e.target.value)}
+                value={form.scheduleStartTime}
+                onChange={e => set('scheduleStartTime', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('pages.annexes.closingTime')}</label>
+              <label className="block text-xs text-muted-foreground mb-1">{t('pages.annexes.scheduleEndTime')}</label>
               <input
                 type="time"
                 className={`${inputClass} w-full`}
-                value={form.closingTime}
-                onChange={e => set('closingTime', e.target.value)}
+                value={form.scheduleEndTime}
+                onChange={e => set('scheduleEndTime', e.target.value)}
               />
             </div>
           </div>
@@ -304,8 +304,8 @@ export function AnnexesPage() {
               <th className="pb-2 pr-4 font-medium">{t('common.name')}</th>
               <th className="pb-2 pr-4 font-medium">{t('pages.annexes.startDate')}</th>
               <th className="pb-2 pr-4 font-medium">{t('pages.annexes.endDate')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.openingTime')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.closingTime')}</th>
+              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.scheduleStartTime')}</th>
+              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.scheduleEndTime')}</th>
               <th className="pb-2 pr-4 font-medium">{t('pages.annexes.state')}</th>
               <th className="pb-2 font-medium" />
             </tr>
@@ -317,8 +317,8 @@ export function AnnexesPage() {
                   <td className="py-2 pr-4 font-medium">{annex.name}</td>
                   <td className="py-2 pr-4">{annex.startDate}</td>
                   <td className="py-2 pr-4">{annex.endDate ?? '—'}</td>
-                  <td className="py-2 pr-4">{toTimeInput(annex.openingTime)}</td>
-                  <td className="py-2 pr-4">{toTimeInput(annex.closingTime)}</td>
+                  <td className="py-2 pr-4">{toTimeInput(annex.scheduleStartTime)}</td>
+                  <td className="py-2 pr-4">{toTimeInput(annex.scheduleEndTime)}</td>
                   <td className="py-2 pr-4">
                     <span className={`rounded px-2 py-0.5 text-xs font-medium ${stateBadgeClass(annex.state)}`}>
                       {t(`pages.annexes.states.${annex.state}`)}

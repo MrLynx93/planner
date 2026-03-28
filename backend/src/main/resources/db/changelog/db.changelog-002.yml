@@ -73,3 +73,25 @@ databaseChangeLog:
             tableName: annex
             columnName: start_date
             columnDataType: DATE
+
+  # ── 5. Rename opening_time → schedule_start_time ─────────────────────────────
+  - changeSet:
+      id: 2-5
+      author: mateusz
+      changes:
+        - renameColumn:
+            tableName: annex
+            oldColumnName: opening_time
+            newColumnName: schedule_start_time
+            columnDataType: TIME
+
+  # ── 6. Rename closing_time → schedule_end_time ───────────────────────────────
+  - changeSet:
+      id: 2-6
+      author: mateusz
+      changes:
+        - renameColumn:
+            tableName: annex
+            oldColumnName: closing_time
+            newColumnName: schedule_end_time
+            columnDataType: TIME

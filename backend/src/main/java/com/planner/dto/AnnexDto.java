@@ -10,7 +10,7 @@ public record AnnexDto(
         String name,
         LocalDate startDate,
         LocalDate endDate,
-        LocalTime openingTime,
-        LocalTime closingTime,
+        LocalTime scheduleStartTime,
+        LocalTime scheduleEndTime,
         AnnexState state
 ) {}

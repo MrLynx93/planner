@@ -11,8 +11,8 @@ databaseChangeLog:
               - column: { name: name,         value: "Rok szkolny 2025/2026" }
               - column: { name: start_date,    valueDate: "2025-09-01" }
               - column: { name: end_date,      value: null }
-              - column: { name: opening_time,  value: "06:30:00" }
-              - column: { name: closing_time,  value: "17:00:00" }
+              - column: { name: schedule_start_time,  value: "06:30:00" }
+              - column: { name: schedule_end_time,    value: "17:00:00" }
               - column: { name: state,         value: "CURRENT" }
 
   # ── 2. Groups ───────────────────────────────────────────────────────────────
