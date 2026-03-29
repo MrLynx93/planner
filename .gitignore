@@ -21,6 +21,9 @@ frontend/build/
 electron/node_modules/
 electron/node/
 electron/dist/
+electron/target/
+electron/planner-backend.jar
+electron/.mvn/
 
 # Environment
 .env
