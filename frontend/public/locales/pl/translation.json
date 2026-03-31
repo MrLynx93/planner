@@ -17,6 +17,9 @@
       "draftAnnexGroups": "Grupy",
       "draftAnnexChildren": "Dzieci",
       "draftAnnexRules": "Reguły",
+      "draftAnnexPlanGroups": "Plan wg grupy",
+      "draftAnnexPlanTeachers": "Plan wg nauczyciela",
+      "draftAnnexPlanOverview": "Plan ogólny",
       "teachers": "Nauczyciele",
       "groups": "Grupy",
       "children": "Dzieci",
@@ -77,6 +80,9 @@
       "teacher": "Nauczyciel",
       "group": "Grupa"
     },
+    "annex": {
+      "currentWarning": "To jest bieżący aneks. Zmiany są natychmiastowo aktywne."
+    },
     "draftAnnex": {
       "noDraftAnnex": "Brak szkicu aneksu. Utwórz go w sekcji Aneksy.",
       "settings": {
@@ -111,6 +117,15 @@
       "reason": "Powód"
     }
   },
+  "draftPlan": {
+    "group": "Grupa",
+    "teacher": "Nauczyciel",
+    "teachers": "Nauczyciele",
+    "groups": "Grupy",
+    "dayMode": "Dzień",
+    "weekMode": "Tydzień",
+    "dragDisabledInWeekMode": "Przełącz na widok dnia, aby dodawać bloki"
+  },
   "schedule": {
     "selectGroup": "Wybierz grupę",
     "selectTeacher": "Wybierz nauczyciela",
@@ -139,6 +154,7 @@
     "firstName": "Imię",
     "lastName": "Nazwisko",
     "confirmDelete": "Czy na pewno chcesz usunąć ten element?",
-    "saved": "Zapisano."
+    "saved": "Zapisano.",
+    "open": "Otwórz"
   }
 }

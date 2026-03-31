@@ -14,8 +14,10 @@ import {
   LayoutGrid,
   Languages,
   Settings,
+  CalendarRange,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useGetAnnexesQuery } from '@/store/annexesApi'
 
 interface NavItem {
   labelKey: string
@@ -26,14 +28,6 @@ interface NavItem {
 const scheduleItems: NavItem[] = [
   { labelKey: 'nav.items.groupSchedule', to: '/schedule/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.teacherSchedule', to: '/schedule/teachers', icon: User },
-]
-
-const draftAnnexItems: NavItem[] = [
-  { labelKey: 'nav.items.draftAnnexSettings', to: '/draft-annex/settings', icon: Settings },
-  { labelKey: 'nav.items.draftAnnexTeachers', to: '/draft-annex/teachers', icon: Users },
-  { labelKey: 'nav.items.draftAnnexGroups', to: '/draft-annex/groups', icon: LayoutGrid },
-  { labelKey: 'nav.items.draftAnnexChildren', to: '/draft-annex/children', icon: Baby },
-  { labelKey: 'nav.items.draftAnnexRules', to: '/draft-annex/rules', icon: Scale },
 ]
 
 const managementItems: NavItem[] = [
@@ -91,6 +85,19 @@ function SidebarSection({
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false)
   const { t, i18n } = useTranslation()
+  const { data: annexes = [] } = useGetAnnexesQuery()
+  const draft = annexes.find(a => a.state === 'DRAFT')
+  const base = draft ? `/annexes/${draft.id}` : '/annexes'
+  const draftAnnexItems: NavItem[] = [
+    { labelKey: 'nav.items.draftAnnexSettings', to: `${base}/settings`, icon: Settings },
+    { labelKey: 'nav.items.draftAnnexTeachers', to: `${base}/teachers`, icon: Users },
+    { labelKey: 'nav.items.draftAnnexGroups', to: `${base}/groups`, icon: LayoutGrid },
+    { labelKey: 'nav.items.draftAnnexChildren', to: `${base}/children`, icon: Baby },
+    { labelKey: 'nav.items.draftAnnexRules', to: `${base}/rules`, icon: Scale },
+    { labelKey: 'nav.items.draftAnnexPlanGroups', to: `${base}/plan/groups`, icon: CalendarDays },
+    { labelKey: 'nav.items.draftAnnexPlanTeachers', to: `${base}/plan/teachers`, icon: CalendarDays },
+    { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${base}/plan/overview`, icon: CalendarRange },
+  ]
 
   const otherLang = i18n.language.startsWith('pl') ? 'en' : 'pl'
 

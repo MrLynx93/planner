@@ -62,6 +62,13 @@ export function getWeekDays(weekStart: Date): Date[] {
   })
 }
 
+/** Converts total minutes to "HH:mm:ss" string */
+export function minutesToTime(minutes: number): string {
+  const h = Math.floor(minutes / 60)
+  const m = minutes % 60
+  return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:00`
+}
+
 /** Adds n weeks to a date */
 export function addWeeks(date: Date, n: number): Date {
   const d = new Date(date)

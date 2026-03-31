@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
+import { AnnexLayout } from '@/components/layout/AnnexLayout'
 import { GroupSchedulePage } from '@/pages/schedule/GroupSchedulePage'
 import { TeacherSchedulePage } from '@/pages/schedule/TeacherSchedulePage'
 import { AnnexesPage } from '@/pages/AnnexesPage'
@@ -8,11 +9,14 @@ import { GroupsPage } from '@/pages/GroupsPage'
 import { ChildrenPage } from '@/pages/ChildrenPage'
 import { RulesPage } from '@/pages/RulesPage'
 import { ClosedDaysPage } from '@/pages/ClosedDaysPage'
-import { DraftAnnexSettingsPage } from '@/pages/draft-annex/DraftAnnexSettingsPage'
-import { DraftAnnexTeachersPage } from '@/pages/draft-annex/DraftAnnexTeachersPage'
-import { DraftAnnexGroupsPage } from '@/pages/draft-annex/DraftAnnexGroupsPage'
-import { DraftAnnexChildrenPage } from '@/pages/draft-annex/DraftAnnexChildrenPage'
-import { DraftAnnexRulesPage } from '@/pages/draft-annex/DraftAnnexRulesPage'
+import { AnnexSettingsPage } from '@/pages/annex/AnnexSettingsPage'
+import { AnnexTeachersPage } from '@/pages/annex/AnnexTeachersPage'
+import { AnnexGroupsPage } from '@/pages/annex/AnnexGroupsPage'
+import { AnnexChildrenPage } from '@/pages/annex/AnnexChildrenPage'
+import { AnnexRulesPage } from '@/pages/annex/AnnexRulesPage'
+import { AnnexPlanGroupPage } from '@/pages/annex/AnnexPlanGroupPage'
+import { AnnexPlanTeacherPage } from '@/pages/annex/AnnexPlanTeacherPage'
+import { AnnexPlanOverviewPage } from '@/pages/annex/AnnexPlanOverviewPage'
 
 function App() {
   return (
@@ -27,11 +31,17 @@ function App() {
         <Route path="/children" element={<ChildrenPage />} />
         <Route path="/rules" element={<RulesPage />} />
         <Route path="/closed-days" element={<ClosedDaysPage />} />
-        <Route path="/draft-annex/settings" element={<DraftAnnexSettingsPage />} />
-        <Route path="/draft-annex/teachers" element={<DraftAnnexTeachersPage />} />
-        <Route path="/draft-annex/groups" element={<DraftAnnexGroupsPage />} />
-        <Route path="/draft-annex/children" element={<DraftAnnexChildrenPage />} />
-        <Route path="/draft-annex/rules" element={<DraftAnnexRulesPage />} />
+        <Route path="/annexes/:id" element={<AnnexLayout />}>
+          <Route index element={<Navigate to="settings" replace />} />
+          <Route path="settings" element={<AnnexSettingsPage />} />
+          <Route path="teachers" element={<AnnexTeachersPage />} />
+          <Route path="groups" element={<AnnexGroupsPage />} />
+          <Route path="children" element={<AnnexChildrenPage />} />
+          <Route path="rules" element={<AnnexRulesPage />} />
+          <Route path="plan/groups" element={<AnnexPlanGroupPage />} />
+          <Route path="plan/teachers" element={<AnnexPlanTeacherPage />} />
+          <Route path="plan/overview" element={<AnnexPlanOverviewPage />} />
+        </Route>
       </Route>
     </Routes>
   )

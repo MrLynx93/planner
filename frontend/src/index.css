@@ -73,10 +73,6 @@
   --radius-xl: calc(var(--radius) + 4px);
 }
 
-* {
-  border-color: var(--border);
-  outline-color: color-mix(in oklch, var(--ring), transparent 50%);
-}
 
 body {
   background-color: var(--background);

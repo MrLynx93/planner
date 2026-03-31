@@ -17,6 +17,9 @@
       "draftAnnexGroups": "Groups",
       "draftAnnexChildren": "Children",
       "draftAnnexRules": "Rules",
+      "draftAnnexPlanGroups": "Plan by Group",
+      "draftAnnexPlanTeachers": "Plan by Teacher",
+      "draftAnnexPlanOverview": "Plan Overview",
       "teachers": "Teachers",
       "groups": "Groups",
       "children": "Children",
@@ -77,6 +80,9 @@
       "teacher": "Teacher",
       "group": "Group"
     },
+    "annex": {
+      "currentWarning": "This is the active annex. Changes take effect immediately."
+    },
     "draftAnnex": {
       "noDraftAnnex": "No draft annex. Create one in the Annexes section.",
       "settings": {
@@ -111,6 +117,15 @@
       "reason": "Reason"
     }
   },
+  "draftPlan": {
+    "group": "Group",
+    "teacher": "Teacher",
+    "teachers": "Teachers",
+    "groups": "Groups",
+    "dayMode": "Day",
+    "weekMode": "Week",
+    "dragDisabledInWeekMode": "Switch to Day mode to add blocks"
+  },
   "schedule": {
     "selectGroup": "Select group",
     "selectTeacher": "Select teacher",
@@ -139,6 +154,7 @@
     "firstName": "First name",
     "lastName": "Last name",
     "confirmDelete": "Are you sure you want to delete this item?",
-    "saved": "Saved."
+    "saved": "Saved.",
+    "open": "Open"
   }
 }

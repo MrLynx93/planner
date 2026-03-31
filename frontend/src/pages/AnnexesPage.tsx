@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import type { AnnexDto } from '@/components/schedule/types'
 import type { AnnexChildGroupDto } from '@/types'
 import {
@@ -158,6 +159,7 @@ function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
 
 export function AnnexesPage() {
   const { t } = useTranslation()
+  const navigate = useNavigate()
 
   const [editTarget, setEditTarget] = useState<'new' | AnnexDto | null>(null)
   const [form, setForm] = useState(emptyForm)
@@ -312,8 +314,8 @@ export function AnnexesPage() {
           </thead>
           <tbody>
             {annexes.map(annex => (
-              <>
-                <tr key={annex.id} className="border-b border-border last:border-0">
+              <React.Fragment key={annex.id}>
+                <tr className="border-b border-border last:border-0">
                   <td className="py-2 pr-4 font-medium">{annex.name}</td>
                   <td className="py-2 pr-4">{annex.startDate}</td>
                   <td className="py-2 pr-4">{annex.endDate ?? '—'}</td>
@@ -326,6 +328,12 @@ export function AnnexesPage() {
                   </td>
                   <td className="py-2">
                     <div className="flex gap-2 justify-end">
+                      <button
+                        className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                        onClick={() => navigate(`/annexes/${annex.id}/settings`)}
+                      >
+                        {t('common.open')}
+                      </button>
                       <button
                         className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
                         onClick={() => setExpandedChildrenId(prev => prev === annex.id ? null : annex.id!)}
@@ -358,13 +366,13 @@ export function AnnexesPage() {
                   </td>
                 </tr>
                 {expandedChildrenId === annex.id && (
-                  <tr key={`${annex.id}-children`}>
+                  <tr>
                     <td colSpan={7} className="pb-3 px-2">
                       <AnnexChildrenSection annex={annex} />
                     </td>
                   </tr>
                 )}
-              </>
+              </React.Fragment>
             ))}
           </tbody>
         </table>

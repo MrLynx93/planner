@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { AnnexGroupDto } from '@/components/schedule/types'
+import { useOutletContext } from 'react-router-dom'
+import type { AnnexDto, AnnexGroupDto } from '@/components/schedule/types'
 import {
-  useGetAnnexesQuery,
   useGetAnnexGroupsQuery,
   useAddAnnexGroupMutation,
   useRemoveAnnexGroupMutation,
@@ -12,12 +12,12 @@ import { useGetGroupsQuery } from '@/store/groupsApi'
 const selectClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
 
-export function DraftAnnexGroupsPage() {
+export function AnnexGroupsPage() {
   const { t } = useTranslation()
-  const { data: annexes = [], isLoading: loadingAnnex } = useGetAnnexesQuery()
-  const draft = annexes.find(a => a.state === 'DRAFT')
+  const annex = useOutletContext<AnnexDto>()
+  const isReadOnly = annex.state === 'FINISHED'
 
-  const { data: annexGroups = [], isLoading } = useGetAnnexGroupsQuery(draft?.id!, { skip: !draft })
+  const { data: annexGroups = [], isLoading } = useGetAnnexGroupsQuery(annex.id!)
   const { data: allGroups = [] } = useGetGroupsQuery()
   const [addGroup] = useAddAnnexGroupMutation()
   const [removeGroup] = useRemoveAnnexGroupMutation()
@@ -29,28 +29,25 @@ export function DraftAnnexGroupsPage() {
   const availableGroups = allGroups.filter(g => !assignedGroupIds.has(g.id!))
 
   async function handleAdd() {
-    if (!draft || !selectedGroupId) return
+    if (!selectedGroupId) return
     await addGroup({
-      annexId: draft.id!,
-      dto: { id: null, annexId: draft.id!, groupId: selectedGroupId, groupName: '' },
+      annexId: annex.id!,
+      dto: { id: null, annexId: annex.id!, groupId: selectedGroupId, groupName: '' },
     })
     setAdding(false)
     setSelectedGroupId(null)
   }
 
   async function handleRemove(ag: AnnexGroupDto) {
-    if (!draft || !window.confirm(t('common.confirmDelete'))) return
-    await removeGroup({ annexId: draft.id!, annexGroupId: ag.id! })
+    if (!window.confirm(t('common.confirmDelete'))) return
+    await removeGroup({ annexId: annex.id!, annexGroupId: ag.id! })
   }
-
-  if (loadingAnnex) return <p className="p-6 text-sm text-muted-foreground">{t('common.loading')}</p>
-  if (!draft) return <p className="p-6 text-sm text-muted-foreground">{t('pages.draftAnnex.noDraftAnnex')}</p>
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">{t('pages.draftAnnex.groups.title')}</h1>
-        {!adding && (
+        {!adding && !isReadOnly && (
           <button
             className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
             onClick={() => setAdding(true)}
@@ -112,14 +109,16 @@ export function DraftAnnexGroupsPage() {
               <tr key={ag.id} className="border-b border-border last:border-0">
                 <td className="py-2 pr-4 font-medium">{ag.groupName}</td>
                 <td className="py-2">
-                  <div className="flex justify-end">
-                    <button
-                      className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={() => handleRemove(ag)}
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </div>
+                  {!isReadOnly && (
+                    <div className="flex justify-end">
+                      <button
+                        className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={() => handleRemove(ag)}
+                      >
+                        {t('common.delete')}
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

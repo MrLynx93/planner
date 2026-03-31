@@ -1,8 +1,9 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useOutletContext } from 'react-router-dom'
+import type { AnnexDto } from '@/components/schedule/types'
 import type { AnnexChildGroupDto } from '@/types'
 import {
-  useGetAnnexesQuery,
   useGetAnnexGroupsQuery,
   useGetAnnexChildrenQuery,
   useAssignChildToAnnexMutation,
@@ -13,13 +14,13 @@ import { useGetChildrenQuery } from '@/store/childrenApi'
 const selectClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
 
-export function DraftAnnexChildrenPage() {
+export function AnnexChildrenPage() {
   const { t } = useTranslation()
-  const { data: annexes = [], isLoading: loadingAnnex } = useGetAnnexesQuery()
-  const draft = annexes.find(a => a.state === 'DRAFT')
+  const annex = useOutletContext<AnnexDto>()
+  const isReadOnly = annex.state === 'FINISHED'
 
-  const { data: assignments = [], isLoading } = useGetAnnexChildrenQuery(draft?.id!, { skip: !draft })
-  const { data: annexGroups = [] } = useGetAnnexGroupsQuery(draft?.id!, { skip: !draft })
+  const { data: assignments = [], isLoading } = useGetAnnexChildrenQuery(annex.id!)
+  const { data: annexGroups = [] } = useGetAnnexGroupsQuery(annex.id!)
   const { data: allChildren = [] } = useGetChildrenQuery()
   const [assignChild] = useAssignChildToAnnexMutation()
   const [removeChild] = useRemoveChildFromAnnexMutation()
@@ -32,12 +33,12 @@ export function DraftAnnexChildrenPage() {
   const availableChildren = allChildren.filter(c => !assignedChildIds.has(c.id!))
 
   async function handleAssign() {
-    if (!draft || !childId || !groupId) return
+    if (!childId || !groupId) return
     await assignChild({
-      annexId: draft.id!,
+      annexId: annex.id!,
       dto: {
         id: null,
-        annexId: draft.id!,
+        annexId: annex.id!,
         childId,
         childFirstName: '',
         childLastName: '',
@@ -51,18 +52,15 @@ export function DraftAnnexChildrenPage() {
   }
 
   async function handleRemove(a: AnnexChildGroupDto) {
-    if (!draft || !window.confirm(t('common.confirmDelete'))) return
-    await removeChild({ annexId: draft.id!, annexChildGroupId: a.id! })
+    if (!window.confirm(t('common.confirmDelete'))) return
+    await removeChild({ annexId: annex.id!, annexChildGroupId: a.id! })
   }
-
-  if (loadingAnnex) return <p className="p-6 text-sm text-muted-foreground">{t('common.loading')}</p>
-  if (!draft) return <p className="p-6 text-sm text-muted-foreground">{t('pages.draftAnnex.noDraftAnnex')}</p>
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">{t('pages.draftAnnex.children.title')}</h1>
-        {!adding && (
+        {!adding && !isReadOnly && (
           <button
             className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
             onClick={() => setAdding(true)}
@@ -143,14 +141,16 @@ export function DraftAnnexChildrenPage() {
                 <td className="py-2 pr-4 font-medium">{a.childFirstName} {a.childLastName}</td>
                 <td className="py-2 pr-4">{a.groupName}</td>
                 <td className="py-2">
-                  <div className="flex justify-end">
-                    <button
-                      className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={() => handleRemove(a)}
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </div>
+                  {!isReadOnly && (
+                    <div className="flex justify-end">
+                      <button
+                        className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={() => handleRemove(a)}
+                      >
+                        {t('common.delete')}
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}

@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import type { AnnexTeacherDto } from '@/components/schedule/types'
+import { useOutletContext } from 'react-router-dom'
+import type { AnnexDto, AnnexTeacherDto } from '@/components/schedule/types'
 import {
-  useGetAnnexesQuery,
   useGetAnnexTeachersQuery,
   useGetAnnexGroupsQuery,
   useAddAnnexTeacherMutation,
@@ -14,13 +14,13 @@ import { useGetTeachersQuery } from '@/store/teachersApi'
 const selectClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
 
-export function DraftAnnexTeachersPage() {
+export function AnnexTeachersPage() {
   const { t } = useTranslation()
-  const { data: annexes = [], isLoading: loadingAnnex } = useGetAnnexesQuery()
-  const draft = annexes.find(a => a.state === 'DRAFT')
+  const annex = useOutletContext<AnnexDto>()
+  const isReadOnly = annex.state === 'FINISHED'
 
-  const { data: annexTeachers = [], isLoading } = useGetAnnexTeachersQuery(draft?.id!, { skip: !draft })
-  const { data: annexGroups = [] } = useGetAnnexGroupsQuery(draft?.id!, { skip: !draft })
+  const { data: annexTeachers = [], isLoading } = useGetAnnexTeachersQuery(annex.id!)
+  const { data: annexGroups = [] } = useGetAnnexGroupsQuery(annex.id!)
   const { data: allTeachers = [] } = useGetTeachersQuery()
   const [addTeacher] = useAddAnnexTeacherMutation()
   const [updateTeacher] = useUpdateAnnexTeacherMutation()
@@ -36,12 +36,12 @@ export function DraftAnnexTeachersPage() {
   const availableTeachers = allTeachers.filter(t => !assignedTeacherIds.has(t.id!))
 
   async function handleAdd() {
-    if (!draft || !newTeacherId) return
+    if (!newTeacherId) return
     await addTeacher({
-      annexId: draft.id!,
+      annexId: annex.id!,
       dto: {
         id: null,
-        annexId: draft.id!,
+        annexId: annex.id!,
         teacherId: newTeacherId,
         firstName: '',
         lastName: '',
@@ -60,9 +60,8 @@ export function DraftAnnexTeachersPage() {
   }
 
   async function handleUpdateGroup(at: AnnexTeacherDto) {
-    if (!draft) return
     await updateTeacher({
-      annexId: draft.id!,
+      annexId: annex.id!,
       annexTeacherId: at.id!,
       dto: { ...at, defaultGroupId: editGroupId, defaultGroupName: null },
     })
@@ -70,18 +69,15 @@ export function DraftAnnexTeachersPage() {
   }
 
   async function handleRemove(at: AnnexTeacherDto) {
-    if (!draft || !window.confirm(t('common.confirmDelete'))) return
-    await removeTeacher({ annexId: draft.id!, annexTeacherId: at.id! })
+    if (!window.confirm(t('common.confirmDelete'))) return
+    await removeTeacher({ annexId: annex.id!, annexTeacherId: at.id! })
   }
-
-  if (loadingAnnex) return <p className="p-6 text-sm text-muted-foreground">{t('common.loading')}</p>
-  if (!draft) return <p className="p-6 text-sm text-muted-foreground">{t('pages.draftAnnex.noDraftAnnex')}</p>
 
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">{t('pages.draftAnnex.teachers.title')}</h1>
-        {!adding && (
+        {!adding && !isReadOnly && (
           <button
             className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
             onClick={() => setAdding(true)}
@@ -193,7 +189,7 @@ export function DraftAnnexTeachersPage() {
                           {t('common.cancel')}
                         </button>
                       </>
-                    ) : (
+                    ) : !isReadOnly ? (
                       <>
                         <button
                           className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
@@ -208,7 +204,7 @@ export function DraftAnnexTeachersPage() {
                           {t('common.delete')}
                         </button>
                       </>
-                    )}
+                    ) : null}
                   </div>
                 </td>
               </tr>

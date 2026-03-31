@@ -56,6 +56,18 @@ public class AnnexTimeBlockService {
         timeBlockRepository.delete(timeBlock);
     }
 
+    @Transactional
+    public AnnexTimeBlockDto update(Integer annexId, Integer annexTimeBlockId, AnnexTimeBlockDto dto) {
+        AnnexTimeBlock atb = annexTimeBlockRepository.findById(annexTimeBlockId)
+                .filter(a -> a.getAnnex().getId().equals(annexId))
+                .orElseThrow(() -> new EntityNotFoundException("AnnexTimeBlock not found: " + annexTimeBlockId));
+        TimeBlock timeBlock = atb.getTimeBlock();
+        timeBlock.setStartTime(dto.startTime());
+        timeBlock.setEndTime(dto.endTime());
+        timeBlockRepository.save(timeBlock);
+        return toDto(atb);
+    }
+
     public TimeBlock getTimeBlockOrThrow(Integer id) {
         return timeBlockRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("TimeBlock not found: " + id));

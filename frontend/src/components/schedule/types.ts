@@ -12,7 +12,7 @@ export type AnnexState = 'CURRENT' | 'FINISHED' | 'DRAFT'
 export interface AnnexDto {
   id: number | null
   name: string
-  startDate: string      // "YYYY-MM-DD"
+  startDate: string | null  // "YYYY-MM-DD"
   endDate: string | null
   scheduleStartTime: string    // "HH:mm:ss"
   scheduleEndTime: string

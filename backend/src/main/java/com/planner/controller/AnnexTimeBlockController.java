@@ -26,6 +26,14 @@ public class AnnexTimeBlockController {
         return timeBlockService.create(id, dto);
     }
 
+    @PutMapping("/{id}/time-blocks/{annexTimeBlockId}")
+    public AnnexTimeBlockDto updateTimeBlock(
+            @PathVariable Integer id,
+            @PathVariable Integer annexTimeBlockId,
+            @RequestBody AnnexTimeBlockDto dto) {
+        return timeBlockService.update(id, annexTimeBlockId, dto);
+    }
+
     @DeleteMapping("/{id}/time-blocks/{annexTimeBlockId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeTimeBlock(@PathVariable Integer id, @PathVariable Integer annexTimeBlockId) {

@@ -2,6 +2,20 @@ import { api } from './api'
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, ScheduleBlock } from '@/components/schedule/types'
 import type { AnnexRuleDto, AnnexChildGroupDto } from '@/types'
 
+type CreateAnnexTimeBlockArg = {
+  annexId: number
+  dto: {
+    teacherId: number
+    groupId: number
+    dayOfWeek: string
+    startTime: string
+    endTime: string
+    type: 'TEMPLATE' | 'MODIFICATION'
+  }
+}
+type UpdateAnnexTimeBlockArg = { annexId: number; annexTimeBlockId: number; startTime: string; endTime: string }
+type DeleteAnnexTimeBlockArg = { annexId: number; annexTimeBlockId: number }
+
 type AddAnnexTeacherArg = { annexId: number; dto: Omit<AnnexTeacherDto, 'id'> & { id: null } }
 type UpdateAnnexTeacherArg = { annexId: number; annexTeacherId: number; dto: AnnexTeacherDto }
 type RemoveAnnexTeacherArg = { annexId: number; annexTeacherId: number }
@@ -58,6 +72,25 @@ export const annexesApi = api.injectEndpoints({
       query: annexId => `/annexes/${annexId}/time-blocks`,
       providesTags: ['AnnexTimeBlock'],
     }),
+    createAnnexTimeBlock: builder.mutation<ScheduleBlock, CreateAnnexTimeBlockArg>({
+      query: ({ annexId, dto }) => ({ url: `/annexes/${annexId}/time-blocks`, method: 'POST', body: dto }),
+      invalidatesTags: ['AnnexTimeBlock'],
+    }),
+    updateAnnexTimeBlock: builder.mutation<ScheduleBlock, UpdateAnnexTimeBlockArg>({
+      query: ({ annexId, annexTimeBlockId, startTime, endTime }) => ({
+        url: `/annexes/${annexId}/time-blocks/${annexTimeBlockId}`,
+        method: 'PUT',
+        body: { startTime, endTime },
+      }),
+      invalidatesTags: ['AnnexTimeBlock'],
+    }),
+    deleteAnnexTimeBlock: builder.mutation<void, DeleteAnnexTimeBlockArg>({
+      query: ({ annexId, annexTimeBlockId }) => ({
+        url: `/annexes/${annexId}/time-blocks/${annexTimeBlockId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['AnnexTimeBlock'],
+    }),
     getAnnexRules: builder.query<AnnexRuleDto[], number>({
       query: annexId => `/annexes/${annexId}/rules`,
       providesTags: ['AnnexRule'],
@@ -94,6 +127,9 @@ export const annexesApi = api.injectEndpoints({
 
 export const {
   useGetAnnexesQuery,
+  useCreateAnnexTimeBlockMutation,
+  useUpdateAnnexTimeBlockMutation,
+  useDeleteAnnexTimeBlockMutation,
   useCreateAnnexMutation,
   useUpdateAnnexMutation,
   useDeleteAnnexMutation,

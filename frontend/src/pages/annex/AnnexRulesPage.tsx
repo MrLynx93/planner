@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useOutletContext } from 'react-router-dom'
+import type { AnnexDto } from '@/components/schedule/types'
 import { ALL_RULE_TYPES, RULE_NEEDS_TEACHER, RULE_NEEDS_GROUP } from '@/types'
 import type { AnnexRuleDto, RuleType } from '@/types'
 import {
-  useGetAnnexesQuery,
   useGetAnnexRulesQuery,
   useGetAnnexTeachersQuery,
   useGetAnnexGroupsQuery,
@@ -16,14 +17,14 @@ const selectClass =
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24'
 
-export function DraftAnnexRulesPage() {
+export function AnnexRulesPage() {
   const { t } = useTranslation()
-  const { data: annexes = [], isLoading: loadingAnnex } = useGetAnnexesQuery()
-  const draft = annexes.find(a => a.state === 'DRAFT')
+  const annex = useOutletContext<AnnexDto>()
+  const isReadOnly = annex.state === 'FINISHED'
 
-  const { data: rules = [], isLoading } = useGetAnnexRulesQuery(draft?.id!, { skip: !draft })
-  const { data: teachers = [] } = useGetAnnexTeachersQuery(draft?.id!, { skip: !draft })
-  const { data: groups = [] } = useGetAnnexGroupsQuery(draft?.id!, { skip: !draft })
+  const { data: rules = [], isLoading } = useGetAnnexRulesQuery(annex.id!)
+  const { data: teachers = [] } = useGetAnnexTeachersQuery(annex.id!)
+  const { data: groups = [] } = useGetAnnexGroupsQuery(annex.id!)
   const [createRule] = useCreateAnnexRuleMutation()
   const [deleteRule] = useDeleteAnnexRuleMutation()
 
@@ -45,12 +46,12 @@ export function DraftAnnexRulesPage() {
   }
 
   async function handleSave() {
-    if (!draft || !intValue) return
+    if (!intValue) return
     if (needsTeacher && !teacherId) return
     if (needsGroup && !groupId) return
     const dto: AnnexRuleDto = {
       id: null,
-      annexId: draft.id!,
+      annexId: annex.id!,
       ruleId: null,
       ruleType,
       teacherId: needsTeacher ? teacherId : null,
@@ -60,13 +61,13 @@ export function DraftAnnexRulesPage() {
       groupName: null,
       intValue: Number(intValue),
     }
-    await createRule({ annexId: draft.id!, dto })
+    await createRule({ annexId: annex.id!, dto })
     setAdding(false)
   }
 
   async function handleDelete(annexRuleId: number) {
-    if (!draft || !window.confirm(t('common.confirmDelete'))) return
-    await deleteRule({ annexId: draft.id!, annexRuleId })
+    if (!window.confirm(t('common.confirmDelete'))) return
+    await deleteRule({ annexId: annex.id!, annexRuleId })
   }
 
   function ruleLabel(rule: AnnexRuleDto): string {
@@ -76,14 +77,11 @@ export function DraftAnnexRulesPage() {
     return parts.join(' — ')
   }
 
-  if (loadingAnnex) return <p className="p-6 text-sm text-muted-foreground">{t('common.loading')}</p>
-  if (!draft) return <p className="p-6 text-sm text-muted-foreground">{t('pages.draftAnnex.noDraftAnnex')}</p>
-
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl">
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold">{t('pages.draftAnnex.rules.title')}</h1>
-        {!adding && (
+        {!adding && !isReadOnly && (
           <button
             className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
             onClick={openAdd}
@@ -192,14 +190,16 @@ export function DraftAnnexRulesPage() {
                 <td className="py-2 pr-4">{ruleLabel(rule)}</td>
                 <td className="py-2 pr-4">{rule.intValue}</td>
                 <td className="py-2">
-                  <div className="flex justify-end">
-                    <button
-                      className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={() => handleDelete(rule.id!)}
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </div>
+                  {!isReadOnly && (
+                    <div className="flex justify-end">
+                      <button
+                        className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                        onClick={() => handleDelete(rule.id!)}
+                      >
+                        {t('common.delete')}
+                      </button>
+                    </div>
+                  )}
                 </td>
               </tr>
             ))}
