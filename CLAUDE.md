@@ -262,6 +262,120 @@ erDiagram
 
 ---
 
+## Frontend Structure
+
+### Routing (`frontend/src/App.tsx`)
+
+```
+AppLayout (sidebar + outlet)
+├── /schedule/groups          → GroupSchedulePage     (read-only calendar, filter by group)
+├── /schedule/teachers        → TeacherSchedulePage   (read-only calendar, filter by teacher)
+├── /annexes                  → AnnexesPage           (CRUD table for all annexes)
+├── /teachers                 → TeachersPage
+├── /groups                   → GroupsPage
+├── /children                 → ChildrenPage
+├── /rules                    → RulesPage
+├── /closed-days              → ClosedDaysPage
+└── /annexes/:id              → AnnexLayout           (tabs header + outlet)
+    ├── settings              → AnnexSettingsPage
+    ├── teachers              → AnnexTeachersPage
+    ├── groups                → AnnexGroupsPage
+    ├── children              → AnnexChildrenPage
+    ├── rules                 → AnnexRulesPage
+    ├── plan/groups           → AnnexPlanGroupPage     (draft planner by group)
+    ├── plan/teachers         → AnnexPlanTeacherPage   (draft planner by teacher)
+    └── plan/overview         → AnnexPlanOverviewPage  (full-day overview planner)
+```
+
+### Layout Components
+
+- **`AppLayout`** (`components/layout/AppLayout.tsx`) — flex container: `Sidebar` + `<Outlet>`
+- **`Sidebar`** (`components/layout/Sidebar.tsx`) — collapsible (56px / 224px). Three sections: Schedule, Management, Draft Annex. The Draft Annex section dynamically finds the one DRAFT-state annex via `useGetAnnexesQuery` and builds its links from `base = /annexes/{draftId}`.
+- **`AnnexLayout`** (`components/layout/AnnexLayout.tsx`) — loads annex by `:id` param, renders a tab bar (8 tabs), passes `annex` object to child pages via `<Outlet context={annex}>`. Children access it with `useOutletContext<AnnexDto>()`.
+
+### Schedule / Calendar Components (`frontend/src/components/schedule/`)
+
+| File | Purpose |
+|------|---------|
+| `CalendarGrid.tsx` | Read-only calendar. Props: `blocks`, `annex`, `weekDays`, `colorBy`. X=days, Y=time (06:00–20:00, 48px/hr). Uses `assignColumns()` for overlap layout. |
+| `DraftCalendarGrid.tsx` | Interactive version of CalendarGrid. Supports `xAxis="days"` (Mon–Fri) or `xAxis="groups"` (group columns). Drop zones (HTML5 DnD), resize handles (top/bottom, document mousemove), hover-X delete. Editing disabled when `editable=false`. |
+| `TimeBlock.tsx` | Read-only block renderer used by CalendarGrid. |
+| `ScheduleHeader.tsx` | Annex selector + filter dropdown + week navigation. Used by read-only schedule pages. |
+| `types.ts` | `AnnexDto`, `ScheduleBlock`, `AnnexGroupDto`, `AnnexTeacherDto`, `DayOfWeek` |
+| `utils.ts` | `timeToMinutes`, `minutesToTime`, `timeToTop`, `blockHeight`, `totalGridHeight`, `hoursRange`, `HOUR_HEIGHT_PX=48`, `WEEK_DAYS`, `getWeekStart`, `getWeekDays`, `addWeeks` |
+| `colors.ts` | `getColorForId(id)` → 8-color palette (bg/border/text) cycling by `id % 8` |
+
+### Plan Pages (Draft Annex Planner)
+
+All three pages: get `annex` from `useOutletContext<AnnexDto>()`, set `editable = annex.state === 'DRAFT'`.
+
+**`AnnexPlanGroupPage`** — Select a group (dropdown). Right panel: draggable teacher list. Calendar (`xAxis="days"`): shows blocks filtered by selected group. Drop a teacher → creates `TEMPLATE` block spanning the full annex schedule day (start/end from `annex.scheduleStartTime`/`scheduleEndTime`).
+
+**`AnnexPlanTeacherPage`** — Mirror of above. Select a teacher. Right panel: draggable group list. Drop a group → creates full-day block.
+
+**`AnnexPlanOverviewPage`** — Day/Week toggle. Day mode: `xAxis="groups"` (each group = column for selected day), drop teacher on group column. Week mode: `xAxis="days"` showing all blocks, editing only (no DnD creation). Day navigation: prev/next + day tabs.
+
+### RTK Query API (`frontend/src/store/annexesApi.ts`)
+
+All queries/mutations are injected into the base `api` (`store/api.ts`, `baseUrl: '/api'`). Key hooks:
+
+```
+useGetAnnexesQuery()
+useGetAnnexGroupsQuery(annexId)        → AnnexGroupDto[]   {id, annexId, groupId, groupName}
+useGetAnnexTeachersQuery(annexId)      → AnnexTeacherDto[] {id, annexId, teacherId, firstName, lastName, defaultGroupId, defaultGroupName}
+useGetAnnexTimeBlocksQuery(annexId)    → ScheduleBlock[]
+useCreateAnnexTimeBlockMutation()      → POST /annexes/{id}/time-blocks
+useUpdateAnnexTimeBlockMutation()      → PUT  /annexes/{id}/time-blocks/{annexTimeBlockId}  (startTime, endTime only)
+useDeleteAnnexTimeBlockMutation()      → DELETE /annexes/{id}/time-blocks/{annexTimeBlockId}
+```
+
+Tags: `Annex`, `AnnexGroup`, `AnnexTeacher`, `AnnexTimeBlock`, `AnnexRule`, `AnnexChildGroup`, `Teacher`, `Group`, `Child`, `ClosedDay`.
+
+---
+
+## Draft Annex Concept
+
+A **Draft Annex** is an annex with `state = 'DRAFT'`. It represents the next period being planned before it goes live.
+
+- Only **one DRAFT** annex can exist at a time (enforced by backend `AnnexService`).
+- Activating a DRAFT (`POST /api/annexes/{id}/activate`) transitions it to `CURRENT` and archives the previous `CURRENT` as `FINISHED`.
+- The sidebar "Draft Annex" section always points to the single DRAFT annex. If none exists, links go to `/annexes`.
+- **DRAFT** annexes are fully editable (template blocks, teachers, groups, rules, settings).
+- **CURRENT** annexes: settings/memberships can be edited but the warning banner is shown; plan pages display but editing is disabled.
+- **FINISHED** annexes: read-only everywhere.
+
+### Template Schedule (AnnexTimeBlock)
+
+The draft annex's weekly schedule is built from `TEMPLATE` `TimeBlock` records linked via `AnnexTimeBlock`. These blocks have `dayOfWeek` (no specific date). The effective schedule for a given real-world week = template blocks + any `TimeBlockModification` records for that date range.
+
+- `TimeBlock` entity: `{type, teacherId, groupId, dayOfWeek, startTime, endTime}`
+- `AnnexTimeBlock` entity: `{annexId, timeBlockId}` — join between annex and time block
+- Frontend DTO: `ScheduleBlock` — flattened view with teacher/group names included
+
+---
+
+## Backend Structure
+
+```
+backend/src/main/java/com/planner/
+├── controller/
+│   ├── AnnexController.java
+│   ├── AnnexTimeBlockController.java   GET/POST/PUT/DELETE /api/annexes/{id}/time-blocks
+│   ├── AnnexTeacherController.java
+│   ├── AnnexGroupController.java
+│   ├── TeacherController.java
+│   └── GroupController.java
+├── service/
+│   ├── AnnexService.java               enforces one-DRAFT rule, handles activation
+│   ├── AnnexTimeBlockService.java      create/update/delete TimeBlock + AnnexTimeBlock
+│   └── AnnexMembershipService.java     teacher/group assignments to annexes
+├── entity/                             JPA entities (Annex, TimeBlock, AnnexTimeBlock, …)
+├── dto/                                Records (AnnexDto, AnnexTimeBlockDto, …)
+└── repository/                         Spring Data JPA repos
+```
+
+---
+
 ## Build & Run Commands
 
 > To be filled in as the project is built out.
