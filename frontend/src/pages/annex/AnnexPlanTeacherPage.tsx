@@ -49,7 +49,7 @@ export function AnnexPlanTeacherPage() {
     <div className="h-full flex min-h-0">
       <div className="flex-1 flex flex-col min-h-0">
         {/* Teacher selector */}
-        <div className="px-6 py-3 border-b flex items-center gap-3 shrink-0">
+        <div className="px-6 py-3 border-b border-border flex items-center gap-3 shrink-0">
           <label className="text-sm font-medium text-muted-foreground">
             {t('draftPlan.teacher')}:
           </label>
@@ -84,7 +84,7 @@ export function AnnexPlanTeacherPage() {
       </div>
 
       {/* Right panel: groups */}
-      <div className="w-52 border-l overflow-y-auto p-3 flex flex-col gap-1.5 shrink-0">
+      <div className="w-52 border-l border-border overflow-y-auto p-3 flex flex-col gap-1.5 shrink-0">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground py-1">
           {t('draftPlan.groups')}
         </p>

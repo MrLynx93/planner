@@ -71,7 +71,7 @@ export function AnnexPlanOverviewPage() {
     <div className="h-full flex min-h-0">
       <div className="flex-1 flex flex-col min-h-0">
         {/* Toolbar */}
-        <div className="px-6 py-3 border-b flex items-center gap-4 shrink-0">
+        <div className="px-6 py-3 border-b border-border flex items-center gap-4 shrink-0">
           {/* Mode toggle */}
           <div className="flex rounded-md border border-border overflow-hidden">
             <button
@@ -163,7 +163,7 @@ export function AnnexPlanOverviewPage() {
       </div>
 
       {/* Right panel: teachers */}
-      <div className="w-52 border-l overflow-y-auto p-3 flex flex-col gap-1.5 shrink-0">
+      <div className="w-52 border-l border-border overflow-y-auto p-3 flex flex-col gap-1.5 shrink-0">
         <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground py-1">
           {t('draftPlan.teachers')}
         </p>
