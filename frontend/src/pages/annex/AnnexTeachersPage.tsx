@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useOutletContext } from 'react-router-dom'
+import { GripVertical, X } from 'lucide-react'
 import type { AnnexDto, AnnexTeacherDto } from '@/components/schedule/types'
 import {
   useGetAnnexTeachersQuery,
@@ -12,7 +13,7 @@ import {
 import { useGetTeachersQuery } from '@/store/teachersApi'
 
 const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+  'rounded-md border border-border bg-background px-2.5 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-ring'
 
 export function AnnexTeachersPage() {
   const { t } = useTranslation()
@@ -26,32 +27,29 @@ export function AnnexTeachersPage() {
   const [updateTeacher] = useUpdateAnnexTeacherMutation()
   const [removeTeacher] = useRemoveAnnexTeacherMutation()
 
-  const [adding, setAdding] = useState(false)
-  const [newTeacherId, setNewTeacherId] = useState<number | null>(null)
-  const [newDefaultGroupId, setNewDefaultGroupId] = useState<number | null>(null)
+
   const [editingId, setEditingId] = useState<number | null>(null)
   const [editGroupId, setEditGroupId] = useState<number | null>(null)
 
   const assignedTeacherIds = new Set(annexTeachers.map(at => at.teacherId))
   const availableTeachers = allTeachers.filter(t => !assignedTeacherIds.has(t.id!))
 
-  async function handleAdd() {
-    if (!newTeacherId) return
+  async function handleDrop(e: React.DragEvent) {
+    e.preventDefault()
+    const teacherId = Number(e.dataTransfer.getData('teacherId'))
+    if (!teacherId) return
     await addTeacher({
       annexId: annex.id!,
       dto: {
         id: null,
         annexId: annex.id!,
-        teacherId: newTeacherId,
+        teacherId,
         firstName: '',
         lastName: '',
-        defaultGroupId: newDefaultGroupId,
+        defaultGroupId: null,
         defaultGroupName: null,
       },
     })
-    setAdding(false)
-    setNewTeacherId(null)
-    setNewDefaultGroupId(null)
   }
 
   function startEdit(at: AnnexTeacherDto) {
@@ -69,95 +67,28 @@ export function AnnexTeachersPage() {
   }
 
   async function handleRemove(at: AnnexTeacherDto) {
-    if (!window.confirm(t('common.confirmDelete'))) return
     await removeTeacher({ annexId: annex.id!, annexTeacherId: at.id! })
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-2xl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t('pages.draftAnnex.teachers.title')}</h1>
-        {!adding && !isReadOnly && (
-          <button
-            className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
-            onClick={() => setAdding(true)}
-          >
-            {t('pages.draftAnnex.teachers.add')}
-          </button>
-        )}
-      </div>
-
-      {adding && (
-        <div className="rounded-lg border border-border p-4 flex flex-col gap-3">
-          <h2 className="font-medium text-sm">{t('pages.draftAnnex.teachers.add')}</h2>
-          <div className="flex gap-3 flex-wrap items-end">
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">
-                {t('pages.draftAnnex.teachers.teacher')}
-              </label>
-              <select
-                className={selectClass}
-                value={newTeacherId ?? ''}
-                onChange={e => setNewTeacherId(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">{t('pages.draftAnnex.teachers.teacher')}</option>
-                {availableTeachers.map(t => (
-                  <option key={t.id} value={t.id!}>{t.firstName} {t.lastName}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">
-                {t('pages.draftAnnex.teachers.defaultGroup')}
-              </label>
-              <select
-                className={selectClass}
-                value={newDefaultGroupId ?? ''}
-                onChange={e => setNewDefaultGroupId(e.target.value ? Number(e.target.value) : null)}
-              >
-                <option value="">{t('pages.draftAnnex.teachers.noGroup')}</option>
-                {annexGroups.map(g => (
-                  <option key={g.groupId} value={g.groupId}>{g.groupName}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button
-              className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
-              onClick={handleAdd}
-            >
-              {t('common.save')}
-            </button>
-            <button
-              className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-              onClick={() => { setAdding(false); setNewTeacherId(null); setNewDefaultGroupId(null) }}
-            >
-              {t('common.cancel')}
-            </button>
-          </div>
-        </div>
-      )}
-
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-      ) : annexTeachers.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
-      ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left text-muted-foreground">
-              <th className="pb-2 pr-4 font-medium">{t('common.name')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.draftAnnex.teachers.defaultGroup')}</th>
-              <th className="pb-2 font-medium" />
-            </tr>
-          </thead>
-          <tbody>
+    <div className="flex gap-6 p-6 h-full">
+      <div
+        className="flex-1 flex flex-col gap-3 min-w-0"
+        onDragOver={e => { e.preventDefault() }}
+        onDrop={isReadOnly ? undefined : handleDrop}
+      >
+        <h2 className="text-base font-semibold">{t('pages.draftAnnex.teachers.inAnnex')}</h2>
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+        ) : annexTeachers.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
+        ) : (
+          <div className="flex flex-col gap-1">
             {annexTeachers.map(at => (
-              <tr key={at.id} className="border-b border-border last:border-0">
-                <td className="py-2 pr-4 font-medium">{at.firstName} {at.lastName}</td>
-                <td className="py-2 pr-4">
-                  {editingId === at.id ? (
+              <div key={at.id} className="rounded-md border border-border bg-background px-3 py-2 text-sm">
+                {editingId === at.id ? (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-medium flex-1 min-w-0">{at.firstName} {at.lastName}</span>
                     <select
                       className={selectClass}
                       value={editGroupId ?? ''}
@@ -168,50 +99,69 @@ export function AnnexTeachersPage() {
                         <option key={g.groupId} value={g.groupId}>{g.groupName}</option>
                       ))}
                     </select>
-                  ) : (
-                    at.defaultGroupName ?? <span className="text-muted-foreground">—</span>
-                  )}
-                </td>
-                <td className="py-2">
-                  <div className="flex gap-2 justify-end">
-                    {editingId === at.id ? (
+                    <button
+                      className="rounded bg-primary text-primary-foreground px-2 py-0.5 text-xs hover:bg-primary/90 transition-colors"
+                      onClick={() => handleUpdateGroup(at)}
+                    >
+                      {t('common.save')}
+                    </button>
+                    <button
+                      className="rounded border border-border px-2 py-0.5 text-xs hover:bg-accent transition-colors"
+                      onClick={() => setEditingId(null)}
+                    >
+                      {t('common.cancel')}
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium flex-1 min-w-0">{at.firstName} {at.lastName}</span>
+                    <span className="text-muted-foreground text-xs">
+                      {at.defaultGroupName ?? <span className="italic">{t('pages.draftAnnex.teachers.noGroup')}</span>}
+                    </span>
+                    {!isReadOnly && (
                       <>
                         <button
-                          className="rounded-md bg-primary text-primary-foreground px-2.5 py-1 text-xs hover:bg-primary/90 transition-colors"
-                          onClick={() => handleUpdateGroup(at)}
-                        >
-                          {t('common.save')}
-                        </button>
-                        <button
-                          className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
-                          onClick={() => setEditingId(null)}
-                        >
-                          {t('common.cancel')}
-                        </button>
-                      </>
-                    ) : !isReadOnly ? (
-                      <>
-                        <button
-                          className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                          className="text-muted-foreground hover:text-foreground transition-colors text-xs px-1.5 py-0.5 rounded hover:bg-accent"
                           onClick={() => startEdit(at)}
                         >
                           {t('common.edit')}
                         </button>
                         <button
-                          className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                          className="text-muted-foreground hover:text-destructive transition-colors rounded p-0.5"
                           onClick={() => handleRemove(at)}
                         >
-                          {t('common.delete')}
+                          <X size={14} />
                         </button>
                       </>
-                    ) : null}
+                    )}
                   </div>
-                </td>
-              </tr>
+                )}
+              </div>
             ))}
-          </tbody>
-        </table>
-      )}
+          </div>
+        )}
+      </div>
+
+      <div className="flex-1 flex flex-col gap-3 min-w-0">
+        <h2 className="text-base font-semibold">{t('pages.draftAnnex.teachers.available')}</h2>
+        {availableTeachers.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
+        ) : (
+          <div className="flex flex-col gap-1">
+            {availableTeachers.map(teacher => (
+              <div
+                key={teacher.id}
+                draggable={!isReadOnly}
+                onDragStart={e => e.dataTransfer.setData('teacherId', String(teacher.id))}
+                className="flex items-center gap-2 rounded-md border border-border bg-background px-3 py-2 text-sm select-none hover:bg-accent/50 transition-colors cursor-grab active:cursor-grabbing"
+              >
+                <GripVertical size={14} className="text-muted-foreground shrink-0" />
+                <span>{teacher.firstName} {teacher.lastName}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

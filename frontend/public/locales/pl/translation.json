@@ -93,18 +93,24 @@
         "add": "Dodaj nauczyciela",
         "teacher": "Nauczyciel",
         "defaultGroup": "Domyślna grupa",
-        "noGroup": "Bez grupy"
+        "noGroup": "Bez grupy",
+        "available": "Wszyscy nauczyciele",
+        "inAnnex": "W aneksie"
       },
       "groups": {
         "title": "Grupy",
         "add": "Dodaj grupę",
-        "group": "Grupa"
+        "group": "Grupa",
+        "available": "Wszystkie grupy",
+        "inAnnex": "W aneksie"
       },
       "children": {
         "title": "Dzieci",
         "add": "Dodaj dziecko",
         "child": "Dziecko",
-        "group": "Grupa"
+        "group": "Grupa",
+        "available": "Wszystkie dzieci",
+        "inAnnex": "W aneksie"
       },
       "rules": {
         "title": "Reguły"

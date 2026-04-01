@@ -93,18 +93,24 @@
         "add": "Add Teacher",
         "teacher": "Teacher",
         "defaultGroup": "Default Group",
-        "noGroup": "No group"
+        "noGroup": "No group",
+        "available": "All Teachers",
+        "inAnnex": "In Annex"
       },
       "groups": {
         "title": "Groups",
         "add": "Add Group",
-        "group": "Group"
+        "group": "Group",
+        "available": "All Groups",
+        "inAnnex": "In Annex"
       },
       "children": {
         "title": "Children",
         "add": "Add Child",
         "child": "Child",
-        "group": "Group"
+        "group": "Group",
+        "available": "All Children",
+        "inAnnex": "In Annex"
       },
       "rules": {
         "title": "Rules"
