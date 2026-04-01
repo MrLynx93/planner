@@ -21,8 +21,4 @@ public class AnnexTeacher {
     @ManyToOne
     @JoinColumn(name = "teacher_id", nullable = false)
     private Teacher teacher;
-
-    @ManyToOne
-    @JoinColumn(name = "default_group_id")
-    private Group defaultGroup;
 }

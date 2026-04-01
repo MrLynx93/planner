@@ -134,39 +134,33 @@ databaseChangeLog:
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,         valueNumeric: 1 }
-              - column: { name: teacher_id,        valueNumeric: 1 }
-              - column: { name: default_group_id,  valueNumeric: 1 }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: teacher_id, valueNumeric: 1 }
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,         valueNumeric: 1 }
-              - column: { name: teacher_id,        valueNumeric: 2 }
-              - column: { name: default_group_id,  valueNumeric: 1 }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: teacher_id, valueNumeric: 2 }
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,         valueNumeric: 1 }
-              - column: { name: teacher_id,        valueNumeric: 3 }
-              - column: { name: default_group_id,  valueNumeric: 2 }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: teacher_id, valueNumeric: 3 }
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,         valueNumeric: 1 }
-              - column: { name: teacher_id,        valueNumeric: 4 }
-              - column: { name: default_group_id,  valueNumeric: 2 }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: teacher_id, valueNumeric: 4 }
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,         valueNumeric: 1 }
-              - column: { name: teacher_id,        valueNumeric: 5 }
-              - column: { name: default_group_id,  valueNumeric: 3 }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: teacher_id, valueNumeric: 5 }
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,         valueNumeric: 1 }
-              - column: { name: teacher_id,        valueNumeric: 6 }
-              - column: { name: default_group_id,  valueNumeric: 3 }
+              - column: { name: annex_id,  valueNumeric: 1 }
+              - column: { name: teacher_id, valueNumeric: 6 }
 
   # ── 7. Child → Group assignments (per annex) ────────────────────────────────
   - changeSet:
@@ -915,15 +909,13 @@ databaseChangeLog:
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,        valueNumeric: 1 }
-              - column: { name: teacher_id,       valueNumeric: 7 }
-              - column: { name: default_group_id, valueNumeric: 4 }
+              - column: { name: annex_id,   valueNumeric: 1 }
+              - column: { name: teacher_id,  valueNumeric: 7 }
         - insert:
             tableName: annex_teacher
             columns:
-              - column: { name: annex_id,        valueNumeric: 1 }
-              - column: { name: teacher_id,       valueNumeric: 8 }
-              - column: { name: default_group_id, valueNumeric: 4 }
+              - column: { name: annex_id,   valueNumeric: 1 }
+              - column: { name: teacher_id,  valueNumeric: 8 }
 
   # ── 18. Annex ↔ extra group ──────────────────────────────────────────────────
   - changeSet:

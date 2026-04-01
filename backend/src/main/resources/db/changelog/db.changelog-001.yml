@@ -445,3 +445,14 @@ databaseChangeLog:
               - column:
                   name: reason
                   type: VARCHAR(500)
+
+  - changeSet:
+      id: 15
+      author: mateusz
+      changes:
+        - dropForeignKeyConstraint:
+            baseTableName: annex_teacher
+            constraintName: fk_annexteacher_group
+        - dropColumn:
+            tableName: annex_teacher
+            columnName: default_group_id

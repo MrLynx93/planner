@@ -32,8 +32,6 @@ export interface AnnexTeacherDto {
   teacherId: number
   firstName: string
   lastName: string
-  defaultGroupId: number | null
-  defaultGroupName: string | null
 }
 
 // Matches AnnexTimeBlockDto from backend

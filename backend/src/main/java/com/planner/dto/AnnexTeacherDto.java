@@ -5,7 +5,5 @@ public record AnnexTeacherDto(
         Integer annexId,
         Integer teacherId,
         String firstName,
-        String lastName,
-        Integer defaultGroupId,
-        String defaultGroupName
+        String lastName
 ) {}
