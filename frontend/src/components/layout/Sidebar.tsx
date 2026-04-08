@@ -15,6 +15,7 @@ import {
   Languages,
   Settings,
   CalendarRange,
+  CalendarX2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useGetAnnexesQuery } from '@/store/annexesApi'
@@ -28,6 +29,7 @@ interface NavItem {
 const scheduleItems: NavItem[] = [
   { labelKey: 'nav.items.groupSchedule', to: '/schedule/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.teacherSchedule', to: '/schedule/teachers', icon: User },
+  { labelKey: 'nav.items.scheduleExceptions', to: '/schedule/exceptions', icon: CalendarX2 },
 ]
 
 const managementItems: NavItem[] = [
@@ -88,7 +90,7 @@ export function Sidebar() {
   const { data: annexes = [] } = useGetAnnexesQuery()
   const draft = annexes.find(a => a.state === 'DRAFT')
   const base = draft ? `/annexes/${draft.id}` : '/annexes'
-  const draftAnnexItems: NavItem[] = [
+  const draftAnnexItems: NavItem[] = draft ? [
     { labelKey: 'nav.items.draftAnnexSettings', to: `${base}/settings`, icon: Settings },
     { labelKey: 'nav.items.draftAnnexTeachers', to: `${base}/teachers`, icon: Users },
     { labelKey: 'nav.items.draftAnnexGroups', to: `${base}/groups`, icon: LayoutGrid },
@@ -97,6 +99,8 @@ export function Sidebar() {
     { labelKey: 'nav.items.draftAnnexPlanGroups', to: `${base}/plan/groups`, icon: CalendarDays },
     { labelKey: 'nav.items.draftAnnexPlanTeachers', to: `${base}/plan/teachers`, icon: CalendarDays },
     { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${base}/plan/overview`, icon: CalendarRange },
+  ] : [
+    { labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 },
   ]
 
   const otherLang = i18n.language.startsWith('pl') ? 'en' : 'pl'

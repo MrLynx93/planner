@@ -11,6 +11,7 @@
     "items": {
       "groupSchedule": "Groups",
       "teacherSchedule": "Teachers",
+      "scheduleExceptions": "Exceptions",
       "annexes": "Annexes",
       "draftAnnexSettings": "General Settings",
       "draftAnnexTeachers": "Teachers",
@@ -119,6 +120,14 @@
       "add": "Add Closed Day",
       "date": "Date",
       "reason": "Reason"
+    },
+    "scheduleExceptions": {
+      "title": "Schedule Exceptions",
+      "new": "New Exception",
+      "allReasons": "All types",
+      "allTeachers": "All teachers",
+      "readOnly": "Read-only",
+      "incomplete": "Incomplete"
     }
   },
   "draftPlan": {
@@ -138,6 +147,38 @@
     "nextWeek": "Next week",
     "today": "Today",
     "modification": "Modification"
+  },
+  "exceptions": {
+    "reasons": {
+      "SICK_LEAVE": "Sick leave",
+      "VACATION": "Vacation",
+      "DELEGATION": "Delegation",
+      "EXCHANGE": "Hour exchange",
+      "OVERTIME": "Overtime",
+      "SCHEDULE_ADJUSTMENT": "Schedule adjustment"
+    },
+    "wizard": {
+      "chooseReason": "Choose exception type",
+      "back": "Back",
+      "teacher": "Teacher",
+      "teacherA": "Teacher A",
+      "teacherB": "Teacher B",
+      "from": "From",
+      "to": "To",
+      "date": "Date",
+      "group": "Group",
+      "startTime": "Start",
+      "endTime": "End",
+      "selectBlocks": "Blocks to cancel",
+      "assignCover": "Assign cover (optional)",
+      "noCover": "No cover",
+      "noBlocksForTeacher": "This teacher has no scheduled blocks in the selected range.",
+      "noBlocksOnDay": "No blocks on this day.",
+      "newTimes": "New times",
+      "originalTime": "Original",
+      "note": "Note (optional)"
+    },
+    "createFromBlock": "Create exception from this block"
   },
   "ruleTypes": {
     "TEACHER_MONTHLY_HOURS_MIN": "Min monthly hours (teacher)",

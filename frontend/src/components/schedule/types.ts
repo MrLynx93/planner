@@ -48,4 +48,34 @@ export interface ScheduleBlock {
   dayOfWeek: DayOfWeek
   startTime: string   // "HH:mm:ss"
   endTime: string
+  date?: string       // "YYYY-MM-DD", only present on MODIFICATION blocks
+}
+
+export type ExceptionReason =
+  | 'SICK_LEAVE'
+  | 'VACATION'
+  | 'DELEGATION'
+  | 'EXCHANGE'
+  | 'OVERTIME'
+  | 'SCHEDULE_ADJUSTMENT'
+
+export interface ExceptionModificationDto {
+  id: number
+  type: 'ADD' | 'REMOVE'
+  timeBlockId: number
+  teacherFirstName: string
+  teacherLastName: string
+  groupName: string
+  startTime: string
+  endTime: string
+  date: string  // "YYYY-MM-DD"
+}
+
+export interface ExceptionDto {
+  id: number
+  annexId: number
+  title: string | null
+  reason: ExceptionReason
+  note: string | null
+  modifications: ExceptionModificationDto[]
 }

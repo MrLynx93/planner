@@ -1,7 +1,10 @@
 package com.planner.entity;
 
 public enum ModificationReason {
-    TIME_OFF,
+    SICK_LEAVE,
+    VACATION,
+    DELEGATION,
     EXCHANGE,
-    OTHER
+    OVERTIME,
+    SCHEDULE_ADJUSTMENT
 }

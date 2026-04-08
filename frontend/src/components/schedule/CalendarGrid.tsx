@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { ContextMenu } from 'radix-ui'
 import type { AnnexDto, ScheduleBlock } from './types'
 import { WEEK_DAYS, hoursRange, totalGridHeight, timeToMinutes, HOUR_HEIGHT_PX } from './utils'
 import { TimeBlock } from './TimeBlock'
@@ -41,10 +42,11 @@ interface Props {
   annex: AnnexDto
   weekDays: Date[]
   colorBy?: 'teacher' | 'group'
+  onBlockContextMenu?: (block: ScheduleBlock) => void
 }
 
-export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher' }: Props) {
-  const { i18n } = useTranslation()
+export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockContextMenu }: Props) {
+  const { t, i18n } = useTranslation()
   const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
 
   const displayScheduleStartTime = '06:00'
@@ -110,7 +112,7 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher' }: Props) {
                 {/* Blocks */}
                 {dayBlocks.map(block => {
                   const { columnIndex, columnCount } = columns.get(block.id)!
-                  return (
+                  const blockEl = (
                     <TimeBlock
                       key={block.id}
                       block={block}
@@ -119,6 +121,22 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher' }: Props) {
                       columnCount={columnCount}
                       colorBy={colorBy}
                     />
+                  )
+                  if (!onBlockContextMenu) return blockEl
+                  return (
+                    <ContextMenu.Root key={block.id}>
+                      <ContextMenu.Trigger asChild>{blockEl}</ContextMenu.Trigger>
+                      <ContextMenu.Portal>
+                        <ContextMenu.Content className="z-50 min-w-[160px] rounded-md border border-border bg-background p-1 shadow-md">
+                          <ContextMenu.Item
+                            className="flex cursor-pointer select-none items-center rounded px-2 py-1.5 text-sm outline-none hover:bg-accent"
+                            onSelect={() => onBlockContextMenu(block)}
+                          >
+                            {t('exceptions.createFromBlock')}
+                          </ContextMenu.Item>
+                        </ContextMenu.Content>
+                      </ContextMenu.Portal>
+                    </ContextMenu.Root>
                   )
                 })}
               </div>

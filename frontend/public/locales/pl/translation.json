@@ -11,6 +11,7 @@
     "items": {
       "groupSchedule": "Grupy",
       "teacherSchedule": "Nauczyciele",
+      "scheduleExceptions": "Wyjątki",
       "annexes": "Aneksy",
       "draftAnnexSettings": "Ustawienia ogólne",
       "draftAnnexTeachers": "Nauczyciele",
@@ -119,6 +120,14 @@
       "add": "Dodaj dzień zamknięcia",
       "date": "Data",
       "reason": "Powód"
+    },
+    "scheduleExceptions": {
+      "title": "Wyjątki w planie",
+      "new": "Nowy wyjątek",
+      "allReasons": "Wszystkie typy",
+      "allTeachers": "Wszyscy nauczyciele",
+      "readOnly": "Tylko do odczytu",
+      "incomplete": "Niekompletny"
     }
   },
   "draftPlan": {
@@ -138,6 +147,38 @@
     "nextWeek": "Następny tydzień",
     "today": "Dziś",
     "modification": "Modyfikacja"
+  },
+  "exceptions": {
+    "reasons": {
+      "SICK_LEAVE": "Zwolnienie lekarskie",
+      "VACATION": "Urlop",
+      "DELEGATION": "Delegacja",
+      "EXCHANGE": "Wymiana godzin",
+      "OVERTIME": "Nadgodziny",
+      "SCHEDULE_ADJUSTMENT": "Korekta planu"
+    },
+    "wizard": {
+      "chooseReason": "Wybierz typ wyjątku",
+      "back": "Wróć",
+      "teacher": "Nauczyciel",
+      "teacherA": "Nauczyciel A",
+      "teacherB": "Nauczyciel B",
+      "from": "Od",
+      "to": "Do",
+      "date": "Data",
+      "group": "Grupa",
+      "startTime": "Początek",
+      "endTime": "Koniec",
+      "selectBlocks": "Bloki do anulowania",
+      "assignCover": "Przypisz zastępstwo (opcjonalnie)",
+      "noCover": "Brak zastępstwa",
+      "noBlocksForTeacher": "Ten nauczyciel nie ma zaplanowanych bloków w wybranym zakresie.",
+      "noBlocksOnDay": "Brak bloków w tym dniu.",
+      "newTimes": "Nowe godziny",
+      "originalTime": "Oryginalne",
+      "note": "Notatka (opcjonalnie)"
+    },
+    "createFromBlock": "Utwórz wyjątek z tego bloku"
   },
   "ruleTypes": {
     "TEACHER_MONTHLY_HOURS_MIN": "Min. godzin miesięcznie (nauczyciel)",

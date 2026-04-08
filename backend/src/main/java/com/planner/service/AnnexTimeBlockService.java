@@ -87,7 +87,8 @@ public class AnnexTimeBlockService {
                 tb.getGroup().getName(),
                 tb.getDayOfWeek(),
                 tb.getStartTime(),
-                tb.getEndTime()
+                tb.getEndTime(),
+                null
         );
     }
 }

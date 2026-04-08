@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useOutletContext } from 'react-router-dom'
 import { GripVertical, X } from 'lucide-react'
@@ -19,11 +20,14 @@ export function AnnexGroupsPage() {
   const [addGroup] = useAddAnnexGroupMutation()
   const [removeGroup] = useRemoveAnnexGroupMutation()
 
+  const [isDragOver, setIsDragOver] = useState(false)
+
   const assignedGroupIds = new Set(annexGroups.map(ag => ag.groupId))
   const availableGroups = allGroups.filter(g => !assignedGroupIds.has(g.id!))
 
   async function handleDrop(e: React.DragEvent) {
     e.preventDefault()
+    setIsDragOver(false)
     const groupId = Number(e.dataTransfer.getData('groupId'))
     if (!groupId) return
     await addGroup({
@@ -37,13 +41,15 @@ export function AnnexGroupsPage() {
   }
 
   return (
-    <div className="flex gap-6 p-6 h-full">
+    <div className="flex gap-6 p-6">
+      <div className="flex-1 flex flex-col gap-3 min-w-0">
+        <h2 className="text-base font-semibold">{t('pages.draftAnnex.groups.inAnnex')}</h2>
       <div
-        className="flex-1 flex flex-col gap-3 min-w-0"
-        onDragOver={e => { e.preventDefault() }}
+        className={`flex flex-col gap-3 rounded-lg border-2 border-dashed p-3 transition-colors ${isDragOver && !isReadOnly ? 'border-primary bg-primary/5' : 'border-border'}`}
+        onDragOver={e => { e.preventDefault(); if (!isReadOnly) setIsDragOver(true) }}
+        onDragLeave={() => setIsDragOver(false)}
         onDrop={isReadOnly ? undefined : handleDrop}
       >
-        <h2 className="text-base font-semibold">{t('pages.draftAnnex.groups.inAnnex')}</h2>
         {isLoading ? (
           <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
         ) : annexGroups.length === 0 ? (
@@ -66,14 +72,15 @@ export function AnnexGroupsPage() {
           </div>
         )}
       </div>
+      </div>
 
       <div className="flex-1 flex flex-col gap-3 min-w-0">
         <h2 className="text-base font-semibold">{t('pages.draftAnnex.groups.available')}</h2>
-        {availableGroups.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
-        ) : (
-          <div className="flex flex-col gap-1">
-            {availableGroups.map(g => (
+        <div className="flex flex-col gap-1 p-3">
+          {availableGroups.length === 0 ? (
+            <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
+          ) : (
+            availableGroups.map(g => (
               <div
                 key={g.id}
                 draggable={!isReadOnly}
@@ -83,9 +90,9 @@ export function AnnexGroupsPage() {
                 <GripVertical size={14} className="text-muted-foreground shrink-0" />
                 <span>{g.name}</span>
               </div>
-            ))}
-          </div>
-        )}
+            ))
+          )}
+        </div>
       </div>
     </div>
   )

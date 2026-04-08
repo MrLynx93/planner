@@ -4,11 +4,9 @@ import com.planner.entity.ModificationReason;
 
 import java.util.List;
 
-public record ModificationGroupDto(
-        Integer id,
-        Integer annexId,
+public record CreateModificationGroupRequest(
         String title,
         ModificationReason reason,
         String note,
-        List<ModificationDto> modifications
+        List<CreateModificationItemRequest> modifications
 ) {}

@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { ScheduleHeader } from '@/components/schedule/ScheduleHeader'
 import { CalendarGrid } from '@/components/schedule/CalendarGrid'
 import { getWeekStart, getWeekDays } from '@/components/schedule/utils'
-import {
-  useGetAnnexesQuery,
-  useGetAnnexGroupsQuery,
-  useGetAnnexTimeBlocksQuery,
-} from '@/store/annexesApi'
+import { useGetAnnexesQuery, useGetAnnexGroupsQuery, useGetAnnexTeachersQuery, useGetAnnexTimeBlocksQuery } from '@/store/annexesApi'
+import { useGetEffectiveScheduleQuery, useCreateExceptionMutation } from '@/store/exceptionsApi'
+import { ExceptionWizardDialog } from '@/components/exceptions/ExceptionWizardDialog'
+import type { ScheduleBlock } from '@/components/schedule/types'
 
 export function GroupSchedulePage() {
   const { t } = useTranslation()
@@ -15,16 +14,22 @@ export function GroupSchedulePage() {
   const [selectedAnnexId, setSelectedAnnexId] = useState<number | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()))
+  const [contextBlock, setContextBlock] = useState<ScheduleBlock | null>(null)
 
   const { data: annexes = [], isLoading: annexesLoading } = useGetAnnexesQuery()
   const { data: groups = [], isLoading: groupsLoading } = useGetAnnexGroupsQuery(
     selectedAnnexId!,
     { skip: selectedAnnexId === null }
   )
-  const { data: blocks = [], isLoading: blocksLoading } = useGetAnnexTimeBlocksQuery(
-    selectedAnnexId!,
+  const weekStartStr = weekStart.toISOString().slice(0, 10)
+  const { data: blocks = [], isLoading: blocksLoading } = useGetEffectiveScheduleQuery(
+    { annexId: selectedAnnexId!, weekStart: weekStartStr },
     { skip: selectedAnnexId === null }
   )
+  const { data: teachers = [] } = useGetAnnexTeachersQuery(selectedAnnexId!, { skip: selectedAnnexId === null })
+  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(selectedAnnexId!, { skip: selectedAnnexId === null })
+
+  const [createException] = useCreateExceptionMutation()
 
   // Auto-select first annex on load
   useEffect(() => {
@@ -77,11 +82,26 @@ export function GroupSchedulePage() {
           blocks={filteredBlocks}
           annex={currentAnnex}
           weekDays={weekDays}
+          onBlockContextMenu={setContextBlock}
         />
       ) : (
         <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
           {t('schedule.selectAnnex')}
         </div>
+      )}
+
+      {selectedAnnexId && (
+        <ExceptionWizardDialog
+          open={contextBlock !== null}
+          onClose={() => setContextBlock(null)}
+          onSubmit={async req => {
+            await createException({ annexId: selectedAnnexId, request: req }).unwrap()
+          }}
+          annexId={selectedAnnexId}
+          teachers={teachers}
+          allBlocks={allBlocks}
+          preselectedBlock={contextBlock ?? undefined}
+        />
       )}
     </div>
   )

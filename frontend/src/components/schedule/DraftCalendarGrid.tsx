@@ -233,6 +233,17 @@ export function DraftCalendarGrid({
           </div>
 
           {/* Columns */}
+          {columns.length === 0 && (
+            <div className="flex-1 relative border-l border-gray-500">
+              {hours.map(h => (
+                <div
+                  key={h}
+                  className="absolute w-full border-t border-gray-300 z-10 pointer-events-none"
+                  style={{ top: (h - openingHour) * HOUR_HEIGHT_PX }}
+                />
+              ))}
+            </div>
+          )}
           {columns.map(col => {
             const colBlocks = getBlocksForColumn(col)
             const colAssignment = assignColumns(colBlocks)

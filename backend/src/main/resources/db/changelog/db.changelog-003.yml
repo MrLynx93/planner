@@ -1,0 +1,15 @@
+databaseChangeLog:
+
+  # ── 1. Add title to time_block_modification_group ───────────────────────────
+  - changeSet:
+      id: 3-1
+      author: mateusz
+      changes:
+        - addColumn:
+            tableName: time_block_modification_group
+            columns:
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: true

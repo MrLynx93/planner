@@ -1,6 +1,8 @@
 package com.planner.controller;
 
+import com.planner.dto.CreateModificationGroupRequest;
 import com.planner.dto.ModificationGroupDto;
+import com.planner.dto.UpdateModificationGroupRequest;
 import com.planner.service.ModificationGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,8 +29,16 @@ public class AnnexModificationGroupController {
 
     @PostMapping("/{id}/modification-groups")
     @ResponseStatus(HttpStatus.CREATED)
-    public ModificationGroupDto addModificationGroup(@PathVariable Integer id, @RequestBody ModificationGroupDto dto) {
-        return modificationGroupService.create(id, dto);
+    public ModificationGroupDto addModificationGroup(@PathVariable Integer id, @RequestBody CreateModificationGroupRequest request) {
+        return modificationGroupService.create(id, request);
+    }
+
+    @PutMapping("/{id}/modification-groups/{groupId}")
+    public ModificationGroupDto updateModificationGroup(
+            @PathVariable Integer id,
+            @PathVariable Integer groupId,
+            @RequestBody UpdateModificationGroupRequest request) {
+        return modificationGroupService.update(id, groupId, request);
     }
 
     @DeleteMapping("/{id}/modification-groups/{groupId}")

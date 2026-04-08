@@ -3,6 +3,7 @@ import { AppLayout } from '@/components/layout/AppLayout'
 import { AnnexLayout } from '@/components/layout/AnnexLayout'
 import { GroupSchedulePage } from '@/pages/schedule/GroupSchedulePage'
 import { TeacherSchedulePage } from '@/pages/schedule/TeacherSchedulePage'
+import { ScheduleExceptionsPage } from '@/pages/schedule/ScheduleExceptionsPage'
 import { AnnexesPage } from '@/pages/AnnexesPage'
 import { TeachersPage } from '@/pages/TeachersPage'
 import { GroupsPage } from '@/pages/GroupsPage'
@@ -25,6 +26,7 @@ function App() {
         <Route index element={<Navigate to="/schedule/groups" replace />} />
         <Route path="/schedule/groups" element={<GroupSchedulePage />} />
         <Route path="/schedule/teachers" element={<TeacherSchedulePage />} />
+        <Route path="/schedule/exceptions" element={<ScheduleExceptionsPage />} />
         <Route path="/annexes" element={<AnnexesPage />} />
         <Route path="/teachers" element={<TeachersPage />} />
         <Route path="/groups" element={<GroupsPage />} />

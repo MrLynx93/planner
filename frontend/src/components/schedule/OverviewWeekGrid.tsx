@@ -154,39 +154,51 @@ export function OverviewWeekGrid({
 
   return (
     <div className="flex-1 overflow-auto min-h-0">
-      <div className="m-8 border-2 border-gray-400 rounded" style={{ minWidth: `${48 + WEEK_DAYS.length * groups.length * 80}px` }}>
+      <div className="m-8 border-2 border-gray-400 rounded" style={{ minWidth: `${48 + Math.max(WEEK_DAYS.length * groups.length, WEEK_DAYS.length) * 80}px` }}>
         {/* Two-row sticky header */}
         <div className="sticky top-0 z-10 bg-background">
           {/* Row 1: day names — shown only in first group cell of each day */}
           <div className="flex border-b border-gray-300">
             <div className="w-12 shrink-0" />
-            {WEEK_DAYS.flatMap((day) =>
-              groups.map((g, gi) => (
-                <div
-                  key={`${day}-${g.groupId}-dayrow`}
-                  className={`flex-1 px-2 py-1 text-center ${gi === 0 ? 'border-l-2 border-gray-400' : 'border-l border-gray-200'}`}
-                >
-                  {gi === 0 && (
+            {groups.length === 0
+              ? WEEK_DAYS.map(day => (
+                  <div
+                    key={`${day}-dayrow`}
+                    className="flex-1 px-2 py-1 text-center border-l-2 border-gray-400"
+                  >
                     <span className="text-xs font-semibold">{DAY_LABELS[day]}</span>
-                  )}
-                </div>
-              )),
-            )}
+                  </div>
+                ))
+              : WEEK_DAYS.flatMap((day) =>
+                  groups.map((g, gi) => (
+                    <div
+                      key={`${day}-${g.groupId}-dayrow`}
+                      className={`flex-1 px-2 py-1 text-center ${gi === 0 ? 'border-l-2 border-gray-400' : 'border-l border-gray-200'}`}
+                    >
+                      {gi === 0 && (
+                        <span className="text-xs font-semibold">{DAY_LABELS[day]}</span>
+                      )}
+                    </div>
+                  )),
+                )
+            }
           </div>
-          {/* Row 2: group names */}
-          <div className="flex border-b border-gray-400">
-            <div className="w-12 shrink-0" />
-            {WEEK_DAYS.flatMap((day) =>
-              groups.map((g, gi) => (
-                <div
-                  key={`${day}-${g.groupId}-grouprow`}
-                  className={`flex-1 px-1 py-1 text-center bg-gray-50 ${gi === 0 ? 'border-l-2 border-gray-400' : 'border-l border-gray-300'}`}
-                >
-                  <span className="text-xs text-muted-foreground truncate block">{g.groupName}</span>
-                </div>
-              )),
-            )}
-          </div>
+          {/* Row 2: group names (hidden when no groups) */}
+          {groups.length > 0 && (
+            <div className="flex border-b border-gray-400">
+              <div className="w-12 shrink-0" />
+              {WEEK_DAYS.flatMap((day) =>
+                groups.map((g, gi) => (
+                  <div
+                    key={`${day}-${g.groupId}-grouprow`}
+                    className={`flex-1 px-1 py-1 text-center bg-gray-50 ${gi === 0 ? 'border-l-2 border-gray-400' : 'border-l border-gray-300'}`}
+                  >
+                    <span className="text-xs text-muted-foreground truncate block">{g.groupName}</span>
+                  </div>
+                )),
+              )}
+            </div>
+          )}
         </div>
 
         {/* Grid body */}
@@ -207,7 +219,21 @@ export function OverviewWeekGrid({
             ))}
           </div>
 
-          {/* Columns: 5 days × N groups */}
+          {/* Columns: 5 days × N groups (or placeholder columns when no groups) */}
+          {columns.length === 0 && WEEK_DAYS.map(day => (
+            <div
+              key={day}
+              className="flex-1 relative border-l-2 border-gray-400"
+            >
+              {hours.map(h => (
+                <div
+                  key={h}
+                  className="absolute w-full border-t border-gray-200 z-10 pointer-events-none"
+                  style={{ top: (h - openingHour) * HOUR_HEIGHT_PX }}
+                />
+              ))}
+            </div>
+          ))}
           {columns.map(({ day, group }, colIdx) => {
             const isFirstGroupOfDay = colIdx % groups.length === 0
             const colBlocks = blocks.filter(

@@ -22,6 +22,9 @@ public class TimeBlockModificationGroup {
     @Column(nullable = false)
     private ModificationReason reason;
 
+    @Column(length = 255)
+    private String title;
+
     @Column
     private String note;
 }

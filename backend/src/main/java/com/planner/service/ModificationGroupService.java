@@ -1,11 +1,11 @@
 package com.planner.service;
 
-import com.planner.dto.ModificationDto;
-import com.planner.dto.ModificationGroupDto;
-import com.planner.entity.TimeBlockModification;
-import com.planner.entity.TimeBlockModificationGroup;
+import com.planner.dto.*;
+import com.planner.entity.*;
 import com.planner.repository.TimeBlockModificationGroupRepository;
 import com.planner.repository.TimeBlockModificationRepository;
+import com.planner.repository.TimeBlockRepository;
+import java.time.DayOfWeek;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,8 +19,11 @@ public class ModificationGroupService {
 
     private final TimeBlockModificationGroupRepository groupRepository;
     private final TimeBlockModificationRepository modificationRepository;
+    private final TimeBlockRepository timeBlockRepository;
     private final AnnexService annexService;
     private final AnnexTimeBlockService timeBlockService;
+    private final TeacherService teacherService;
+    private final GroupService groupService;
 
     public List<ModificationGroupDto> findByAnnex(Integer annexId) {
         return groupRepository.findByAnnexId(annexId).stream().map(this::toDto).toList();
@@ -31,20 +34,43 @@ public class ModificationGroupService {
     }
 
     @Transactional
-    public ModificationGroupDto create(Integer annexId, ModificationGroupDto dto) {
+    public ModificationGroupDto create(Integer annexId, CreateModificationGroupRequest request) {
+        Annex annex = annexService.getOrThrow(annexId);
+        if (annex.getState() == AnnexState.FINISHED) {
+            throw new IllegalStateException("Cannot modify a FINISHED annex");
+        }
+
         TimeBlockModificationGroup group = new TimeBlockModificationGroup();
-        group.setAnnex(annexService.getOrThrow(annexId));
-        group.setReason(dto.reason());
-        group.setNote(dto.note());
+        group.setAnnex(annex);
+        group.setTitle(request.title());
+        group.setReason(request.reason());
+        group.setNote(request.note());
         groupRepository.save(group);
 
-        if (dto.modifications() != null) {
-            dto.modifications().forEach(m -> {
+        if (request.modifications() != null) {
+            request.modifications().forEach(item -> {
+                TimeBlock timeBlock;
+                if (item.type() == ModificationType.REMOVE) {
+                    timeBlock = timeBlockService.getTimeBlockOrThrow(item.timeBlockId());
+                } else {
+                    // ADD: create a new MODIFICATION-type TimeBlock inline
+                    Teacher teacher = teacherService.getOrThrow(item.teacherId());
+                    Group grp = groupService.getOrThrow(item.groupId());
+                    timeBlock = new TimeBlock();
+                    timeBlock.setType(TimeBlockType.MODIFICATION);
+                    timeBlock.setTeacher(teacher);
+                    timeBlock.setGroup(grp);
+                    timeBlock.setDayOfWeek(item.date().getDayOfWeek());
+                    timeBlock.setStartTime(item.startTime());
+                    timeBlock.setEndTime(item.endTime());
+                    timeBlockRepository.save(timeBlock);
+                }
+
                 TimeBlockModification mod = new TimeBlockModification();
                 mod.setModificationGroup(group);
-                mod.setType(m.type());
-                mod.setTimeBlock(timeBlockService.getTimeBlockOrThrow(m.timeBlockId()));
-                mod.setDate(m.date());
+                mod.setType(item.type());
+                mod.setTimeBlock(timeBlock);
+                mod.setDate(item.date());
                 modificationRepository.save(mod);
             });
         }
@@ -53,9 +79,30 @@ public class ModificationGroupService {
     }
 
     @Transactional
+    public ModificationGroupDto update(Integer annexId, Integer groupId, UpdateModificationGroupRequest request) {
+        TimeBlockModificationGroup group = getOrThrow(annexId, groupId);
+        if (group.getAnnex().getState() == AnnexState.FINISHED) {
+            throw new IllegalStateException("Cannot modify a FINISHED annex");
+        }
+        group.setTitle(request.title());
+        group.setReason(request.reason());
+        group.setNote(request.note());
+        groupRepository.save(group);
+        return toDto(group);
+    }
+
+    @Transactional
     public void delete(Integer annexId, Integer groupId) {
         TimeBlockModificationGroup group = getOrThrow(annexId, groupId);
-        modificationRepository.findByModificationGroupId(groupId).forEach(modificationRepository::delete);
+        List<TimeBlockModification> modifications = modificationRepository.findByModificationGroupId(groupId);
+        modifications.forEach(m -> {
+            TimeBlock tb = m.getTimeBlock();
+            modificationRepository.delete(m);
+            // Delete MODIFICATION-type TimeBlocks that were created for ADD items
+            if (tb.getType() == TimeBlockType.MODIFICATION) {
+                timeBlockRepository.delete(tb);
+            }
+        });
         groupRepository.delete(group);
     }
 
@@ -68,8 +115,21 @@ public class ModificationGroupService {
     private ModificationGroupDto toDto(TimeBlockModificationGroup g) {
         List<ModificationDto> modifications = modificationRepository
                 .findByModificationGroupId(g.getId()).stream()
-                .map(m -> new ModificationDto(m.getId(), m.getType(), m.getTimeBlock().getId(), m.getDate()))
+                .map(m -> {
+                    TimeBlock tb = m.getTimeBlock();
+                    return new ModificationDto(
+                            m.getId(),
+                            m.getType(),
+                            tb.getId(),
+                            tb.getTeacher().getFirstName(),
+                            tb.getTeacher().getLastName(),
+                            tb.getGroup().getName(),
+                            tb.getStartTime(),
+                            tb.getEndTime(),
+                            m.getDate()
+                    );
+                })
                 .toList();
-        return new ModificationGroupDto(g.getId(), g.getAnnex().getId(), g.getReason(), g.getNote(), modifications);
+        return new ModificationGroupDto(g.getId(), g.getAnnex().getId(), g.getTitle(), g.getReason(), g.getNote(), modifications);
     }
 }

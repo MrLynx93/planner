@@ -3,11 +3,10 @@ import { useTranslation } from 'react-i18next'
 import { ScheduleHeader } from '@/components/schedule/ScheduleHeader'
 import { CalendarGrid } from '@/components/schedule/CalendarGrid'
 import { getWeekStart, getWeekDays } from '@/components/schedule/utils'
-import {
-  useGetAnnexesQuery,
-  useGetAnnexTeachersQuery,
-  useGetAnnexTimeBlocksQuery,
-} from '@/store/annexesApi'
+import { useGetAnnexesQuery, useGetAnnexTeachersQuery, useGetAnnexTimeBlocksQuery } from '@/store/annexesApi'
+import { useGetEffectiveScheduleQuery, useCreateExceptionMutation } from '@/store/exceptionsApi'
+import { ExceptionWizardDialog } from '@/components/exceptions/ExceptionWizardDialog'
+import type { ScheduleBlock } from '@/components/schedule/types'
 
 export function TeacherSchedulePage() {
   const { t } = useTranslation()
@@ -15,16 +14,21 @@ export function TeacherSchedulePage() {
   const [selectedAnnexId, setSelectedAnnexId] = useState<number | null>(null)
   const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null)
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()))
+  const [contextBlock, setContextBlock] = useState<ScheduleBlock | null>(null)
 
   const { data: annexes = [], isLoading: annexesLoading } = useGetAnnexesQuery()
   const { data: teachers = [], isLoading: teachersLoading } = useGetAnnexTeachersQuery(
     selectedAnnexId!,
     { skip: selectedAnnexId === null }
   )
-  const { data: blocks = [], isLoading: blocksLoading } = useGetAnnexTimeBlocksQuery(
-    selectedAnnexId!,
+  const weekStartStr = weekStart.toISOString().slice(0, 10)
+  const { data: blocks = [], isLoading: blocksLoading } = useGetEffectiveScheduleQuery(
+    { annexId: selectedAnnexId!, weekStart: weekStartStr },
     { skip: selectedAnnexId === null }
   )
+  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(selectedAnnexId!, { skip: selectedAnnexId === null })
+
+  const [createException] = useCreateExceptionMutation()
 
   // Auto-select first annex on load
   useEffect(() => {
@@ -78,11 +82,26 @@ export function TeacherSchedulePage() {
           annex={currentAnnex}
           weekDays={weekDays}
           colorBy="group"
+          onBlockContextMenu={setContextBlock}
         />
       ) : (
         <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
           {t('schedule.selectAnnex')}
         </div>
+      )}
+
+      {selectedAnnexId && (
+        <ExceptionWizardDialog
+          open={contextBlock !== null}
+          onClose={() => setContextBlock(null)}
+          onSubmit={async req => {
+            await createException({ annexId: selectedAnnexId, request: req }).unwrap()
+          }}
+          annexId={selectedAnnexId}
+          teachers={teachers}
+          allBlocks={allBlocks}
+          preselectedBlock={contextBlock ?? undefined}
+        />
       )}
     </div>
   )

@@ -10,6 +10,8 @@ export const api = createApi({
     'AnnexRule',
     'AnnexTimeBlock',
     'ModificationGroup',
+    'Exception',
+    'EffectiveSchedule',
     'Teacher',
     'Group',
     'Child',
