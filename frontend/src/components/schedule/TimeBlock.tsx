@@ -1,4 +1,5 @@
-import type { ScheduleBlock } from './types'
+import { useTranslation } from 'react-i18next'
+import type { ExceptionReason, ScheduleBlock } from './types'
 import { getColorForId } from './colors'
 import { timeToTop, blockHeight, formatTime } from './utils'
 
@@ -8,9 +9,11 @@ interface Props {
   columnIndex: number
   columnCount: number
   colorBy?: 'teacher' | 'group'
+  exceptionReason?: ExceptionReason
 }
 
-export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, colorBy = 'teacher' }: Props) {
+export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, colorBy = 'teacher', exceptionReason }: Props) {
+  const { t } = useTranslation()
   const color = getColorForId(colorBy === 'group' ? block.groupId : block.teacherId)
   const top = timeToTop(block.startTime, scheduleStartTime)
   const height = blockHeight(block.startTime, block.endTime)
@@ -18,6 +21,12 @@ export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, 
 
   const leftPct = (columnIndex / columnCount) * 100
   const widthPct = (1 / columnCount) * 100
+
+  const borderStyle = exceptionReason
+    ? { border: '2px dashed #ef4444' }
+    : isModification
+      ? { border: `1.5px dashed ${color.border}` }
+      : { borderLeft: `3px solid ${color.border}` }
 
   return (
     <div
@@ -28,9 +37,7 @@ export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, 
         top: top + 1,
         height: Math.max(height - 2, 20),
         backgroundColor: color.bg,
-        ...(isModification
-          ? { border: `1.5px dashed ${color.border}` }
-          : { borderLeft: `3px solid ${color.border}` }),
+        ...borderStyle,
       }}
     >
       {/* Text layer sits above hour lines (z-20 > z-10 for hour lines) */}
@@ -44,6 +51,11 @@ export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, 
         {height >= 32 && (
           <p className="text-xs leading-tight truncate opacity-80" style={{ color: color.text, backgroundColor: color.bg }}>
             {formatTime(block.startTime)}–{formatTime(block.endTime)}
+          </p>
+        )}
+        {exceptionReason && (
+          <p className="text-xs leading-tight truncate font-medium" style={{ color: '#ef4444', backgroundColor: color.bg }}>
+            {t(`exceptions.reasons.${exceptionReason}`)}
           </p>
         )}
       </div>

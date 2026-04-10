@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next'
 import { ContextMenu } from 'radix-ui'
-import type { AnnexDto, ScheduleBlock } from './types'
-import { WEEK_DAYS, hoursRange, totalGridHeight, timeToMinutes, HOUR_HEIGHT_PX } from './utils'
+import type { AnnexDto, ExceptionReason, RemovedExceptionBlock, ScheduleBlock } from './types'
+import { WEEK_DAYS, hoursRange, totalGridHeight, timeToMinutes, timeToTop, blockHeight, formatTime, HOUR_HEIGHT_PX } from './utils'
 import { TimeBlock } from './TimeBlock'
 
-function assignColumns(blocks: ScheduleBlock[]): Map<number, { columnIndex: number; columnCount: number }> {
+interface AssignableBlock { id: number; startTime: string; endTime: string }
+
+function assignColumns(blocks: AssignableBlock[]): Map<number, { columnIndex: number; columnCount: number }> {
   const sorted = [...blocks].sort(
     (a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime),
   )
@@ -43,9 +45,12 @@ interface Props {
   weekDays: Date[]
   colorBy?: 'teacher' | 'group'
   onBlockContextMenu?: (block: ScheduleBlock) => void
+  showExceptions?: boolean
+  exceptionReasonByTimeBlockId?: Map<number, ExceptionReason>
+  removedExceptions?: RemovedExceptionBlock[]
 }
 
-export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockContextMenu }: Props) {
+export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockContextMenu, showExceptions, exceptionReasonByTimeBlockId, removedExceptions }: Props) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
 
@@ -97,7 +102,13 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockCon
           {/* Day columns */}
           {WEEK_DAYS.map(day => {
             const dayBlocks = blocks.filter(b => b.dayOfWeek === day)
-            const columns = assignColumns(dayBlocks)
+            const dayGhosts = showExceptions ? (removedExceptions?.filter(re => re.dayOfWeek === day) ?? []) : []
+            const GHOST_ID_OFFSET = 1_000_000
+            const allLayoutBlocks = [
+              ...dayBlocks,
+              ...dayGhosts.map(re => ({ id: re.id + GHOST_ID_OFFSET, startTime: re.startTime, endTime: re.endTime })),
+            ]
+            const columns = assignColumns(allLayoutBlocks)
             return (
               <div key={day} className="flex-1 relative border-l border-gray-500">
                 {/* Hour lines */}
@@ -112,6 +123,9 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockCon
                 {/* Blocks */}
                 {dayBlocks.map(block => {
                   const { columnIndex, columnCount } = columns.get(block.id)!
+                  const exceptionReason = showExceptions && block.type === 'MODIFICATION'
+                    ? exceptionReasonByTimeBlockId?.get(block.timeBlockId)
+                    : undefined
                   const blockEl = (
                     <TimeBlock
                       key={block.id}
@@ -120,6 +134,7 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockCon
                       columnIndex={columnIndex}
                       columnCount={columnCount}
                       colorBy={colorBy}
+                      exceptionReason={exceptionReason}
                     />
                   )
                   if (!onBlockContextMenu) return blockEl
@@ -137,6 +152,43 @@ export function CalendarGrid({ blocks, weekDays, colorBy = 'teacher', onBlockCon
                         </ContextMenu.Content>
                       </ContextMenu.Portal>
                     </ContextMenu.Root>
+                  )
+                })}
+
+                {/* Ghost blocks for removed exceptions */}
+                {dayGhosts.map(re => {
+                  const top = timeToTop(re.startTime, displayScheduleStartTime)
+                  const height = blockHeight(re.startTime, re.endTime)
+                  const { columnIndex, columnCount } = columns.get(re.id + GHOST_ID_OFFSET)!
+                  const leftPct = (columnIndex / columnCount) * 100
+                  const widthPct = (1 / columnCount) * 100
+                  return (
+                    <div
+                      key={re.id}
+                      className="absolute rounded pointer-events-none"
+                      style={{
+                        left: `calc(${leftPct}% + 1px)`,
+                        width: `calc(${widthPct}% - 2px)`,
+                        top: top + 1,
+                        height: Math.max(height - 2, 20),
+                        border: '2px dashed #ef4444',
+                        backgroundColor: 'rgba(239, 68, 68, 0.06)',
+                      }}
+                    >
+                      <div className="relative z-20 px-1.5 py-0.5 overflow-hidden h-full">
+                        <p className="text-xs font-semibold leading-tight truncate" style={{ color: '#ef4444' }}>
+                          {colorBy === 'group' ? re.groupName : `${re.teacherFirstName} ${re.teacherLastName}`}
+                        </p>
+                        {height >= 32 && (
+                          <p className="text-xs leading-tight truncate opacity-70" style={{ color: '#ef4444' }}>
+                            {formatTime(re.startTime)}–{formatTime(re.endTime)}
+                          </p>
+                        )}
+                        <p className="text-xs leading-tight truncate font-medium" style={{ color: '#ef4444' }}>
+                          {t('schedule.removed')} · {t(`exceptions.reasons.${re.reason}`)}
+                        </p>
+                      </div>
+                    </div>
                   )
                 })}
               </div>

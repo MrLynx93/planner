@@ -808,7 +808,7 @@ databaseChangeLog:
             tableName: time_block_modification_group
             columns:
               - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: reason,   value: "TIME_OFF" }
+              - column: { name: reason,   value: "SICK_LEAVE" }
               - column: { name: note,     value: "Anna Kowalska - zwolnienie lekarskie, zastępstwo Maria Wiśniewska" }
         # id=2 — Katarzyna and Joanna swap Wednesday 2025-10-08
         - insert:

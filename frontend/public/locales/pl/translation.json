@@ -146,7 +146,9 @@
     "prevWeek": "Poprzedni tydzień",
     "nextWeek": "Następny tydzień",
     "today": "Dziś",
-    "modification": "Modyfikacja"
+    "modification": "Modyfikacja",
+    "showExceptions": "Pokaż wyjątki",
+    "removed": "Usunięty"
   },
   "exceptions": {
     "reasons": {

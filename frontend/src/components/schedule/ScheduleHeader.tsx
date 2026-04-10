@@ -15,6 +15,9 @@ interface Props {
 
   weekStart: Date
   onWeekChange: (weekStart: Date) => void
+
+  showExceptions?: boolean
+  onShowExceptionsChange?: (v: boolean) => void
 }
 
 const selectClass =
@@ -33,6 +36,8 @@ export function ScheduleHeader({
   filterPlaceholder,
   weekStart,
   onWeekChange,
+  showExceptions,
+  onShowExceptionsChange,
 }: Props) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
@@ -70,6 +75,22 @@ export function ScheduleHeader({
           </option>
         ))}
       </select>
+
+      {/* Exceptions toggle */}
+      {onShowExceptionsChange && (
+        <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
+          <button
+            role="switch"
+            aria-checked={showExceptions}
+            type="button"
+            className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${showExceptions ? 'bg-primary' : 'bg-border'}`}
+            onClick={() => onShowExceptionsChange(!showExceptions)}
+          >
+            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${showExceptions ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+          </button>
+          {t('schedule.showExceptions')}
+        </label>
+      )}
 
       {/* Spacer */}
       <div className="flex-1" />

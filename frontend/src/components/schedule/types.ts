@@ -79,3 +79,14 @@ export interface ExceptionDto {
   note: string | null
   modifications: ExceptionModificationDto[]
 }
+
+export interface RemovedExceptionBlock {
+  id: number
+  dayOfWeek: DayOfWeek
+  startTime: string
+  endTime: string
+  teacherFirstName: string
+  teacherLastName: string
+  groupName: string
+  reason: ExceptionReason
+}
