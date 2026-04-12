@@ -204,6 +204,7 @@
   "violations": {
     "title": "Naruszenia reguł",
     "noViolations": "Brak naruszeń.",
+    "collapse": "Zwiń panel naruszeń",
     "thisWeek": "Ten tydzień",
     "thisMonth": "Ten miesiąc",
     "errors": "Błędy",

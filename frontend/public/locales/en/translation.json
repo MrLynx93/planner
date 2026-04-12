@@ -204,6 +204,7 @@
   "violations": {
     "title": "Violations",
     "noViolations": "No violations found.",
+    "collapse": "Collapse violations panel",
     "thisWeek": "This week",
     "thisMonth": "This month",
     "errors": "Errors",
