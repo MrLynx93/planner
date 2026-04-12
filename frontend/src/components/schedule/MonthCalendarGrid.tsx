@@ -1,31 +1,35 @@
-import { useTranslation } from 'react-i18next'
-import type { ScheduleBlock } from './types'
-import { getMonthWeeks, formatTime } from './utils'
-import { getColorForId } from './colors'
+import { useTranslation } from 'react-i18next';
+import type { ScheduleBlock } from './types';
+import { getMonthWeeks, formatTime } from './utils';
+import { getColorForId } from './colors';
 
 interface Props {
-  blocksByDate: Map<string, ScheduleBlock[]>
-  monthDate: Date
-  colorBy?: 'teacher' | 'group'
+  blocksByDate: Map<string, ScheduleBlock[]>;
+  monthDate: Date;
+  colorBy?: 'teacher' | 'group';
 }
 
-const MAX_VISIBLE_BLOCKS = 3
+const MAX_VISIBLE_BLOCKS = 3;
 
-export function MonthCalendarGrid({ blocksByDate, monthDate, colorBy = 'teacher' }: Props) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
+export function MonthCalendarGrid({
+  blocksByDate,
+  monthDate,
+  colorBy = 'teacher',
+}: Props) {
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB';
 
-  const weekStarts = getMonthWeeks(monthDate)
-  const currentMonth = monthDate.getMonth()
-  const currentYear = monthDate.getFullYear()
+  const weekStarts = getMonthWeeks(monthDate);
+  const currentMonth = monthDate.getMonth();
+  const currentYear = monthDate.getFullYear();
 
   // Build column header names from the first week
-  const dayFmt = new Intl.DateTimeFormat(locale, { weekday: 'short' })
+  const dayFmt = new Intl.DateTimeFormat(locale, { weekday: 'short' });
   const columnHeaders = Array.from({ length: 5 }, (_, i) => {
-    const d = new Date(weekStarts[0])
-    d.setDate(d.getDate() + i)
-    return dayFmt.format(d)
-  })
+    const d = new Date(weekStarts[0]);
+    d.setDate(d.getDate() + i);
+    return dayFmt.format(d);
+  });
 
   return (
     <div className="flex-1 overflow-auto min-h-0">
@@ -45,22 +49,23 @@ export function MonthCalendarGrid({ blocksByDate, monthDate, colorBy = 'teacher'
         {/* Week rows */}
         {weekStarts.map((ws, wi) => {
           const days = Array.from({ length: 5 }, (_, i) => {
-            const d = new Date(ws)
-            d.setDate(d.getDate() + i)
-            return d
-          })
+            const d = new Date(ws);
+            d.setDate(d.getDate() + i);
+            return d;
+          });
           return (
             <div
               key={wi}
               className={`grid grid-cols-5${wi > 0 ? ' border-t border-gray-300' : ''}`}
             >
               {days.map((day, di) => {
-                const dateStr = day.toISOString().slice(0, 10)
+                const dateStr = day.toISOString().slice(0, 10);
                 const isOutsideMonth =
-                  day.getMonth() !== currentMonth || day.getFullYear() !== currentYear
-                const dayBlocks = blocksByDate.get(dateStr) ?? []
-                const shown = dayBlocks.slice(0, MAX_VISIBLE_BLOCKS)
-                const overflow = dayBlocks.length - shown.length
+                  day.getMonth() !== currentMonth ||
+                  day.getFullYear() !== currentYear;
+                const dayBlocks = blocksByDate.get(dateStr) ?? [];
+                const shown = dayBlocks.slice(0, MAX_VISIBLE_BLOCKS);
+                const overflow = dayBlocks.length - shown.length;
 
                 return (
                   <div
@@ -76,18 +81,18 @@ export function MonthCalendarGrid({ blocksByDate, monthDate, colorBy = 'teacher'
 
                     {/* Block pills */}
                     <div className="flex flex-col gap-0.5">
-                      {shown.map(block => {
+                      {shown.map((block) => {
                         const color = getColorForId(
-                          colorBy === 'group' ? block.groupId : block.teacherId,
-                        )
+                          colorBy === 'group' ? block.groupId : block.teacherId
+                        );
                         const label =
                           colorBy === 'group'
                             ? block.groupName
-                            : `${block.teacherFirstName} ${block.teacherLastName}`
-                        const isModification = block.type === 'MODIFICATION'
+                            : `${block.teacherFirstName} ${block.teacherLastName}`;
+                        const isModification = block.type === 'MODIFICATION';
                         const borderStyle = isModification
                           ? { border: `1px dashed ${color.border}` }
-                          : { borderLeft: `2px solid ${color.border}` }
+                          : { borderLeft: `2px solid ${color.border}` };
                         return (
                           <div
                             key={block.id}
@@ -102,7 +107,7 @@ export function MonthCalendarGrid({ blocksByDate, monthDate, colorBy = 'teacher'
                           >
                             {label}
                           </div>
-                        )
+                        );
                       })}
                       {overflow > 0 && (
                         <div className="text-xs text-muted-foreground px-1 leading-tight">
@@ -111,12 +116,12 @@ export function MonthCalendarGrid({ blocksByDate, monthDate, colorBy = 'teacher'
                       )}
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
-          )
+          );
         })}
       </div>
     </div>
-  )
+  );
 }

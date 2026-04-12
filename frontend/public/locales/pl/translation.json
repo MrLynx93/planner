@@ -4,13 +4,13 @@
   },
   "nav": {
     "sections": {
-      "schedule": "Plan",
-      "draftAnnex": "Szkic aneksu",
+      "schedule": "Aktualny plan",
+      "draftAnnex": "Planuj nowy aneks",
       "management": "Zarządzanie"
     },
     "items": {
-      "groupSchedule": "Grupy",
-      "teacherSchedule": "Nauczyciele",
+      "groupSchedule": "Plan dla grupy",
+      "teacherSchedule": "Plan dla nauczyciela",
       "scheduleExceptions": "Wyjątki",
       "annexes": "Aneksy",
       "draftAnnexSettings": "Ustawienia ogólne",
@@ -25,7 +25,9 @@
       "groups": "Grupy",
       "children": "Dzieci",
       "rules": "Reguły",
-      "closedDays": "Dni zamknięcia"
+      "globalRules": "Reguły globalne",
+      "closedDays": "Dni zamknięcia",
+      "violations": "Naruszenia"
     }
   },
   "sidebar": {
@@ -121,6 +123,12 @@
       "date": "Data",
       "reason": "Powód"
     },
+    "globalRules": {
+      "title": "Reguły globalne",
+      "description": "Domyślne reguły stosowane we wszystkich aneksach. Mogą być nadpisane w ramach aneksu.",
+      "allTeachers": "Wszyscy nauczyciele (domyślnie)",
+      "allGroups": "Wszystkie grupy (domyślnie)"
+    },
     "scheduleExceptions": {
       "title": "Wyjątki w planie",
       "new": "Nowy wyjątek",
@@ -192,6 +200,31 @@
     "TEACHER_MAX_HOURS_PER_DAY": "Maks. godzin dziennie (nauczyciel)",
     "GROUP_MIN_TEACHERS": "Min. nauczycieli (grupa)",
     "TEACHER_MAX_FREE_HOURS_MONTHLY": "Maks. wolnych godzin/miesiąc (nauczyciel)"
+  },
+  "violations": {
+    "title": "Naruszenia reguł",
+    "noViolations": "Brak naruszeń.",
+    "thisWeek": "Ten tydzień",
+    "thisMonth": "Ten miesiąc",
+    "errors": "Błędy",
+    "warnings": "Ostrzeżenia",
+    "severity": "Poziom",
+    "entity": "Nauczyciel / Grupa",
+    "date": "Data",
+    "description": "Opis",
+    "year": "Rok",
+    "month": "Miesiąc",
+    "messages": {
+      "TEACHER_MONTHLY_HOURS_TOO_LOW": "{{name}} ma {{actual}}h, wymagane minimum to {{rule}}h/miesiąc",
+      "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} ma {{actual}}h w dniu {{date}}, maksimum to {{rule}}h/dzień",
+      "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} ma {{actual}}h wolnych, maksimum to {{rule}}h/miesiąc",
+      "GROUP_UNDERSTAFFED": "Grupa {{name}} ma {{actual}} nauczyciela/i w dniu {{date}}, wymagane minimum to {{rule}}"
+    },
+    "months": {
+      "1": "Styczeń", "2": "Luty", "3": "Marzec", "4": "Kwiecień",
+      "5": "Maj", "6": "Czerwiec", "7": "Lipiec", "8": "Sierpień",
+      "9": "Wrzesień", "10": "Październik", "11": "Listopad", "12": "Grudzień"
+    }
   },
   "common": {
     "comingSoon": "Wkrótce.",

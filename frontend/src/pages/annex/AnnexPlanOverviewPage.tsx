@@ -1,11 +1,11 @@
-import { useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import type { AnnexDto, DayOfWeek } from '@/components/schedule/types'
-import { WEEK_DAYS } from '@/components/schedule/utils'
-import { DraftCalendarGrid } from '@/components/schedule/DraftCalendarGrid'
-import { OverviewWeekGrid } from '@/components/schedule/OverviewWeekGrid'
+import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import type { AnnexDto, DayOfWeek } from '@/components/schedule/types';
+import { WEEK_DAYS } from '@/components/schedule/utils';
+import { DraftCalendarGrid } from '@/components/schedule/DraftCalendarGrid';
+import { OverviewWeekGrid } from '@/components/schedule/OverviewWeekGrid';
 import {
   useGetAnnexGroupsQuery,
   useGetAnnexTeachersQuery,
@@ -13,10 +13,10 @@ import {
   useCreateAnnexTimeBlockMutation,
   useUpdateAnnexTimeBlockMutation,
   useDeleteAnnexTimeBlockMutation,
-} from '@/store/annexesApi'
-import { cn } from '@/lib/utils'
+} from '@/store/annexesApi';
+import { cn } from '@/lib/utils';
 
-type Mode = 'day' | 'week'
+type Mode = 'day' | 'week';
 
 const DAY_LABELS: Record<DayOfWeek, string> = {
   MONDAY: 'Mon',
@@ -26,46 +26,62 @@ const DAY_LABELS: Record<DayOfWeek, string> = {
   FRIDAY: 'Fri',
   SATURDAY: 'Sat',
   SUNDAY: 'Sun',
-}
+};
 
 export function AnnexPlanOverviewPage() {
-  const { t } = useTranslation()
-  const annex = useOutletContext<AnnexDto>()
-  const annexId = annex.id!
-  const editable = annex.state === 'DRAFT'
+  const { t } = useTranslation();
+  const annex = useOutletContext<AnnexDto>();
+  const annexId = annex.id!;
+  const editable = annex.state === 'DRAFT';
 
-  const { data: groups = [] } = useGetAnnexGroupsQuery(annexId)
-  const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId)
-  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId)
+  const { data: groups = [] } = useGetAnnexGroupsQuery(annexId);
+  const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId);
+  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId);
 
-  const [mode, setMode] = useState<Mode>('day')
-  const [selectedDay, setSelectedDay] = useState<DayOfWeek>('MONDAY')
+  const [mode, setMode] = useState<Mode>('day');
+  const [selectedDay, setSelectedDay] = useState<DayOfWeek>('MONDAY');
 
-  const [createTimeBlock] = useCreateAnnexTimeBlockMutation()
-  const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation()
-  const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation()
+  const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
+  const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
+  const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation();
 
-  const currentDayIndex = WEEK_DAYS.indexOf(selectedDay)
+  const currentDayIndex = WEEK_DAYS.indexOf(selectedDay);
 
   const handlePrevDay = () => {
-    if (currentDayIndex > 0) setSelectedDay(WEEK_DAYS[currentDayIndex - 1])
-  }
+    if (currentDayIndex > 0) setSelectedDay(WEEK_DAYS[currentDayIndex - 1]);
+  };
 
   const handleNextDay = () => {
-    if (currentDayIndex < WEEK_DAYS.length - 1) setSelectedDay(WEEK_DAYS[currentDayIndex + 1])
-  }
+    if (currentDayIndex < WEEK_DAYS.length - 1)
+      setSelectedDay(WEEK_DAYS[currentDayIndex + 1]);
+  };
 
-  const handleDrop = (day: DayOfWeek, _startTime: string, teacherId: number, columnGroupId?: number) => {
-    if (!columnGroupId) return
+  const handleDrop = (
+    day: DayOfWeek,
+    _startTime: string,
+    teacherId: number,
+    columnGroupId?: number
+  ) => {
+    if (!columnGroupId) return;
     const alreadyExists = allBlocks.some(
-      b => b.teacherId === teacherId && b.groupId === columnGroupId && b.dayOfWeek === day,
-    )
-    if (alreadyExists) return
+      (b) =>
+        b.teacherId === teacherId &&
+        b.groupId === columnGroupId &&
+        b.dayOfWeek === day
+    );
+    if (alreadyExists) return;
     createTimeBlock({
       annexId,
-      dto: { teacherId, groupId: columnGroupId, dayOfWeek: day, startTime: annex.scheduleStartTime, endTime: annex.scheduleEndTime, type: 'TEMPLATE' },
-    })
-  }
+      dto: {
+        teacherId,
+        groupId: columnGroupId,
+        dayOfWeek: day,
+        startTime: annex.scheduleStartTime,
+        endTime: annex.scheduleEndTime,
+        type: 'TEMPLATE',
+      },
+    });
+  };
 
   return (
     <div className="h-full flex min-h-0">
@@ -79,7 +95,7 @@ export function AnnexPlanOverviewPage() {
                 'px-3 py-1.5 text-sm font-medium transition-colors',
                 mode === 'day'
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-background text-muted-foreground hover:bg-accent',
+                  : 'bg-background text-muted-foreground hover:bg-accent'
               )}
               onClick={() => setMode('day')}
             >
@@ -90,7 +106,7 @@ export function AnnexPlanOverviewPage() {
                 'px-3 py-1.5 text-sm font-medium border-l border-border transition-colors',
                 mode === 'week'
                   ? 'bg-primary text-primary-foreground'
-                  : 'bg-background text-muted-foreground hover:bg-accent',
+                  : 'bg-background text-muted-foreground hover:bg-accent'
               )}
               onClick={() => setMode('week')}
             >
@@ -109,7 +125,7 @@ export function AnnexPlanOverviewPage() {
                 <ChevronLeft className="h-4 w-4" />
               </button>
               <div className="flex gap-1">
-                {WEEK_DAYS.map(day => (
+                {WEEK_DAYS.map((day) => (
                   <button
                     key={day}
                     onClick={() => setSelectedDay(day)}
@@ -117,7 +133,7 @@ export function AnnexPlanOverviewPage() {
                       'px-2.5 py-1 rounded text-xs font-medium transition-colors',
                       day === selectedDay
                         ? 'bg-primary text-primary-foreground'
-                        : 'text-muted-foreground hover:bg-accent',
+                        : 'text-muted-foreground hover:bg-accent'
                     )}
                   >
                     {DAY_LABELS[day]}
@@ -145,9 +161,16 @@ export function AnnexPlanOverviewPage() {
             selectedDay={selectedDay}
             onDropItem={handleDrop}
             onResizeBlock={(id, start, end) =>
-              updateTimeBlock({ annexId, annexTimeBlockId: id, startTime: start, endTime: end })
+              updateTimeBlock({
+                annexId,
+                annexTimeBlockId: id,
+                startTime: start,
+                endTime: end,
+              })
             }
-            onDeleteBlock={id => deleteTimeBlock({ annexId, annexTimeBlockId: id })}
+            onDeleteBlock={(id) =>
+              deleteTimeBlock({ annexId, annexTimeBlockId: id })
+            }
           />
         ) : (
           <OverviewWeekGrid
@@ -155,9 +178,16 @@ export function AnnexPlanOverviewPage() {
             groups={groups}
             editable={editable}
             onResizeBlock={(id, start, end) =>
-              updateTimeBlock({ annexId, annexTimeBlockId: id, startTime: start, endTime: end })
+              updateTimeBlock({
+                annexId,
+                annexTimeBlockId: id,
+                startTime: start,
+                endTime: end,
+              })
             }
-            onDeleteBlock={id => deleteTimeBlock({ annexId, annexTimeBlockId: id })}
+            onDeleteBlock={(id) =>
+              deleteTimeBlock({ annexId, annexTimeBlockId: id })
+            }
           />
         )}
       </div>
@@ -169,21 +199,25 @@ export function AnnexPlanOverviewPage() {
         </p>
         <div className="border-t border-border mb-1" />
         {mode === 'week' && (
-          <p className="text-xs text-muted-foreground italic mb-1">{t('draftPlan.dragDisabledInWeekMode')}</p>
+          <p className="text-xs text-muted-foreground italic mb-1">
+            {t('draftPlan.dragDisabledInWeekMode')}
+          </p>
         )}
         {teachers.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t('common.noItems')}</p>
         ) : (
-          teachers.map(teacher => (
+          teachers.map((teacher) => (
             <div
               key={teacher.teacherId}
               draggable={editable && mode === 'day'}
-              onDragStart={e => e.dataTransfer.setData('id', String(teacher.teacherId))}
+              onDragStart={(e) =>
+                e.dataTransfer.setData('id', String(teacher.teacherId))
+              }
               className={cn(
                 'px-3 py-2 rounded text-sm border border-border select-none',
                 editable && mode === 'day'
                   ? 'cursor-grab active:cursor-grabbing hover:bg-accent'
-                  : 'opacity-50 cursor-default',
+                  : 'opacity-50 cursor-default'
               )}
             >
               {teacher.firstName} {teacher.lastName}
@@ -192,5 +226,5 @@ export function AnnexPlanOverviewPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

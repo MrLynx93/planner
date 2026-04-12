@@ -1,36 +1,36 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react'
-import { useTranslation } from 'react-i18next'
-import type { AnnexDto } from './types'
-import { getWeekDays, addWeeks, getWeekStart, addMonths } from './utils'
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import type { AnnexDto } from './types';
+import { getWeekDays, addWeeks, getWeekStart, addMonths } from './utils';
 
 interface Props {
-  annexes: AnnexDto[]
-  selectedAnnexId: number | null
-  onAnnexChange: (id: number | null) => void
+  annexes: AnnexDto[];
+  selectedAnnexId: number | null;
+  onAnnexChange: (id: number | null) => void;
 
-  filterItems: { id: number; label: string }[]
-  selectedFilterId: number | null
-  onFilterChange: (id: number | null) => void
-  filterPlaceholder: string
+  filterItems: { id: number; label: string }[];
+  selectedFilterId: number | null;
+  onFilterChange: (id: number | null) => void;
+  filterPlaceholder: string;
 
-  viewMode: 'week' | 'month'
-  onViewModeChange: (mode: 'week' | 'month') => void
+  viewMode: 'week' | 'month';
+  onViewModeChange: (mode: 'week' | 'month') => void;
 
-  weekStart: Date
-  onWeekChange: (weekStart: Date) => void
+  weekStart: Date;
+  onWeekChange: (weekStart: Date) => void;
 
-  monthDate: Date
-  onMonthChange: (d: Date) => void
+  monthDate: Date;
+  onMonthChange: (d: Date) => void;
 
-  showExceptions?: boolean
-  onShowExceptionsChange?: (v: boolean) => void
+  showExceptions?: boolean;
+  onShowExceptionsChange?: (v: boolean) => void;
 }
 
 const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 
 const iconBtnClass =
-  'rounded-md border border-border p-1.5 hover:bg-accent transition-colors disabled:opacity-40'
+  'rounded-md border border-border p-1.5 hover:bg-accent transition-colors disabled:opacity-40';
 
 export function ScheduleHeader({
   annexes,
@@ -49,18 +49,24 @@ export function ScheduleHeader({
   showExceptions,
   onShowExceptionsChange,
 }: Props) {
-  const { t, i18n } = useTranslation()
-  const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
+  const { t, i18n } = useTranslation();
+  const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB';
 
   // Week label
-  const weekDays = getWeekDays(weekStart)
-  const shortFmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' })
-  const yearFmt = new Intl.DateTimeFormat(locale, { year: 'numeric' })
-  const weekLabel = `${shortFmt.format(weekDays[0])} – ${shortFmt.format(weekDays[4])} ${yearFmt.format(weekDays[4])}`
+  const weekDays = getWeekDays(weekStart);
+  const shortFmt = new Intl.DateTimeFormat(locale, {
+    day: 'numeric',
+    month: 'short',
+  });
+  const yearFmt = new Intl.DateTimeFormat(locale, { year: 'numeric' });
+  const weekLabel = `${shortFmt.format(weekDays[0])} – ${shortFmt.format(weekDays[4])} ${yearFmt.format(weekDays[4])}`;
 
   // Month label
-  const monthFmt = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' })
-  const monthLabel = monthFmt.format(monthDate)
+  const monthFmt = new Intl.DateTimeFormat(locale, {
+    month: 'long',
+    year: 'numeric',
+  });
+  const monthLabel = monthFmt.format(monthDate);
 
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-border bg-background px-4 py-3 shrink-0">
@@ -68,10 +74,12 @@ export function ScheduleHeader({
       <select
         className={selectClass}
         value={selectedAnnexId ?? ''}
-        onChange={e => onAnnexChange(e.target.value ? Number(e.target.value) : null)}
+        onChange={(e) =>
+          onAnnexChange(e.target.value ? Number(e.target.value) : null)
+        }
       >
         <option value="">{t('schedule.selectAnnex')}</option>
-        {annexes.map(a => (
+        {annexes.map((a) => (
           <option key={a.id} value={a.id!}>
             {a.name}
           </option>
@@ -81,10 +89,12 @@ export function ScheduleHeader({
       <select
         className={selectClass}
         value={selectedFilterId ?? ''}
-        onChange={e => onFilterChange(e.target.value ? Number(e.target.value) : null)}
+        onChange={(e) =>
+          onFilterChange(e.target.value ? Number(e.target.value) : null)
+        }
       >
         <option value="">{filterPlaceholder}</option>
-        {filterItems.map(item => (
+        {filterItems.map((item) => (
           <option key={item.id} value={item.id}>
             {item.label}
           </option>
@@ -101,7 +111,9 @@ export function ScheduleHeader({
             className={`relative inline-flex h-5 w-9 shrink-0 items-center rounded-full transition-colors focus:outline-none ${showExceptions ? 'bg-primary' : 'bg-border'}`}
             onClick={() => onShowExceptionsChange(!showExceptions)}
           >
-            <span className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${showExceptions ? 'translate-x-[18px]' : 'translate-x-[2px]'}`} />
+            <span
+              className={`inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform ${showExceptions ? 'translate-x-[18px]' : 'translate-x-[2px]'}`}
+            />
           </button>
           {t('schedule.showExceptions')}
         </label>
@@ -137,7 +149,9 @@ export function ScheduleHeader({
             <ChevronLeft className="h-4 w-4" />
           </button>
 
-          <span className="min-w-[200px] text-center text-sm font-medium">{weekLabel}</span>
+          <span className="min-w-[200px] text-center text-sm font-medium">
+            {weekLabel}
+          </span>
 
           <button
             className={iconBtnClass}
@@ -157,7 +171,9 @@ export function ScheduleHeader({
             <ChevronLeft className="h-4 w-4" />
           </button>
 
-          <span className="min-w-[160px] text-center text-sm font-medium capitalize">{monthLabel}</span>
+          <span className="min-w-[160px] text-center text-sm font-medium capitalize">
+            {monthLabel}
+          </span>
 
           <button
             className={iconBtnClass}
@@ -172,13 +188,13 @@ export function ScheduleHeader({
       <button
         className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
         onClick={() => {
-          const today = new Date()
-          onWeekChange(getWeekStart(today))
-          onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1))
+          const today = new Date();
+          onWeekChange(getWeekStart(today));
+          onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1));
         }}
       >
         {t('schedule.today')}
       </button>
     </div>
-  )
+  );
 }

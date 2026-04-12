@@ -1,7 +1,7 @@
 interface BlockColor {
-  bg: string
-  border: string
-  text: string
+  bg: string;
+  border: string;
+  text: string;
 }
 
 const PALETTE: BlockColor[] = [
@@ -13,8 +13,8 @@ const PALETTE: BlockColor[] = [
   { bg: '#fef9c3', border: '#eab308', text: '#854d0e' }, // yellow
   { bg: '#cffafe', border: '#06b6d4', text: '#155e75' }, // cyan
   { bg: '#fee2e2', border: '#ef4444', text: '#991b1b' }, // red
-]
+];
 
 export function getColorForId(id: number): BlockColor {
-  return PALETTE[id % PALETTE.length]
+  return PALETTE[id % PALETTE.length];
 }

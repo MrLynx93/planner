@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
-import type { AnnexDto } from '@/components/schedule/types'
-import type { AnnexChildGroupDto } from '@/types'
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
+import type { AnnexDto } from '@/components/schedule/types';
+import type { AnnexChildGroupDto } from '@/types';
 import {
   useGetAnnexesQuery,
   useCreateAnnexMutation,
@@ -12,40 +12,40 @@ import {
   useGetAnnexChildrenQuery,
   useAssignChildToAnnexMutation,
   useRemoveChildFromAnnexMutation,
-} from '@/store/annexesApi'
-import { useGetChildrenQuery } from '@/store/childrenApi'
-import { useGetGroupsQuery } from '@/store/groupsApi'
+} from '@/store/annexesApi';
+import { useGetChildrenQuery } from '@/store/childrenApi';
+import { useGetGroupsQuery } from '@/store/groupsApi';
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 
 function toTimeInput(time: string): string {
-  return time ? time.substring(0, 5) : ''
+  return time ? time.substring(0, 5) : '';
 }
 
 function fromTimeInput(time: string): string {
-  return time ? `${time}:00` : ''
+  return time ? `${time}:00` : '';
 }
 
-const emptyForm = { name: '', scheduleStartTime: '', scheduleEndTime: '' }
+const emptyForm = { name: '', scheduleStartTime: '', scheduleEndTime: '' };
 
 function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
-  const { t } = useTranslation()
-  const [adding, setAdding] = useState(false)
-  const [childId, setChildId] = useState<number | null>(null)
-  const [groupId, setGroupId] = useState<number | null>(null)
+  const { t } = useTranslation();
+  const [adding, setAdding] = useState(false);
+  const [childId, setChildId] = useState<number | null>(null);
+  const [groupId, setGroupId] = useState<number | null>(null);
 
-  const { data: assignments = [] } = useGetAnnexChildrenQuery(annex.id!)
-  const { data: children = [] } = useGetChildrenQuery()
-  const { data: groups = [] } = useGetGroupsQuery()
-  const [assignChild] = useAssignChildToAnnexMutation()
-  const [removeChild] = useRemoveChildFromAnnexMutation()
-  const isReadOnly = annex.state === 'FINISHED'
+  const { data: assignments = [] } = useGetAnnexChildrenQuery(annex.id!);
+  const { data: children = [] } = useGetChildrenQuery();
+  const { data: groups = [] } = useGetGroupsQuery();
+  const [assignChild] = useAssignChildToAnnexMutation();
+  const [removeChild] = useRemoveChildFromAnnexMutation();
+  const isReadOnly = annex.state === 'FINISHED';
 
   async function handleAssign() {
-    if (!childId || !groupId) return
+    if (!childId || !groupId) return;
     await assignChild({
       annexId: annex.id!,
       dto: {
@@ -57,15 +57,15 @@ function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
         groupId,
         groupName: '',
       },
-    })
-    setAdding(false)
-    setChildId(null)
-    setGroupId(null)
+    });
+    setAdding(false);
+    setChildId(null);
+    setGroupId(null);
   }
 
   async function handleRemove(acg: AnnexChildGroupDto) {
-    if (!window.confirm(t('common.confirmDelete'))) return
-    await removeChild({ annexId: annex.id!, annexChildGroupId: acg.id! })
+    if (!window.confirm(t('common.confirmDelete'))) return;
+    await removeChild({ annexId: annex.id!, annexChildGroupId: acg.id! });
   }
 
   return (
@@ -93,10 +93,12 @@ function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
             <select
               className={selectClass}
               value={childId ?? ''}
-              onChange={e => setChildId(e.target.value ? Number(e.target.value) : null)}
+              onChange={(e) =>
+                setChildId(e.target.value ? Number(e.target.value) : null)
+              }
             >
               <option value="">{t('pages.annexes.child')}</option>
-              {children.map(c => (
+              {children.map((c) => (
                 <option key={c.id} value={c.id!}>
                   {c.firstName} {c.lastName}
                 </option>
@@ -110,11 +112,15 @@ function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
             <select
               className={selectClass}
               value={groupId ?? ''}
-              onChange={e => setGroupId(e.target.value ? Number(e.target.value) : null)}
+              onChange={(e) =>
+                setGroupId(e.target.value ? Number(e.target.value) : null)
+              }
             >
               <option value="">{t('pages.children.group')}</option>
-              {groups.map(g => (
-                <option key={g.id} value={g.id!}>{g.name}</option>
+              {groups.map((g) => (
+                <option key={g.id} value={g.id!}>
+                  {g.name}
+                </option>
               ))}
             </select>
           </div>
@@ -137,9 +143,11 @@ function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
         <p className="text-xs text-muted-foreground">{t('common.noItems')}</p>
       ) : (
         <div className="flex flex-col gap-1">
-          {assignments.map(a => (
+          {assignments.map((a) => (
             <div key={a.id} className="flex items-center gap-3 text-xs">
-              <span className="font-medium">{a.childFirstName} {a.childLastName}</span>
+              <span className="font-medium">
+                {a.childFirstName} {a.childLastName}
+              </span>
               <span className="text-muted-foreground">{a.groupName}</span>
               {!isReadOnly && (
                 <button
@@ -154,44 +162,47 @@ function AnnexChildrenSection({ annex }: { annex: AnnexDto }) {
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export function AnnexesPage() {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
 
-  const [editTarget, setEditTarget] = useState<'new' | AnnexDto | null>(null)
-  const [form, setForm] = useState(emptyForm)
-  const [expandedChildrenId, setExpandedChildrenId] = useState<number | null>(null)
+  const [editTarget, setEditTarget] = useState<'new' | AnnexDto | null>(null);
+  const [form, setForm] = useState(emptyForm);
+  const [expandedChildrenId, setExpandedChildrenId] = useState<number | null>(
+    null
+  );
 
-  const { data: annexes = [], isLoading } = useGetAnnexesQuery()
-  const [createAnnex] = useCreateAnnexMutation()
-  const [updateAnnex] = useUpdateAnnexMutation()
-  const [deleteAnnex] = useDeleteAnnexMutation()
-  const [activateAnnex] = useActivateAnnexMutation()
+  const { data: annexes = [], isLoading } = useGetAnnexesQuery();
+  const [createAnnex] = useCreateAnnexMutation();
+  const [updateAnnex] = useUpdateAnnexMutation();
+  const [deleteAnnex] = useDeleteAnnexMutation();
+  const [activateAnnex] = useActivateAnnexMutation();
 
   function set(field: keyof typeof emptyForm, value: string) {
-    setForm(f => ({ ...f, [field]: value }))
+    setForm((f) => ({ ...f, [field]: value }));
   }
 
   function openAdd() {
-    setEditTarget('new')
-    setForm(emptyForm)
+    setEditTarget('new');
+    setForm(emptyForm);
   }
 
   function openEdit(annex: AnnexDto) {
-    if (annex.state === 'FINISHED') return
-    setEditTarget(annex)
+    if (annex.state === 'FINISHED') return;
+    setEditTarget(annex);
     setForm({
       name: annex.name,
       scheduleStartTime: toTimeInput(annex.scheduleStartTime),
       scheduleEndTime: toTimeInput(annex.scheduleEndTime),
-    })
+    });
   }
 
   async function handleSave() {
-    if (!form.name.trim() || !form.scheduleStartTime || !form.scheduleEndTime) return
+    if (!form.name.trim() || !form.scheduleStartTime || !form.scheduleEndTime)
+      return;
     if (editTarget === 'new') {
       await createAnnex({
         id: null,
@@ -201,33 +212,33 @@ export function AnnexesPage() {
         scheduleStartTime: fromTimeInput(form.scheduleStartTime),
         scheduleEndTime: fromTimeInput(form.scheduleEndTime),
         state: 'DRAFT',
-      })
+      });
     } else {
-      const existing = editTarget as AnnexDto
+      const existing = editTarget as AnnexDto;
       await updateAnnex({
         ...existing,
         name: form.name.trim(),
         scheduleStartTime: fromTimeInput(form.scheduleStartTime),
         scheduleEndTime: fromTimeInput(form.scheduleEndTime),
-      })
+      });
     }
-    setEditTarget(null)
+    setEditTarget(null);
   }
 
   async function handleDelete(id: number) {
-    if (!window.confirm(t('common.confirmDelete'))) return
-    await deleteAnnex(id)
+    if (!window.confirm(t('common.confirmDelete'))) return;
+    await deleteAnnex(id);
   }
 
   async function handleActivate(annex: AnnexDto) {
-    if (!window.confirm(t('pages.annexes.confirmActivate'))) return
-    await activateAnnex(annex.id!)
+    if (!window.confirm(t('pages.annexes.confirmActivate'))) return;
+    await activateAnnex(annex.id!);
   }
 
   function stateBadgeClass(state: AnnexDto['state']) {
-    if (state === 'CURRENT') return 'bg-green-100 text-green-800'
-    if (state === 'FINISHED') return 'bg-gray-100 text-gray-600'
-    return 'bg-yellow-100 text-yellow-800'
+    if (state === 'CURRENT') return 'bg-green-100 text-green-800';
+    if (state === 'FINISHED') return 'bg-gray-100 text-gray-600';
+    return 'bg-yellow-100 text-yellow-800';
   }
 
   return (
@@ -251,30 +262,36 @@ export function AnnexesPage() {
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
-              <label className="block text-xs text-muted-foreground mb-1">{t('common.name')}</label>
+              <label className="block text-xs text-muted-foreground mb-1">
+                {t('common.name')}
+              </label>
               <input
                 className={`${inputClass} w-full`}
                 value={form.name}
-                onChange={e => set('name', e.target.value)}
+                onChange={(e) => set('name', e.target.value)}
                 autoFocus
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('pages.annexes.scheduleStartTime')}</label>
+              <label className="block text-xs text-muted-foreground mb-1">
+                {t('pages.annexes.scheduleStartTime')}
+              </label>
               <input
                 type="time"
                 className={`${inputClass} w-full`}
                 value={form.scheduleStartTime}
-                onChange={e => set('scheduleStartTime', e.target.value)}
+                onChange={(e) => set('scheduleStartTime', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('pages.annexes.scheduleEndTime')}</label>
+              <label className="block text-xs text-muted-foreground mb-1">
+                {t('pages.annexes.scheduleEndTime')}
+              </label>
               <input
                 type="time"
                 className={`${inputClass} w-full`}
                 value={form.scheduleEndTime}
-                onChange={e => set('scheduleEndTime', e.target.value)}
+                onChange={(e) => set('scheduleEndTime', e.target.value)}
               />
             </div>
           </div>
@@ -304,25 +321,41 @@ export function AnnexesPage() {
           <thead>
             <tr className="border-b border-border text-left text-muted-foreground">
               <th className="pb-2 pr-4 font-medium">{t('common.name')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.startDate')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.endDate')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.scheduleStartTime')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.scheduleEndTime')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.annexes.state')}</th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.annexes.startDate')}
+              </th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.annexes.endDate')}
+              </th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.annexes.scheduleStartTime')}
+              </th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.annexes.scheduleEndTime')}
+              </th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.annexes.state')}
+              </th>
               <th className="pb-2 font-medium" />
             </tr>
           </thead>
           <tbody>
-            {annexes.map(annex => (
+            {annexes.map((annex) => (
               <React.Fragment key={annex.id}>
                 <tr className="border-b border-border last:border-0">
                   <td className="py-2 pr-4 font-medium">{annex.name}</td>
                   <td className="py-2 pr-4">{annex.startDate}</td>
                   <td className="py-2 pr-4">{annex.endDate ?? '—'}</td>
-                  <td className="py-2 pr-4">{toTimeInput(annex.scheduleStartTime)}</td>
-                  <td className="py-2 pr-4">{toTimeInput(annex.scheduleEndTime)}</td>
                   <td className="py-2 pr-4">
-                    <span className={`rounded px-2 py-0.5 text-xs font-medium ${stateBadgeClass(annex.state)}`}>
+                    {toTimeInput(annex.scheduleStartTime)}
+                  </td>
+                  <td className="py-2 pr-4">
+                    {toTimeInput(annex.scheduleEndTime)}
+                  </td>
+                  <td className="py-2 pr-4">
+                    <span
+                      className={`rounded px-2 py-0.5 text-xs font-medium ${stateBadgeClass(annex.state)}`}
+                    >
                       {t(`pages.annexes.states.${annex.state}`)}
                     </span>
                   </td>
@@ -330,13 +363,19 @@ export function AnnexesPage() {
                     <div className="flex gap-2 justify-end">
                       <button
                         className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
-                        onClick={() => navigate(`/annexes/${annex.id}/settings`)}
+                        onClick={() =>
+                          navigate(`/annexes/${annex.id}/settings`)
+                        }
                       >
                         {t('common.open')}
                       </button>
                       <button
                         className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
-                        onClick={() => setExpandedChildrenId(prev => prev === annex.id ? null : annex.id!)}
+                        onClick={() =>
+                          setExpandedChildrenId((prev) =>
+                            prev === annex.id ? null : annex.id!
+                          )
+                        }
                       >
                         {t('pages.annexes.children')}
                       </button>
@@ -378,5 +417,5 @@ export function AnnexesPage() {
         </table>
       )}
     </div>
-  )
+  );
 }

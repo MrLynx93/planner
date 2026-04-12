@@ -1,0 +1,8 @@
+package com.planner.entity;
+
+public enum ViolationType {
+    TEACHER_MONTHLY_HOURS_TOO_LOW,
+    TEACHER_DAILY_HOURS_EXCEEDED,
+    TEACHER_FREE_HOURS_EXCEEDED,
+    GROUP_UNDERSTAFFED
+}

@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import type { AnnexDto, DayOfWeek } from '@/components/schedule/types'
-import { DraftCalendarGrid } from '@/components/schedule/DraftCalendarGrid'
+import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import type { AnnexDto, DayOfWeek } from '@/components/schedule/types';
+import { DraftCalendarGrid } from '@/components/schedule/DraftCalendarGrid';
 import {
   useGetAnnexGroupsQuery,
   useGetAnnexTeachersQuery,
@@ -10,38 +10,54 @@ import {
   useCreateAnnexTimeBlockMutation,
   useUpdateAnnexTimeBlockMutation,
   useDeleteAnnexTimeBlockMutation,
-} from '@/store/annexesApi'
+} from '@/store/annexesApi';
 
 export function AnnexPlanGroupPage() {
-  const { t } = useTranslation()
-  const annex = useOutletContext<AnnexDto>()
-  const annexId = annex.id!
-  const editable = annex.state === 'DRAFT'
+  const { t } = useTranslation();
+  const annex = useOutletContext<AnnexDto>();
+  const annexId = annex.id!;
+  const editable = annex.state === 'DRAFT';
 
-  const { data: groups = [] } = useGetAnnexGroupsQuery(annexId)
-  const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId)
-  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId)
+  const { data: groups = [] } = useGetAnnexGroupsQuery(annexId);
+  const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId);
+  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId);
 
-  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
+  const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null);
 
-  const [createTimeBlock] = useCreateAnnexTimeBlockMutation()
-  const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation()
-  const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation()
+  const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
+  const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
+  const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation();
 
-  const effectiveGroupId = selectedGroupId ?? groups[0]?.groupId ?? null
-  const filteredBlocks = effectiveGroupId ? allBlocks.filter(b => b.groupId === effectiveGroupId) : []
+  const effectiveGroupId = selectedGroupId ?? groups[0]?.groupId ?? null;
+  const filteredBlocks = effectiveGroupId
+    ? allBlocks.filter((b) => b.groupId === effectiveGroupId)
+    : [];
 
-  const handleDrop = (day: DayOfWeek, _startTime: string, teacherId: number) => {
-    if (!effectiveGroupId) return
+  const handleDrop = (
+    day: DayOfWeek,
+    _startTime: string,
+    teacherId: number
+  ) => {
+    if (!effectiveGroupId) return;
     const alreadyExists = allBlocks.some(
-      b => b.teacherId === teacherId && b.groupId === effectiveGroupId && b.dayOfWeek === day,
-    )
-    if (alreadyExists) return
+      (b) =>
+        b.teacherId === teacherId &&
+        b.groupId === effectiveGroupId &&
+        b.dayOfWeek === day
+    );
+    if (alreadyExists) return;
     createTimeBlock({
       annexId,
-      dto: { teacherId, groupId: effectiveGroupId, dayOfWeek: day, startTime: annex.scheduleStartTime, endTime: annex.scheduleEndTime, type: 'TEMPLATE' },
-    })
-  }
+      dto: {
+        teacherId,
+        groupId: effectiveGroupId,
+        dayOfWeek: day,
+        startTime: annex.scheduleStartTime,
+        endTime: annex.scheduleEndTime,
+        type: 'TEMPLATE',
+      },
+    });
+  };
 
   return (
     <div className="h-full flex min-h-0">
@@ -52,14 +68,16 @@ export function AnnexPlanGroupPage() {
             {t('draftPlan.group')}:
           </label>
           {groups.length === 0 ? (
-            <span className="text-sm text-muted-foreground">{t('common.noItems')}</span>
+            <span className="text-sm text-muted-foreground">
+              {t('common.noItems')}
+            </span>
           ) : (
             <select
               className="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
               value={effectiveGroupId ?? ''}
-              onChange={e => setSelectedGroupId(Number(e.target.value))}
+              onChange={(e) => setSelectedGroupId(Number(e.target.value))}
             >
-              {groups.map(g => (
+              {groups.map((g) => (
                 <option key={g.groupId} value={g.groupId}>
                   {g.groupName}
                 </option>
@@ -73,11 +91,20 @@ export function AnnexPlanGroupPage() {
           colorBy="teacher"
           editable={editable}
           xAxis="days"
-          onDropItem={(day, startTime, teacherId) => handleDrop(day, startTime, teacherId)}
-          onResizeBlock={(id, start, end) =>
-            updateTimeBlock({ annexId, annexTimeBlockId: id, startTime: start, endTime: end })
+          onDropItem={(day, startTime, teacherId) =>
+            handleDrop(day, startTime, teacherId)
           }
-          onDeleteBlock={id => deleteTimeBlock({ annexId, annexTimeBlockId: id })}
+          onResizeBlock={(id, start, end) =>
+            updateTimeBlock({
+              annexId,
+              annexTimeBlockId: id,
+              startTime: start,
+              endTime: end,
+            })
+          }
+          onDeleteBlock={(id) =>
+            deleteTimeBlock({ annexId, annexTimeBlockId: id })
+          }
         />
       </div>
 
@@ -90,11 +117,13 @@ export function AnnexPlanGroupPage() {
         {teachers.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t('common.noItems')}</p>
         ) : (
-          teachers.map(teacher => (
+          teachers.map((teacher) => (
             <div
               key={teacher.teacherId}
               draggable={editable}
-              onDragStart={e => e.dataTransfer.setData('id', String(teacher.teacherId))}
+              onDragStart={(e) =>
+                e.dataTransfer.setData('id', String(teacher.teacherId))
+              }
               className={`px-3 py-2 rounded text-sm border border-border select-none ${
                 editable
                   ? 'cursor-grab active:cursor-grabbing hover:bg-accent'
@@ -107,5 +136,5 @@ export function AnnexPlanGroupPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

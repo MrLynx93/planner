@@ -1,25 +1,29 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ALL_RULE_TYPES, RULE_NEEDS_TEACHER, RULE_NEEDS_GROUP } from '@/types';
-import type { AnnexRuleDto, RuleType } from '@/types';
+import type { GlobalRuleDto, RuleType } from '@/types';
 import {
-  useGetAnnexesQuery,
-  useGetAnnexRulesQuery,
-  useGetAnnexTeachersQuery,
-  useGetAnnexGroupsQuery,
-  useCreateAnnexRuleMutation,
-  useDeleteAnnexRuleMutation,
-} from '@/store/annexesApi';
+  useGetGlobalRulesQuery,
+  useCreateGlobalRuleMutation,
+  useDeleteGlobalRuleMutation,
+} from '@/store/globalRulesApi';
+import { useGetTeachersQuery } from '@/store/teachersApi';
+import { useGetGroupsQuery } from '@/store/groupsApi';
 
 const selectClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24';
 
-export function RulesPage() {
+export function GlobalRulesPage() {
   const { t } = useTranslation();
 
-  const [selectedAnnexId, setSelectedAnnexId] = useState<number | null>(null);
+  const { data: rules = [], isLoading } = useGetGlobalRulesQuery();
+  const { data: teachers = [] } = useGetTeachersQuery();
+  const { data: groups = [] } = useGetGroupsQuery();
+  const [createRule] = useCreateGlobalRuleMutation();
+  const [deleteRule] = useDeleteGlobalRuleMutation();
+
   const [adding, setAdding] = useState(false);
   const [ruleType, setRuleType] = useState<RuleType>(
     'TEACHER_MONTHLY_HOURS_MIN'
@@ -27,22 +31,6 @@ export function RulesPage() {
   const [teacherId, setTeacherId] = useState<number | null>(null);
   const [groupId, setGroupId] = useState<number | null>(null);
   const [intValue, setIntValue] = useState('');
-
-  const { data: annexes = [] } = useGetAnnexesQuery();
-  const { data: rules = [], isLoading } = useGetAnnexRulesQuery(
-    selectedAnnexId!,
-    {
-      skip: selectedAnnexId === null,
-    }
-  );
-  const { data: teachers = [] } = useGetAnnexTeachersQuery(selectedAnnexId!, {
-    skip: selectedAnnexId === null,
-  });
-  const { data: groups = [] } = useGetAnnexGroupsQuery(selectedAnnexId!, {
-    skip: selectedAnnexId === null,
-  });
-  const [createRule] = useCreateAnnexRuleMutation();
-  const [deleteRule] = useDeleteAnnexRuleMutation();
 
   const needsTeacher = RULE_NEEDS_TEACHER.includes(ruleType);
   const needsGroup = RULE_NEEDS_GROUP.includes(ruleType);
@@ -56,33 +44,27 @@ export function RulesPage() {
   }
 
   async function handleSave() {
-    if (!selectedAnnexId || !intValue) return;
-    if (needsTeacher && !teacherId) return;
-    if (needsGroup && !groupId) return;
-
-    const dto: AnnexRuleDto = {
+    if (!intValue) return;
+    const dto: GlobalRuleDto = {
       id: null,
-      annexId: selectedAnnexId,
-      ruleId: null,
       ruleType,
-      teacherId: needsTeacher ? teacherId : null,
+      teacherId: null,
       teacherFirstName: null,
       teacherLastName: null,
-      groupId: needsGroup ? groupId : null,
+      groupId: null,
       groupName: null,
       intValue: Number(intValue),
     };
-    await createRule({ annexId: selectedAnnexId, dto });
+    await createRule(dto);
     setAdding(false);
   }
 
-  async function handleDelete(annexRuleId: number) {
-    if (!selectedAnnexId) return;
+  async function handleDelete(id: number) {
     if (!window.confirm(t('common.confirmDelete'))) return;
-    await deleteRule({ annexId: selectedAnnexId, annexRuleId });
+    await deleteRule(id);
   }
 
-  function ruleLabel(rule: AnnexRuleDto): string {
+  function ruleLabel(rule: GlobalRuleDto): string {
     const parts: string[] = [t(`ruleTypes.${rule.ruleType}`)];
     if (rule.teacherFirstName)
       parts.push(`${rule.teacherFirstName} ${rule.teacherLastName}`);
@@ -93,26 +75,15 @@ export function RulesPage() {
   return (
     <div className="flex flex-col gap-6 p-6 max-w-2xl">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">{t('pages.rules.title')}</h1>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <select
-          className={selectClass}
-          value={selectedAnnexId ?? ''}
-          onChange={(e) => {
-            setSelectedAnnexId(e.target.value ? Number(e.target.value) : null);
-            setAdding(false);
-          }}
-        >
-          <option value="">{t('schedule.selectAnnex')}</option>
-          {annexes.map((a) => (
-            <option key={a.id} value={a.id!}>
-              {a.name}
-            </option>
-          ))}
-        </select>
-        {selectedAnnexId !== null && !adding && (
+        <div>
+          <h1 className="text-xl font-semibold">
+            {t('pages.globalRules.title')}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            {t('pages.globalRules.description')}
+          </p>
+        </div>
+        {!adding && (
           <button
             className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
             onClick={openAdd}
@@ -158,9 +129,9 @@ export function RulesPage() {
                     setTeacherId(e.target.value ? Number(e.target.value) : null)
                   }
                 >
-                  <option value="">{t('pages.rules.teacher')}</option>
+                  <option value="">{t('pages.globalRules.allTeachers')}</option>
                   {teachers.map((teacher) => (
-                    <option key={teacher.teacherId} value={teacher.teacherId}>
+                    <option key={teacher.id} value={teacher.id!}>
                       {teacher.firstName} {teacher.lastName}
                     </option>
                   ))}
@@ -179,10 +150,10 @@ export function RulesPage() {
                     setGroupId(e.target.value ? Number(e.target.value) : null)
                   }
                 >
-                  <option value="">{t('pages.rules.group')}</option>
+                  <option value="">{t('pages.globalRules.allGroups')}</option>
                   {groups.map((g) => (
-                    <option key={g.groupId} value={g.groupId}>
-                      {g.groupName}
+                    <option key={g.id} value={g.id!}>
+                      {g.name}
                     </option>
                   ))}
                 </select>
@@ -218,11 +189,7 @@ export function RulesPage() {
         </div>
       )}
 
-      {selectedAnnexId === null ? (
-        <p className="text-sm text-muted-foreground">
-          {t('schedule.selectAnnex')}
-        </p>
-      ) : isLoading ? (
+      {isLoading ? (
         <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
       ) : rules.length === 0 ? (
         <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>

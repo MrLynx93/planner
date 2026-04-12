@@ -1,36 +1,36 @@
-import { useState } from 'react'
-import { useTranslation } from 'react-i18next'
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   useGetClosedDaysQuery,
   useCreateClosedDayMutation,
   useDeleteClosedDayMutation,
-} from '@/store/closedDaysApi'
+} from '@/store/closedDaysApi';
 
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring'
+  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 
 export function ClosedDaysPage() {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const [adding, setAdding] = useState(false)
-  const [date, setDate] = useState('')
-  const [reason, setReason] = useState('')
+  const [adding, setAdding] = useState(false);
+  const [date, setDate] = useState('');
+  const [reason, setReason] = useState('');
 
-  const { data: closedDays = [], isLoading } = useGetClosedDaysQuery()
-  const [createClosedDay] = useCreateClosedDayMutation()
-  const [deleteClosedDay] = useDeleteClosedDayMutation()
+  const { data: closedDays = [], isLoading } = useGetClosedDaysQuery();
+  const [createClosedDay] = useCreateClosedDayMutation();
+  const [deleteClosedDay] = useDeleteClosedDayMutation();
 
   async function handleSave() {
-    if (!date) return
-    await createClosedDay({ id: null, date, reason: reason.trim() })
-    setAdding(false)
-    setDate('')
-    setReason('')
+    if (!date) return;
+    await createClosedDay({ id: null, date, reason: reason.trim() });
+    setAdding(false);
+    setDate('');
+    setReason('');
   }
 
   async function handleDelete(id: number) {
-    if (!window.confirm(t('common.confirmDelete'))) return
-    await deleteClosedDay(id)
+    if (!window.confirm(t('common.confirmDelete'))) return;
+    await deleteClosedDay(id);
   }
 
   return (
@@ -55,15 +55,15 @@ export function ClosedDaysPage() {
               type="date"
               className={inputClass}
               value={date}
-              onChange={e => setDate(e.target.value)}
+              onChange={(e) => setDate(e.target.value)}
               autoFocus
             />
             <input
               className={inputClass}
               placeholder={t('pages.closedDays.reason')}
               value={reason}
-              onChange={e => setReason(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSave()}
+              onChange={(e) => setReason(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
             />
           </div>
           <div className="flex gap-2">
@@ -91,18 +91,27 @@ export function ClosedDaysPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-border text-left text-muted-foreground">
-              <th className="pb-2 pr-4 font-medium">{t('pages.closedDays.date')}</th>
-              <th className="pb-2 pr-4 font-medium">{t('pages.closedDays.reason')}</th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.closedDays.date')}
+              </th>
+              <th className="pb-2 pr-4 font-medium">
+                {t('pages.closedDays.reason')}
+              </th>
               <th className="pb-2 font-medium" />
             </tr>
           </thead>
           <tbody>
             {[...closedDays]
               .sort((a, b) => a.date.localeCompare(b.date))
-              .map(day => (
-                <tr key={day.id} className="border-b border-border last:border-0">
+              .map((day) => (
+                <tr
+                  key={day.id}
+                  className="border-b border-border last:border-0"
+                >
                   <td className="py-2 pr-4">{day.date}</td>
-                  <td className="py-2 pr-4 text-muted-foreground">{day.reason || '—'}</td>
+                  <td className="py-2 pr-4 text-muted-foreground">
+                    {day.reason || '—'}
+                  </td>
                   <td className="py-2">
                     <div className="flex justify-end">
                       <button
@@ -119,5 +128,5 @@ export function ClosedDaysPage() {
         </table>
       )}
     </div>
-  )
+  );
 }

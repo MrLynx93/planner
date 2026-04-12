@@ -1,82 +1,133 @@
-import { api } from './api'
-import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, ScheduleBlock } from '@/components/schedule/types'
-import type { AnnexRuleDto, AnnexChildGroupDto } from '@/types'
+import { api } from './api';
+import type {
+  AnnexDto,
+  AnnexGroupDto,
+  AnnexTeacherDto,
+  ScheduleBlock,
+} from '@/components/schedule/types';
+import type { AnnexRuleDto, AnnexChildGroupDto } from '@/types';
 
 type CreateAnnexTimeBlockArg = {
-  annexId: number
+  annexId: number;
   dto: {
-    teacherId: number
-    groupId: number
-    dayOfWeek: string
-    startTime: string
-    endTime: string
-    type: 'TEMPLATE' | 'MODIFICATION'
-  }
-}
-type UpdateAnnexTimeBlockArg = { annexId: number; annexTimeBlockId: number; startTime: string; endTime: string }
-type DeleteAnnexTimeBlockArg = { annexId: number; annexTimeBlockId: number }
+    teacherId: number;
+    groupId: number;
+    dayOfWeek: string;
+    startTime: string;
+    endTime: string;
+    type: 'TEMPLATE' | 'MODIFICATION';
+  };
+};
+type UpdateAnnexTimeBlockArg = {
+  annexId: number;
+  annexTimeBlockId: number;
+  startTime: string;
+  endTime: string;
+};
+type DeleteAnnexTimeBlockArg = { annexId: number; annexTimeBlockId: number };
 
-type AddAnnexTeacherArg = { annexId: number; dto: Omit<AnnexTeacherDto, 'id'> & { id: null } }
-type UpdateAnnexTeacherArg = { annexId: number; annexTeacherId: number; dto: AnnexTeacherDto }
-type RemoveAnnexTeacherArg = { annexId: number; annexTeacherId: number }
-type AddAnnexGroupArg = { annexId: number; dto: Omit<AnnexGroupDto, 'id'> & { id: null } }
-type RemoveAnnexGroupArg = { annexId: number; annexGroupId: number }
+type AddAnnexTeacherArg = {
+  annexId: number;
+  dto: Omit<AnnexTeacherDto, 'id'> & { id: null };
+};
+type UpdateAnnexTeacherArg = {
+  annexId: number;
+  annexTeacherId: number;
+  dto: AnnexTeacherDto;
+};
+type RemoveAnnexTeacherArg = { annexId: number; annexTeacherId: number };
+type AddAnnexGroupArg = {
+  annexId: number;
+  dto: Omit<AnnexGroupDto, 'id'> & { id: null };
+};
+type RemoveAnnexGroupArg = { annexId: number; annexGroupId: number };
 
 export const annexesApi = api.injectEndpoints({
-  endpoints: builder => ({
+  endpoints: (builder) => ({
     getAnnexes: builder.query<AnnexDto[], void>({
       query: () => '/annexes',
       providesTags: ['Annex'],
     }),
     createAnnex: builder.mutation<AnnexDto, AnnexDto>({
-      query: dto => ({ url: '/annexes', method: 'POST', body: dto }),
+      query: (dto) => ({ url: '/annexes', method: 'POST', body: dto }),
       invalidatesTags: ['Annex'],
     }),
     updateAnnex: builder.mutation<AnnexDto, AnnexDto>({
-      query: dto => ({ url: `/annexes/${dto.id}`, method: 'PUT', body: dto }),
+      query: (dto) => ({ url: `/annexes/${dto.id}`, method: 'PUT', body: dto }),
       invalidatesTags: ['Annex'],
     }),
     deleteAnnex: builder.mutation<void, number>({
-      query: id => ({ url: `/annexes/${id}`, method: 'DELETE' }),
+      query: (id) => ({ url: `/annexes/${id}`, method: 'DELETE' }),
       invalidatesTags: ['Annex'],
     }),
     getAnnexGroups: builder.query<AnnexGroupDto[], number>({
-      query: annexId => `/annexes/${annexId}/groups`,
+      query: (annexId) => `/annexes/${annexId}/groups`,
       providesTags: ['AnnexGroup'],
     }),
     addAnnexGroup: builder.mutation<AnnexGroupDto, AddAnnexGroupArg>({
-      query: ({ annexId, dto }) => ({ url: `/annexes/${annexId}/groups`, method: 'POST', body: dto }),
+      query: ({ annexId, dto }) => ({
+        url: `/annexes/${annexId}/groups`,
+        method: 'POST',
+        body: dto,
+      }),
       invalidatesTags: ['AnnexGroup'],
     }),
     removeAnnexGroup: builder.mutation<void, RemoveAnnexGroupArg>({
-      query: ({ annexId, annexGroupId }) => ({ url: `/annexes/${annexId}/groups/${annexGroupId}`, method: 'DELETE' }),
+      query: ({ annexId, annexGroupId }) => ({
+        url: `/annexes/${annexId}/groups/${annexGroupId}`,
+        method: 'DELETE',
+      }),
       invalidatesTags: ['AnnexGroup'],
     }),
     getAnnexTeachers: builder.query<AnnexTeacherDto[], number>({
-      query: annexId => `/annexes/${annexId}/teachers`,
+      query: (annexId) => `/annexes/${annexId}/teachers`,
       providesTags: ['AnnexTeacher'],
     }),
     addAnnexTeacher: builder.mutation<AnnexTeacherDto, AddAnnexTeacherArg>({
-      query: ({ annexId, dto }) => ({ url: `/annexes/${annexId}/teachers`, method: 'POST', body: dto }),
+      query: ({ annexId, dto }) => ({
+        url: `/annexes/${annexId}/teachers`,
+        method: 'POST',
+        body: dto,
+      }),
       invalidatesTags: ['AnnexTeacher'],
     }),
-    updateAnnexTeacher: builder.mutation<AnnexTeacherDto, UpdateAnnexTeacherArg>({
-      query: ({ annexId, annexTeacherId, dto }) => ({ url: `/annexes/${annexId}/teachers/${annexTeacherId}`, method: 'PUT', body: dto }),
+    updateAnnexTeacher: builder.mutation<
+      AnnexTeacherDto,
+      UpdateAnnexTeacherArg
+    >({
+      query: ({ annexId, annexTeacherId, dto }) => ({
+        url: `/annexes/${annexId}/teachers/${annexTeacherId}`,
+        method: 'PUT',
+        body: dto,
+      }),
       invalidatesTags: ['AnnexTeacher'],
     }),
     removeAnnexTeacher: builder.mutation<void, RemoveAnnexTeacherArg>({
-      query: ({ annexId, annexTeacherId }) => ({ url: `/annexes/${annexId}/teachers/${annexTeacherId}`, method: 'DELETE' }),
+      query: ({ annexId, annexTeacherId }) => ({
+        url: `/annexes/${annexId}/teachers/${annexTeacherId}`,
+        method: 'DELETE',
+      }),
       invalidatesTags: ['AnnexTeacher'],
     }),
     getAnnexTimeBlocks: builder.query<ScheduleBlock[], number>({
-      query: annexId => `/annexes/${annexId}/time-blocks`,
+      query: (annexId) => `/annexes/${annexId}/time-blocks`,
       providesTags: ['AnnexTimeBlock'],
     }),
-    createAnnexTimeBlock: builder.mutation<ScheduleBlock, CreateAnnexTimeBlockArg>({
-      query: ({ annexId, dto }) => ({ url: `/annexes/${annexId}/time-blocks`, method: 'POST', body: dto }),
+    createAnnexTimeBlock: builder.mutation<
+      ScheduleBlock,
+      CreateAnnexTimeBlockArg
+    >({
+      query: ({ annexId, dto }) => ({
+        url: `/annexes/${annexId}/time-blocks`,
+        method: 'POST',
+        body: dto,
+      }),
       invalidatesTags: ['AnnexTimeBlock'],
     }),
-    updateAnnexTimeBlock: builder.mutation<ScheduleBlock, UpdateAnnexTimeBlockArg>({
+    updateAnnexTimeBlock: builder.mutation<
+      ScheduleBlock,
+      UpdateAnnexTimeBlockArg
+    >({
       query: ({ annexId, annexTimeBlockId, startTime, endTime }) => ({
         url: `/annexes/${annexId}/time-blocks/${annexTimeBlockId}`,
         method: 'PUT',
@@ -92,30 +143,53 @@ export const annexesApi = api.injectEndpoints({
       invalidatesTags: ['AnnexTimeBlock'],
     }),
     getAnnexRules: builder.query<AnnexRuleDto[], number>({
-      query: annexId => `/annexes/${annexId}/rules`,
+      query: (annexId) => `/annexes/${annexId}/rules`,
       providesTags: ['AnnexRule'],
     }),
-    createAnnexRule: builder.mutation<AnnexRuleDto, { annexId: number; dto: AnnexRuleDto }>({
-      query: ({ annexId, dto }) => ({ url: `/annexes/${annexId}/rules`, method: 'POST', body: dto }),
+    createAnnexRule: builder.mutation<
+      AnnexRuleDto,
+      { annexId: number; dto: AnnexRuleDto }
+    >({
+      query: ({ annexId, dto }) => ({
+        url: `/annexes/${annexId}/rules`,
+        method: 'POST',
+        body: dto,
+      }),
       invalidatesTags: ['AnnexRule'],
     }),
-    deleteAnnexRule: builder.mutation<void, { annexId: number; annexRuleId: number }>({
-      query: ({ annexId, annexRuleId }) => ({ url: `/annexes/${annexId}/rules/${annexRuleId}`, method: 'DELETE' }),
+    deleteAnnexRule: builder.mutation<
+      void,
+      { annexId: number; annexRuleId: number }
+    >({
+      query: ({ annexId, annexRuleId }) => ({
+        url: `/annexes/${annexId}/rules/${annexRuleId}`,
+        method: 'DELETE',
+      }),
       invalidatesTags: ['AnnexRule'],
     }),
     activateAnnex: builder.mutation<AnnexDto, number>({
-      query: id => ({ url: `/annexes/${id}/activate`, method: 'POST' }),
+      query: (id) => ({ url: `/annexes/${id}/activate`, method: 'POST' }),
       invalidatesTags: ['Annex'],
     }),
     getAnnexChildren: builder.query<AnnexChildGroupDto[], number>({
-      query: annexId => `/annexes/${annexId}/children`,
+      query: (annexId) => `/annexes/${annexId}/children`,
       providesTags: ['AnnexChildGroup'],
     }),
-    assignChildToAnnex: builder.mutation<AnnexChildGroupDto, { annexId: number; dto: AnnexChildGroupDto }>({
-      query: ({ annexId, dto }) => ({ url: `/annexes/${annexId}/children`, method: 'POST', body: dto }),
+    assignChildToAnnex: builder.mutation<
+      AnnexChildGroupDto,
+      { annexId: number; dto: AnnexChildGroupDto }
+    >({
+      query: ({ annexId, dto }) => ({
+        url: `/annexes/${annexId}/children`,
+        method: 'POST',
+        body: dto,
+      }),
       invalidatesTags: ['AnnexChildGroup'],
     }),
-    removeChildFromAnnex: builder.mutation<void, { annexId: number; annexChildGroupId: number }>({
+    removeChildFromAnnex: builder.mutation<
+      void,
+      { annexId: number; annexChildGroupId: number }
+    >({
       query: ({ annexId, annexChildGroupId }) => ({
         url: `/annexes/${annexId}/children/${annexChildGroupId}`,
         method: 'DELETE',
@@ -123,7 +197,7 @@ export const annexesApi = api.injectEndpoints({
       invalidatesTags: ['AnnexChildGroup'],
     }),
   }),
-})
+});
 
 export const {
   useGetAnnexesQuery,
@@ -148,4 +222,4 @@ export const {
   useGetAnnexChildrenQuery,
   useAssignChildToAnnexMutation,
   useRemoveChildFromAnnexMutation,
-} = annexesApi
+} = annexesApi;

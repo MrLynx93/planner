@@ -4,13 +4,13 @@
   },
   "nav": {
     "sections": {
-      "schedule": "Schedule",
+      "schedule": "Current plan",
       "draftAnnex": "Draft Annex",
       "management": "Management"
     },
     "items": {
-      "groupSchedule": "Groups",
-      "teacherSchedule": "Teachers",
+      "groupSchedule": "Plan for group",
+      "teacherSchedule": "Plan for teacher",
       "scheduleExceptions": "Exceptions",
       "annexes": "Annexes",
       "draftAnnexSettings": "General Settings",
@@ -25,7 +25,9 @@
       "groups": "Groups",
       "children": "Children",
       "rules": "Rules",
-      "closedDays": "Closed Days"
+      "globalRules": "Global Rules",
+      "closedDays": "Closed Days",
+      "violations": "Violations"
     }
   },
   "sidebar": {
@@ -121,6 +123,12 @@
       "date": "Date",
       "reason": "Reason"
     },
+    "globalRules": {
+      "title": "Global Rules",
+      "description": "Default rules applied to all annexes. Can be overridden per annex or per teacher/group.",
+      "allTeachers": "All teachers (default)",
+      "allGroups": "All groups (default)"
+    },
     "scheduleExceptions": {
       "title": "Schedule Exceptions",
       "new": "New Exception",
@@ -192,6 +200,31 @@
     "TEACHER_MAX_HOURS_PER_DAY": "Max hours per day (teacher)",
     "GROUP_MIN_TEACHERS": "Min teachers (group)",
     "TEACHER_MAX_FREE_HOURS_MONTHLY": "Max free hours/month (teacher)"
+  },
+  "violations": {
+    "title": "Violations",
+    "noViolations": "No violations found.",
+    "thisWeek": "This week",
+    "thisMonth": "This month",
+    "errors": "Errors",
+    "warnings": "Warnings",
+    "severity": "Severity",
+    "entity": "Teacher / Group",
+    "date": "Date",
+    "description": "Description",
+    "year": "Year",
+    "month": "Month",
+    "messages": {
+      "TEACHER_MONTHLY_HOURS_TOO_LOW": "{{name}} has {{actual}}h but minimum is {{rule}}h/month",
+      "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} has {{actual}}h on {{date}} but maximum is {{rule}}h/day",
+      "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} has {{actual}}h free but maximum is {{rule}}h/month",
+      "GROUP_UNDERSTAFFED": "{{name}} has {{actual}} teacher(s) at {{date}} but minimum is {{rule}}"
+    },
+    "months": {
+      "1": "January", "2": "February", "3": "March", "4": "April",
+      "5": "May", "6": "June", "7": "July", "8": "August",
+      "9": "September", "10": "October", "11": "November", "12": "December"
+    }
   },
   "common": {
     "comingSoon": "Coming soon.",

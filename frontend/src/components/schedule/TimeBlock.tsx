@@ -1,32 +1,41 @@
-import { useTranslation } from 'react-i18next'
-import type { ExceptionReason, ScheduleBlock } from './types'
-import { getColorForId } from './colors'
-import { timeToTop, blockHeight, formatTime } from './utils'
+import { useTranslation } from 'react-i18next';
+import type { ExceptionReason, ScheduleBlock } from './types';
+import { getColorForId } from './colors';
+import { timeToTop, blockHeight, formatTime } from './utils';
 
 interface Props {
-  block: ScheduleBlock
-  scheduleStartTime: string
-  columnIndex: number
-  columnCount: number
-  colorBy?: 'teacher' | 'group'
-  exceptionReason?: ExceptionReason
+  block: ScheduleBlock;
+  scheduleStartTime: string;
+  columnIndex: number;
+  columnCount: number;
+  colorBy?: 'teacher' | 'group';
+  exceptionReason?: ExceptionReason;
 }
 
-export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, colorBy = 'teacher', exceptionReason }: Props) {
-  const { t } = useTranslation()
-  const color = getColorForId(colorBy === 'group' ? block.groupId : block.teacherId)
-  const top = timeToTop(block.startTime, scheduleStartTime)
-  const height = blockHeight(block.startTime, block.endTime)
-  const isModification = block.type === 'MODIFICATION'
+export function TimeBlock({
+  block,
+  scheduleStartTime,
+  columnIndex,
+  columnCount,
+  colorBy = 'teacher',
+  exceptionReason,
+}: Props) {
+  const { t } = useTranslation();
+  const color = getColorForId(
+    colorBy === 'group' ? block.groupId : block.teacherId
+  );
+  const top = timeToTop(block.startTime, scheduleStartTime);
+  const height = blockHeight(block.startTime, block.endTime);
+  const isModification = block.type === 'MODIFICATION';
 
-  const leftPct = (columnIndex / columnCount) * 100
-  const widthPct = (1 / columnCount) * 100
+  const leftPct = (columnIndex / columnCount) * 100;
+  const widthPct = (1 / columnCount) * 100;
 
   const borderStyle = exceptionReason
     ? { border: '2px dashed #ef4444' }
     : isModification
       ? { border: `1.5px dashed ${color.border}` }
-      : { borderLeft: `3px solid ${color.border}` }
+      : { borderLeft: `3px solid ${color.border}` };
 
   return (
     <div
@@ -46,19 +55,27 @@ export function TimeBlock({ block, scheduleStartTime, columnIndex, columnCount, 
           className="text-xs font-semibold leading-tight truncate"
           style={{ color: color.text, backgroundColor: color.bg }}
         >
-          {colorBy === 'group' ? block.groupName : `${block.teacherFirstName} ${block.teacherLastName}`}
+          {colorBy === 'group'
+            ? block.groupName
+            : `${block.teacherFirstName} ${block.teacherLastName}`}
         </p>
         {height >= 32 && (
-          <p className="text-xs leading-tight truncate opacity-80" style={{ color: color.text, backgroundColor: color.bg }}>
+          <p
+            className="text-xs leading-tight truncate opacity-80"
+            style={{ color: color.text, backgroundColor: color.bg }}
+          >
             {formatTime(block.startTime)}–{formatTime(block.endTime)}
           </p>
         )}
         {exceptionReason && (
-          <p className="text-xs leading-tight truncate font-medium" style={{ color: '#ef4444', backgroundColor: color.bg }}>
+          <p
+            className="text-xs leading-tight truncate font-medium"
+            style={{ color: '#ef4444', backgroundColor: color.bg }}
+          >
             {t(`exceptions.reasons.${exceptionReason}`)}
           </p>
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,8 @@
-import { useState } from 'react'
-import { useOutletContext } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import type { AnnexDto, DayOfWeek } from '@/components/schedule/types'
-import { DraftCalendarGrid } from '@/components/schedule/DraftCalendarGrid'
+import { useState } from 'react';
+import { useOutletContext } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import type { AnnexDto, DayOfWeek } from '@/components/schedule/types';
+import { DraftCalendarGrid } from '@/components/schedule/DraftCalendarGrid';
 import {
   useGetAnnexGroupsQuery,
   useGetAnnexTeachersQuery,
@@ -10,40 +10,53 @@ import {
   useCreateAnnexTimeBlockMutation,
   useUpdateAnnexTimeBlockMutation,
   useDeleteAnnexTimeBlockMutation,
-} from '@/store/annexesApi'
+} from '@/store/annexesApi';
 
 export function AnnexPlanTeacherPage() {
-  const { t } = useTranslation()
-  const annex = useOutletContext<AnnexDto>()
-  const annexId = annex.id!
-  const editable = annex.state === 'DRAFT'
+  const { t } = useTranslation();
+  const annex = useOutletContext<AnnexDto>();
+  const annexId = annex.id!;
+  const editable = annex.state === 'DRAFT';
 
-  const { data: groups = [] } = useGetAnnexGroupsQuery(annexId)
-  const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId)
-  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId)
+  const { data: groups = [] } = useGetAnnexGroupsQuery(annexId);
+  const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId);
+  const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId);
 
-  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(null)
+  const [selectedTeacherId, setSelectedTeacherId] = useState<number | null>(
+    null
+  );
 
-  const [createTimeBlock] = useCreateAnnexTimeBlockMutation()
-  const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation()
-  const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation()
+  const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
+  const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
+  const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation();
 
-  const effectiveTeacherId = selectedTeacherId ?? teachers[0]?.teacherId ?? null
+  const effectiveTeacherId =
+    selectedTeacherId ?? teachers[0]?.teacherId ?? null;
   const filteredBlocks = effectiveTeacherId
-    ? allBlocks.filter(b => b.teacherId === effectiveTeacherId)
-    : []
+    ? allBlocks.filter((b) => b.teacherId === effectiveTeacherId)
+    : [];
 
   const handleDrop = (day: DayOfWeek, _startTime: string, groupId: number) => {
-    if (!effectiveTeacherId) return
+    if (!effectiveTeacherId) return;
     const alreadyExists = allBlocks.some(
-      b => b.teacherId === effectiveTeacherId && b.groupId === groupId && b.dayOfWeek === day,
-    )
-    if (alreadyExists) return
+      (b) =>
+        b.teacherId === effectiveTeacherId &&
+        b.groupId === groupId &&
+        b.dayOfWeek === day
+    );
+    if (alreadyExists) return;
     createTimeBlock({
       annexId,
-      dto: { teacherId: effectiveTeacherId, groupId, dayOfWeek: day, startTime: annex.scheduleStartTime, endTime: annex.scheduleEndTime, type: 'TEMPLATE' },
-    })
-  }
+      dto: {
+        teacherId: effectiveTeacherId,
+        groupId,
+        dayOfWeek: day,
+        startTime: annex.scheduleStartTime,
+        endTime: annex.scheduleEndTime,
+        type: 'TEMPLATE',
+      },
+    });
+  };
 
   return (
     <div className="h-full flex min-h-0">
@@ -54,14 +67,16 @@ export function AnnexPlanTeacherPage() {
             {t('draftPlan.teacher')}:
           </label>
           {teachers.length === 0 ? (
-            <span className="text-sm text-muted-foreground">{t('common.noItems')}</span>
+            <span className="text-sm text-muted-foreground">
+              {t('common.noItems')}
+            </span>
           ) : (
             <select
               className="text-sm border border-border rounded-md px-2 py-1.5 bg-background"
               value={effectiveTeacherId ?? ''}
-              onChange={e => setSelectedTeacherId(Number(e.target.value))}
+              onChange={(e) => setSelectedTeacherId(Number(e.target.value))}
             >
-              {teachers.map(teacher => (
+              {teachers.map((teacher) => (
                 <option key={teacher.teacherId} value={teacher.teacherId}>
                   {teacher.firstName} {teacher.lastName}
                 </option>
@@ -75,11 +90,20 @@ export function AnnexPlanTeacherPage() {
           colorBy="group"
           editable={editable}
           xAxis="days"
-          onDropItem={(day, startTime, groupId) => handleDrop(day, startTime, groupId)}
-          onResizeBlock={(id, start, end) =>
-            updateTimeBlock({ annexId, annexTimeBlockId: id, startTime: start, endTime: end })
+          onDropItem={(day, startTime, groupId) =>
+            handleDrop(day, startTime, groupId)
           }
-          onDeleteBlock={id => deleteTimeBlock({ annexId, annexTimeBlockId: id })}
+          onResizeBlock={(id, start, end) =>
+            updateTimeBlock({
+              annexId,
+              annexTimeBlockId: id,
+              startTime: start,
+              endTime: end,
+            })
+          }
+          onDeleteBlock={(id) =>
+            deleteTimeBlock({ annexId, annexTimeBlockId: id })
+          }
         />
       </div>
 
@@ -92,11 +116,13 @@ export function AnnexPlanTeacherPage() {
         {groups.length === 0 ? (
           <p className="text-xs text-muted-foreground">{t('common.noItems')}</p>
         ) : (
-          groups.map(group => (
+          groups.map((group) => (
             <div
               key={group.groupId}
               draggable={editable}
-              onDragStart={e => e.dataTransfer.setData('id', String(group.groupId))}
+              onDragStart={(e) =>
+                e.dataTransfer.setData('id', String(group.groupId))
+              }
               className={`px-3 py-2 rounded text-sm border border-border select-none ${
                 editable
                   ? 'cursor-grab active:cursor-grabbing hover:bg-accent'
@@ -109,5 +135,5 @@ export function AnnexPlanTeacherPage() {
         )}
       </div>
     </div>
-  )
+  );
 }
