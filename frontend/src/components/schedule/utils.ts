@@ -1,5 +1,6 @@
 import type { DayOfWeek } from './types'
 
+
 export const HOUR_HEIGHT_PX = 48
 
 export const WEEK_DAYS: DayOfWeek[] = [
@@ -74,4 +75,44 @@ export function addWeeks(date: Date, n: number): Date {
   const d = new Date(date)
   d.setDate(d.getDate() + n * 7)
   return d
+}
+
+/** Returns the first day of the month containing date */
+export function getMonthStart(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1)
+}
+
+/** Adds n months to a date (returns the 1st of that month) */
+export function addMonths(date: Date, n: number): Date {
+  return new Date(date.getFullYear(), date.getMonth() + n, 1)
+}
+
+/** Returns Monday-start dates for all weeks that intersect the given month */
+export function getMonthWeeks(monthDate: Date): Date[] {
+  const year = monthDate.getFullYear()
+  const month = monthDate.getMonth()
+  const firstDay = new Date(year, month, 1)
+  const lastDay = new Date(year, month + 1, 0)
+  const weeks: Date[] = []
+  let cur = getWeekStart(firstDay)
+  while (cur <= lastDay) {
+    weeks.push(new Date(cur))
+    cur = addWeeks(cur, 1)
+  }
+  return weeks
+}
+
+const DAY_TO_OFFSET: Record<DayOfWeek, number> = {
+  MONDAY: 0, TUESDAY: 1, WEDNESDAY: 2, THURSDAY: 3, FRIDAY: 4, SATURDAY: 5, SUNDAY: 6,
+}
+
+/**
+ * Returns the ISO date string for a schedule block given the week it belongs to.
+ * MODIFICATION blocks carry their own date; TEMPLATE blocks are derived from weekStart + dayOfWeek.
+ */
+export function blockDateStr(block: { dayOfWeek: DayOfWeek; date?: string }, weekStart: Date): string {
+  if (block.date) return block.date
+  const d = new Date(weekStart)
+  d.setDate(d.getDate() + DAY_TO_OFFSET[block.dayOfWeek])
+  return d.toISOString().slice(0, 10)
 }

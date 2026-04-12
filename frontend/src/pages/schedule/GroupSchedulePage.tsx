@@ -2,7 +2,8 @@ import { useState, useEffect, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { ScheduleHeader } from '@/components/schedule/ScheduleHeader'
 import { CalendarGrid } from '@/components/schedule/CalendarGrid'
-import { getWeekStart, getWeekDays } from '@/components/schedule/utils'
+import { MonthCalendarGrid } from '@/components/schedule/MonthCalendarGrid'
+import { getWeekStart, getWeekDays, getMonthStart, getMonthWeeks, blockDateStr } from '@/components/schedule/utils'
 import { useGetAnnexesQuery, useGetAnnexGroupsQuery, useGetAnnexTeachersQuery, useGetAnnexTimeBlocksQuery } from '@/store/annexesApi'
 import { useGetEffectiveScheduleQuery, useCreateExceptionMutation, useGetExceptionsQuery } from '@/store/exceptionsApi'
 import { ExceptionWizardDialog } from '@/components/exceptions/ExceptionWizardDialog'
@@ -16,6 +17,8 @@ export function GroupSchedulePage() {
   const [selectedAnnexId, setSelectedAnnexId] = useState<number | null>(null)
   const [selectedGroupId, setSelectedGroupId] = useState<number | null>(null)
   const [weekStart, setWeekStart] = useState<Date>(() => getWeekStart(new Date()))
+  const [monthDate, setMonthDate] = useState<Date>(() => getMonthStart(new Date()))
+  const [viewMode, setViewMode] = useState<'week' | 'month'>('week')
   const [contextBlock, setContextBlock] = useState<ScheduleBlock | null>(null)
   const [showExceptions, setShowExceptions] = useState(false)
 
@@ -27,13 +30,41 @@ export function GroupSchedulePage() {
   const weekStartStr = weekStart.toISOString().slice(0, 10)
   const { data: blocks = [], isLoading: blocksLoading } = useGetEffectiveScheduleQuery(
     { annexId: selectedAnnexId!, weekStart: weekStartStr },
-    { skip: selectedAnnexId === null }
+    { skip: selectedAnnexId === null || viewMode !== 'week' }
   )
   const { data: teachers = [] } = useGetAnnexTeachersQuery(selectedAnnexId!, { skip: selectedAnnexId === null })
   const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(selectedAnnexId!, { skip: selectedAnnexId === null })
   const { data: exceptions = [] } = useGetExceptionsQuery(selectedAnnexId!, { skip: selectedAnnexId === null })
 
   const [createException] = useCreateExceptionMutation()
+
+  // Month view: fetch up to 6 weeks (max weeks overlapping any month)
+  const monthWeekStarts = useMemo(() => getMonthWeeks(monthDate), [monthDate])
+  const skipMonth = (i: number) => selectedAnnexId === null || viewMode !== 'month' || i >= monthWeekStarts.length
+  const mwStr = (i: number) => monthWeekStarts[i]?.toISOString().slice(0, 10) ?? ''
+  const mw0 = useGetEffectiveScheduleQuery({ annexId: selectedAnnexId ?? 0, weekStart: mwStr(0) }, { skip: skipMonth(0) })
+  const mw1 = useGetEffectiveScheduleQuery({ annexId: selectedAnnexId ?? 0, weekStart: mwStr(1) }, { skip: skipMonth(1) })
+  const mw2 = useGetEffectiveScheduleQuery({ annexId: selectedAnnexId ?? 0, weekStart: mwStr(2) }, { skip: skipMonth(2) })
+  const mw3 = useGetEffectiveScheduleQuery({ annexId: selectedAnnexId ?? 0, weekStart: mwStr(3) }, { skip: skipMonth(3) })
+  const mw4 = useGetEffectiveScheduleQuery({ annexId: selectedAnnexId ?? 0, weekStart: mwStr(4) }, { skip: skipMonth(4) })
+  const mw5 = useGetEffectiveScheduleQuery({ annexId: selectedAnnexId ?? 0, weekStart: mwStr(5) }, { skip: skipMonth(5) })
+
+  const monthBlocksByDate = useMemo(() => {
+    if (viewMode !== 'month') return new Map<string, ScheduleBlock[]>()
+    const weekData = [mw0.data, mw1.data, mw2.data, mw3.data, mw4.data, mw5.data]
+    const map = new Map<string, ScheduleBlock[]>()
+    weekData.forEach((data, i) => {
+      const ws = monthWeekStarts[i]
+      if (!ws || !data) return
+      for (const block of data) {
+        if (selectedGroupId !== null && block.groupId !== selectedGroupId) continue
+        const dateStr = blockDateStr(block, ws)
+        if (!map.has(dateStr)) map.set(dateStr, [])
+        map.get(dateStr)!.push(block)
+      }
+    })
+    return map
+  }, [viewMode, mw0.data, mw1.data, mw2.data, mw3.data, mw4.data, mw5.data, monthWeekStarts, selectedGroupId])
 
   const weekDays = getWeekDays(weekStart)
   const weekDateSet = useMemo(() => new Set(weekDays.map(d => d.toISOString().slice(0, 10))), [weekDays])
@@ -109,21 +140,32 @@ export function GroupSchedulePage() {
         selectedFilterId={selectedGroupId}
         onFilterChange={setSelectedGroupId}
         filterPlaceholder={t('schedule.selectGroup')}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
         weekStart={weekStart}
         onWeekChange={setWeekStart}
+        monthDate={monthDate}
+        onMonthChange={setMonthDate}
         showExceptions={showExceptions}
         onShowExceptionsChange={setShowExceptions}
       />
       {currentAnnex ? (
-        <CalendarGrid
-          blocks={filteredBlocks}
-          annex={currentAnnex}
-          weekDays={weekDays}
-          onBlockContextMenu={setContextBlock}
-          showExceptions={showExceptions}
-          exceptionReasonByTimeBlockId={exceptionReasonByTimeBlockId}
-          removedExceptions={removedExceptions}
-        />
+        viewMode === 'week' ? (
+          <CalendarGrid
+            blocks={filteredBlocks}
+            annex={currentAnnex}
+            weekDays={weekDays}
+            onBlockContextMenu={setContextBlock}
+            showExceptions={showExceptions}
+            exceptionReasonByTimeBlockId={exceptionReasonByTimeBlockId}
+            removedExceptions={removedExceptions}
+          />
+        ) : (
+          <MonthCalendarGrid
+            blocksByDate={monthBlocksByDate}
+            monthDate={monthDate}
+          />
+        )
       ) : (
         <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
           {t('schedule.selectAnnex')}

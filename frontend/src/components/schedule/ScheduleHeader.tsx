@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import type { AnnexDto } from './types'
-import { getWeekDays, addWeeks, getWeekStart } from './utils'
+import { getWeekDays, addWeeks, getWeekStart, addMonths } from './utils'
 
 interface Props {
   annexes: AnnexDto[]
@@ -13,8 +13,14 @@ interface Props {
   onFilterChange: (id: number | null) => void
   filterPlaceholder: string
 
+  viewMode: 'week' | 'month'
+  onViewModeChange: (mode: 'week' | 'month') => void
+
   weekStart: Date
   onWeekChange: (weekStart: Date) => void
+
+  monthDate: Date
+  onMonthChange: (d: Date) => void
 
   showExceptions?: boolean
   onShowExceptionsChange?: (v: boolean) => void
@@ -34,18 +40,27 @@ export function ScheduleHeader({
   selectedFilterId,
   onFilterChange,
   filterPlaceholder,
+  viewMode,
+  onViewModeChange,
   weekStart,
   onWeekChange,
+  monthDate,
+  onMonthChange,
   showExceptions,
   onShowExceptionsChange,
 }: Props) {
   const { t, i18n } = useTranslation()
   const locale = i18n.language.startsWith('pl') ? 'pl-PL' : 'en-GB'
 
+  // Week label
   const weekDays = getWeekDays(weekStart)
   const shortFmt = new Intl.DateTimeFormat(locale, { day: 'numeric', month: 'short' })
   const yearFmt = new Intl.DateTimeFormat(locale, { year: 'numeric' })
   const weekLabel = `${shortFmt.format(weekDays[0])} – ${shortFmt.format(weekDays[4])} ${yearFmt.format(weekDays[4])}`
+
+  // Month label
+  const monthFmt = new Intl.DateTimeFormat(locale, { month: 'long', year: 'numeric' })
+  const monthLabel = monthFmt.format(monthDate)
 
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-border bg-background px-4 py-3 shrink-0">
@@ -95,30 +110,72 @@ export function ScheduleHeader({
       {/* Spacer */}
       <div className="flex-1" />
 
-      {/* Week navigation */}
-      <div className="flex items-center gap-2">
+      {/* View mode toggle */}
+      <div className="flex rounded-md border border-border overflow-hidden text-sm">
         <button
-          className={iconBtnClass}
-          onClick={() => onWeekChange(addWeeks(weekStart, -1))}
-          aria-label={t('schedule.prevWeek')}
+          className={`px-3 py-1.5 transition-colors ${viewMode === 'week' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+          onClick={() => onViewModeChange('week')}
         >
-          <ChevronLeft className="h-4 w-4" />
+          {t('schedule.viewWeek')}
         </button>
-
-        <span className="min-w-[200px] text-center text-sm font-medium">{weekLabel}</span>
-
         <button
-          className={iconBtnClass}
-          onClick={() => onWeekChange(addWeeks(weekStart, 1))}
-          aria-label={t('schedule.nextWeek')}
+          className={`px-3 py-1.5 border-l border-border transition-colors ${viewMode === 'month' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
+          onClick={() => onViewModeChange('month')}
         >
-          <ChevronRight className="h-4 w-4" />
+          {t('schedule.viewMonth')}
         </button>
       </div>
 
+      {/* Navigation */}
+      {viewMode === 'week' ? (
+        <div className="flex items-center gap-2">
+          <button
+            className={iconBtnClass}
+            onClick={() => onWeekChange(addWeeks(weekStart, -1))}
+            aria-label={t('schedule.prevWeek')}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+
+          <span className="min-w-[200px] text-center text-sm font-medium">{weekLabel}</span>
+
+          <button
+            className={iconBtnClass}
+            onClick={() => onWeekChange(addWeeks(weekStart, 1))}
+            aria-label={t('schedule.nextWeek')}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2">
+          <button
+            className={iconBtnClass}
+            onClick={() => onMonthChange(addMonths(monthDate, -1))}
+            aria-label={t('schedule.prevMonth')}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+
+          <span className="min-w-[160px] text-center text-sm font-medium capitalize">{monthLabel}</span>
+
+          <button
+            className={iconBtnClass}
+            onClick={() => onMonthChange(addMonths(monthDate, 1))}
+            aria-label={t('schedule.nextMonth')}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
       <button
         className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-        onClick={() => onWeekChange(getWeekStart(new Date()))}
+        onClick={() => {
+          const today = new Date()
+          onWeekChange(getWeekStart(today))
+          onMonthChange(new Date(today.getFullYear(), today.getMonth(), 1))
+        }}
       >
         {t('schedule.today')}
       </button>

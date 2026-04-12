@@ -148,7 +148,12 @@
     "today": "Dziś",
     "modification": "Modyfikacja",
     "showExceptions": "Pokaż wyjątki",
-    "removed": "Usunięty"
+    "removed": "Usunięty",
+    "viewWeek": "Tydzień",
+    "viewMonth": "Miesiąc",
+    "prevMonth": "Poprzedni miesiąc",
+    "nextMonth": "Następny miesiąc",
+    "more": "więcej"
   },
   "exceptions": {
     "reasons": {

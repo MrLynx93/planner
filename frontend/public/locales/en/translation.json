@@ -148,7 +148,12 @@
     "today": "Today",
     "modification": "Modification",
     "showExceptions": "Show exceptions",
-    "removed": "Removed"
+    "removed": "Removed",
+    "viewWeek": "Week",
+    "viewMonth": "Month",
+    "prevMonth": "Previous month",
+    "nextMonth": "Next month",
+    "more": "more"
   },
   "exceptions": {
     "reasons": {
