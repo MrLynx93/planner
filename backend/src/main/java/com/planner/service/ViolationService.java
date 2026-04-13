@@ -83,9 +83,8 @@ public class ViolationService {
                 if (actualHours < minHours) {
                     violations.add(new ViolationDto(
                             ViolationType.TEACHER_MONTHLY_HOURS_TOO_LOW, "ERROR",
-                            teacherId, teacherName, null, null, null,
-                            minHours, actualHours,
-                            teacherName + " has " + actualHours + "h but minimum is " + minHours + "h/month"
+                            teacherId, teacherName, null, null, null, null, null,
+                            minHours, actualHours
                     ));
                 }
             }
@@ -102,9 +101,8 @@ public class ViolationService {
                     if (dayHours > maxPerDay) {
                         violations.add(new ViolationDto(
                                 ViolationType.TEACHER_DAILY_HOURS_EXCEEDED, "WARNING",
-                                teacherId, teacherName, null, null, day,
-                                maxPerDay, dayHours,
-                                teacherName + " has " + dayHours + "h on " + day + " but maximum is " + maxPerDay + "h/day"
+                                teacherId, teacherName, null, null, day, null, null,
+                                maxPerDay, dayHours
                         ));
                     }
                 }
@@ -124,9 +122,8 @@ public class ViolationService {
                 if (freeHours > maxFree) {
                     violations.add(new ViolationDto(
                             ViolationType.TEACHER_FREE_HOURS_EXCEEDED, "WARNING",
-                            teacherId, teacherName, null, null, null,
-                            maxFree, freeHours,
-                            teacherName + " has " + freeHours + "h free but maximum is " + maxFree + "h/month"
+                            teacherId, teacherName, null, null, null, null, null,
+                            maxFree, freeHours
                     ));
                 }
             }
@@ -149,8 +146,8 @@ public class ViolationService {
                     violations.add(new ViolationDto(
                             ViolationType.GROUP_UNDERSTAFFED, "ERROR",
                             null, null, groupId, groupName, day,
-                            minTeachers, 0,
-                            groupName + " has no teachers on " + day
+                            annex.getScheduleStartTime(), annex.getScheduleEndTime(),
+                            minTeachers, 0
                     ));
                     continue;
                 }
@@ -181,10 +178,8 @@ public class ViolationService {
                         violations.add(new ViolationDto(
                                 ViolationType.GROUP_UNDERSTAFFED, "ERROR",
                                 null, null, groupId, groupName, day,
-                                minTeachers, (int) teacherCount,
-                                groupName + " has " + teacherCount + " teacher(s) between "
-                                        + intervalStart + "–" + intervalEnd + " on " + day
-                                        + " but minimum is " + minTeachers
+                                intervalStart, intervalEnd,
+                                minTeachers, (int) teacherCount
                         ));
                     }
                 }

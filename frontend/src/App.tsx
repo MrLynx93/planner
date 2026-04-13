@@ -14,7 +14,8 @@ import { AnnexSettingsPage } from '@/pages/annex/AnnexSettingsPage';
 import { AnnexTeachersPage } from '@/pages/annex/AnnexTeachersPage';
 import { AnnexGroupsPage } from '@/pages/annex/AnnexGroupsPage';
 import { AnnexChildrenPage } from '@/pages/annex/AnnexChildrenPage';
-import { AnnexRulesPage } from '@/pages/annex/AnnexRulesPage';
+import { AnnexRulesPage } from '@/pages/annex/AnnexRulesPage'
+import { AnnexViolationsPage } from '@/pages/annex/AnnexViolationsPage';
 import { AnnexPlanGroupPage } from '@/pages/annex/AnnexPlanGroupPage';
 import { AnnexPlanTeacherPage } from '@/pages/annex/AnnexPlanTeacherPage';
 import { AnnexPlanOverviewPage } from '@/pages/annex/AnnexPlanOverviewPage';
@@ -47,6 +48,7 @@ function App() {
           <Route path="groups" element={<AnnexGroupsPage />} />
           <Route path="children" element={<AnnexChildrenPage />} />
           <Route path="rules" element={<AnnexRulesPage />} />
+          <Route path="violations" element={<AnnexViolationsPage />} />
           <Route path="plan/groups" element={<AnnexPlanGroupPage />} />
           <Route path="plan/teachers" element={<AnnexPlanTeacherPage />} />
           <Route path="plan/overview" element={<AnnexPlanOverviewPage />} />

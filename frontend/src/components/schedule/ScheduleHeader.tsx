@@ -1,12 +1,9 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { AnnexDto } from './types';
 import { getWeekDays, addWeeks, getWeekStart, addMonths } from './utils';
 
 interface Props {
-  annexes: AnnexDto[];
-  selectedAnnexId: number | null;
-  onAnnexChange: (id: number | null) => void;
+  currentAnnexName: string | null;
 
   filterItems: { id: number; label: string }[];
   selectedFilterId: number | null;
@@ -33,9 +30,7 @@ const iconBtnClass =
   'rounded-md border border-border p-1.5 hover:bg-accent transition-colors disabled:opacity-40';
 
 export function ScheduleHeader({
-  annexes,
-  selectedAnnexId,
-  onAnnexChange,
+  currentAnnexName,
   filterItems,
   selectedFilterId,
   onFilterChange,
@@ -70,21 +65,12 @@ export function ScheduleHeader({
 
   return (
     <div className="flex flex-wrap items-center gap-3 border-b border-border bg-background px-4 py-3 shrink-0">
-      {/* Selectors */}
-      <select
-        className={selectClass}
-        value={selectedAnnexId ?? ''}
-        onChange={(e) =>
-          onAnnexChange(e.target.value ? Number(e.target.value) : null)
-        }
-      >
-        <option value="">{t('schedule.selectAnnex')}</option>
-        {annexes.map((a) => (
-          <option key={a.id} value={a.id!}>
-            {a.name}
-          </option>
-        ))}
-      </select>
+      {/* Annex label */}
+      {currentAnnexName && (
+        <span className="text-sm font-medium text-foreground/80 px-1">
+          {currentAnnexName}
+        </span>
+      )}
 
       <select
         className={selectClass}

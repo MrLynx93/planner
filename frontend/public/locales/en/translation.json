@@ -11,9 +11,9 @@
     "items": {
       "groupSchedule": "Plan for group",
       "teacherSchedule": "Plan for teacher",
-      "scheduleExceptions": "Exceptions",
+      "scheduleExceptions": "Schedule Changes",
       "annexes": "Annexes",
-      "draftAnnexSettings": "General Settings",
+      "draftAnnexSettings": "Annex Settings",
       "draftAnnexTeachers": "Teachers",
       "draftAnnexGroups": "Groups",
       "draftAnnexChildren": "Children",
@@ -21,13 +21,14 @@
       "draftAnnexPlanGroups": "Plan by Group",
       "draftAnnexPlanTeachers": "Plan by Teacher",
       "draftAnnexPlanOverview": "Plan Overview",
+      "draftAnnexPlan Errors": "Plan Errors",
       "teachers": "Teachers",
       "groups": "Groups",
       "children": "Children",
       "rules": "Rules",
       "globalRules": "Global Rules",
       "closedDays": "Closed Days",
-      "violations": "Violations"
+      "violations": "Plan Errors"
     }
   },
   "sidebar": {
@@ -89,7 +90,7 @@
     "draftAnnex": {
       "noDraftAnnex": "No draft annex. Create one in the Annexes section.",
       "settings": {
-        "title": "General Settings"
+        "title": "Annex Settings"
       },
       "teachers": {
         "title": "Teachers",
@@ -130,8 +131,8 @@
       "allGroups": "All groups (default)"
     },
     "scheduleExceptions": {
-      "title": "Schedule Exceptions",
-      "new": "New Exception",
+      "title": "Schedule Changes",
+      "new": "New Change",
       "allReasons": "All types",
       "allTeachers": "All teachers",
       "readOnly": "Read-only",
@@ -155,7 +156,7 @@
     "nextWeek": "Next week",
     "today": "Today",
     "modification": "Modification",
-    "showExceptions": "Show exceptions",
+    "showExceptions": "Show changes",
     "removed": "Removed",
     "viewWeek": "Week",
     "viewMonth": "Month",
@@ -202,8 +203,8 @@
     "TEACHER_MAX_FREE_HOURS_MONTHLY": "Max free hours/month (teacher)"
   },
   "violations": {
-    "title": "Violations",
-    "noViolations": "No violations found.",
+    "title": "Plan Errors",
+    "noPlan Errors": "No violations found.",
     "collapse": "Collapse violations panel",
     "thisWeek": "This week",
     "thisMonth": "This month",
@@ -219,7 +220,7 @@
       "TEACHER_MONTHLY_HOURS_TOO_LOW": "{{name}} has {{actual}}h but minimum is {{rule}}h/month",
       "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} has {{actual}}h on {{date}} but maximum is {{rule}}h/day",
       "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} has {{actual}}h free but maximum is {{rule}}h/month",
-      "GROUP_UNDERSTAFFED": "{{name}} has {{actual}} teacher(s) at {{date}} but minimum is {{rule}}"
+      "GROUP_UNDERSTAFFED": "{{name}} has {{actual}} teacher(s) on {{date}} from {{startTime}} to {{endTime}} but minimum is {{rule}}"
     },
     "months": {
       "1": "January", "2": "February", "3": "March", "4": "April",

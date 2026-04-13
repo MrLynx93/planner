@@ -7,6 +7,7 @@ import {
   Baby,
   Scale,
   CalendarDays,
+  AlertTriangle,
 } from 'lucide-react';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
 import type { AnnexDto } from '@/components/schedule/types';
@@ -38,6 +39,11 @@ const tabs = [
     labelKey: 'nav.items.draftAnnexPlanOverview',
     to: 'plan/overview',
     icon: LayoutGrid,
+  },
+  {
+    labelKey: 'nav.items.draftAnnexViolations',
+    to: 'violations',
+    icon: AlertTriangle,
   },
 ];
 

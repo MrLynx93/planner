@@ -11,9 +11,9 @@
     "items": {
       "groupSchedule": "Plan dla grupy",
       "teacherSchedule": "Plan dla nauczyciela",
-      "scheduleExceptions": "Wyjątki",
+      "scheduleExceptions": "Zmiany w planie",
       "annexes": "Aneksy",
-      "draftAnnexSettings": "Ustawienia ogólne",
+      "draftAnnexSettings": "Ustawienia aneksu",
       "draftAnnexTeachers": "Nauczyciele",
       "draftAnnexGroups": "Grupy",
       "draftAnnexChildren": "Dzieci",
@@ -21,13 +21,14 @@
       "draftAnnexPlanGroups": "Plan wg grupy",
       "draftAnnexPlanTeachers": "Plan wg nauczyciela",
       "draftAnnexPlanOverview": "Plan ogólny",
+      "draftAnnexViolations": "Błędy w planie",
       "teachers": "Nauczyciele",
       "groups": "Grupy",
       "children": "Dzieci",
       "rules": "Reguły",
-      "globalRules": "Reguły globalne",
+      "globalRules": "Reguły ogólne",
       "closedDays": "Dni zamknięcia",
-      "violations": "Naruszenia"
+      "violations": "Błędy w planie"
     }
   },
   "sidebar": {
@@ -89,7 +90,7 @@
     "draftAnnex": {
       "noDraftAnnex": "Brak szkicu aneksu. Utwórz go w sekcji Aneksy.",
       "settings": {
-        "title": "Ustawienia ogólne"
+        "title": "Ustawienia aneksu"
       },
       "teachers": {
         "title": "Nauczyciele",
@@ -124,14 +125,14 @@
       "reason": "Powód"
     },
     "globalRules": {
-      "title": "Reguły globalne",
+      "title": "Reguły ogólne",
       "description": "Domyślne reguły stosowane we wszystkich aneksach. Mogą być nadpisane w ramach aneksu.",
       "allTeachers": "Wszyscy nauczyciele (domyślnie)",
       "allGroups": "Wszystkie grupy (domyślnie)"
     },
     "scheduleExceptions": {
-      "title": "Wyjątki w planie",
-      "new": "Nowy wyjątek",
+      "title": "Zmiany w planie",
+      "new": "Nowa zmiana",
       "allReasons": "Wszystkie typy",
       "allTeachers": "Wszyscy nauczyciele",
       "readOnly": "Tylko do odczytu",
@@ -155,7 +156,7 @@
     "nextWeek": "Następny tydzień",
     "today": "Dziś",
     "modification": "Modyfikacja",
-    "showExceptions": "Pokaż wyjątki",
+    "showExceptions": "Pokaż zmiany",
     "removed": "Usunięty",
     "viewWeek": "Tydzień",
     "viewMonth": "Miesiąc",
@@ -196,14 +197,14 @@
     "createFromBlock": "Utwórz wyjątek z tego bloku"
   },
   "ruleTypes": {
-    "TEACHER_MONTHLY_HOURS_MIN": "Min. godzin miesięcznie (nauczyciel)",
-    "TEACHER_MAX_HOURS_PER_DAY": "Maks. godzin dziennie (nauczyciel)",
-    "GROUP_MIN_TEACHERS": "Min. nauczycieli (grupa)",
-    "TEACHER_MAX_FREE_HOURS_MONTHLY": "Maks. wolnych godzin/miesiąc (nauczyciel)"
+    "TEACHER_MONTHLY_HOURS_MIN": "Minimalna liczba godzin nauczyciela w miesiącu",
+    "TEACHER_MAX_HOURS_PER_DAY": "Maksymalna liczba godzin nauczyciela w ciągu dnia",
+    "GROUP_MIN_TEACHERS": "Minimalna liczba nauczycieli w grupie",
+    "TEACHER_MAX_FREE_HOURS_MONTHLY": "Maksymalna liczba wolnych godzin nauczyciela w miesiącu"
   },
   "violations": {
-    "title": "Naruszenia reguł",
-    "noViolations": "Brak naruszeń.",
+    "title": "Błędy w planie",
+    "noViolations": "Brak błędów w planie.",
     "collapse": "Zwiń panel naruszeń",
     "thisWeek": "Ten tydzień",
     "thisMonth": "Ten miesiąc",
@@ -219,7 +220,7 @@
       "TEACHER_MONTHLY_HOURS_TOO_LOW": "{{name}} ma {{actual}}h, wymagane minimum to {{rule}}h/miesiąc",
       "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} ma {{actual}}h w dniu {{date}}, maksimum to {{rule}}h/dzień",
       "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} ma {{actual}}h wolnych, maksimum to {{rule}}h/miesiąc",
-      "GROUP_UNDERSTAFFED": "Grupa {{name}} ma {{actual}} nauczyciela/i w dniu {{date}}, wymagane minimum to {{rule}}"
+      "GROUP_UNDERSTAFFED": "Grupa {{name}} ma {{actual}} nauczyciela/i w dniu {{date}} w godzinach {{startTime}}–{{endTime}}, wymagane minimum to {{rule}}"
     },
     "months": {
       "1": "Styczeń", "2": "Luty", "3": "Marzec", "4": "Kwiecień",

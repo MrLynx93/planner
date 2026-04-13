@@ -152,6 +152,11 @@ export function Sidebar() {
           to: `${base}/plan/overview`,
           icon: CalendarRange,
         },
+        {
+          labelKey: 'nav.items.draftAnnexViolations',
+          to: `${base}/violations`,
+          icon: AlertTriangle,
+        },
       ]
     : [{ labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 }];
 
@@ -202,13 +207,13 @@ export function Sidebar() {
           collapsed={collapsed}
         />
         <SidebarSection
-          title={t('nav.sections.management')}
-          items={managementItems}
+          title={t('nav.sections.draftAnnex')}
+          items={draftAnnexItems}
           collapsed={collapsed}
         />
         <SidebarSection
-          title={t('nav.sections.draftAnnex')}
-          items={draftAnnexItems}
+          title={t('nav.sections.management')}
+          items={managementItems}
           collapsed={collapsed}
         />
       </nav>

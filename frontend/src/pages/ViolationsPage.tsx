@@ -15,6 +15,8 @@ function ViolationRow({ v }: { v: ViolationDto }) {
     actual: v.actualValue,
     rule: v.ruleValue,
     date: v.date ?? '',
+    startTime: v.startTime ? v.startTime.substring(0, 5) : '',
+    endTime: v.endTime ? v.endTime.substring(0, 5) : '',
   });
   return (
     <tr className="border-b border-border last:border-0">

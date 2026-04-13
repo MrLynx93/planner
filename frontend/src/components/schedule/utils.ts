@@ -1,4 +1,4 @@
-import type { DayOfWeek } from './types';
+import type { AnnexDto, DayOfWeek } from './types';
 
 export const HOUR_HEIGHT_PX = 48;
 
@@ -132,6 +132,25 @@ const DAY_TO_OFFSET: Record<DayOfWeek, number> = {
  * Returns the ISO date string for a schedule block given the week it belongs to.
  * MODIFICATION blocks carry their own date; TEMPLATE blocks are derived from weekStart + dayOfWeek.
  */
+/**
+ * Returns the annex whose date range contains the given date.
+ * Priority: exact date-range match first, then CURRENT annex as fallback.
+ */
+export function findAnnexForDate(
+  annexes: AnnexDto[],
+  date: Date,
+): AnnexDto | null {
+  const dateStr = date.toISOString().slice(0, 10);
+  const match = annexes.find((a) => {
+    const after = a.startDate === null || a.startDate <= dateStr;
+    const before = a.endDate === null || a.endDate >= dateStr;
+    return after && before;
+  });
+  if (match) return match;
+  // Fallback: the active annex
+  return annexes.find((a) => a.state === 'CURRENT') ?? annexes[0] ?? null;
+}
+
 export function blockDateStr(
   block: { dayOfWeek: DayOfWeek; date?: string },
   weekStart: Date

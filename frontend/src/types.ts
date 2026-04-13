@@ -90,7 +90,8 @@ export interface ViolationDto {
   groupId: number | null;
   groupName: string | null;
   date: string | null;
+  startTime: string | null;
+  endTime: string | null;
   ruleValue: number;
   actualValue: number;
-  message: string;
 }

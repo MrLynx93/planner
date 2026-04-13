@@ -204,118 +204,25 @@ databaseChangeLog:
               - column: { name: child_id,  valueNumeric: 6 }
               - column: { name: group_id,  valueNumeric: 3 }
 
-  # ── 8. Rules ────────────────────────────────────────────────────────────────
+  # ── 8. Global Rules ─────────────────────────────────────────────────────────
   - changeSet:
       id: td-8
       author: mateusz
       changes:
-        # TEACHER_MONTHLY_HOURS_MIN — 160 h/month per teacher
+        # TEACHER_MONTHLY_HOURS_MIN — 160 h/month for all teachers (global default)
         - insert:
             tableName: rule
             columns:
-              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: teacher_id, valueNumeric: 1 }
-              - column: { name: int_value,  valueNumeric: 160 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: teacher_id, valueNumeric: 2 }
-              - column: { name: int_value,  valueNumeric: 160 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: teacher_id, valueNumeric: 3 }
-              - column: { name: int_value,  valueNumeric: 160 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: teacher_id, valueNumeric: 4 }
-              - column: { name: int_value,  valueNumeric: 160 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: teacher_id, valueNumeric: 5 }
-              - column: { name: int_value,  valueNumeric: 160 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,       value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: teacher_id, valueNumeric: 6 }
-              - column: { name: int_value,  valueNumeric: 160 }
-        # GROUP_MIN_TEACHERS — at least 2 teachers per group at all times
+              - column: { name: type,      value: "TEACHER_MONTHLY_HOURS_MIN" }
+              - column: { name: int_value, valueNumeric: 160 }
+        # GROUP_MIN_TEACHERS — at least 2 teachers per group at all times (global default)
         - insert:
             tableName: rule
             columns:
               - column: { name: type,      value: "GROUP_MIN_TEACHERS" }
-              - column: { name: group_id,  valueNumeric: 1 }
-              - column: { name: int_value, valueNumeric: 2 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,      value: "GROUP_MIN_TEACHERS" }
-              - column: { name: group_id,  valueNumeric: 2 }
-              - column: { name: int_value, valueNumeric: 2 }
-        - insert:
-            tableName: rule
-            columns:
-              - column: { name: type,      value: "GROUP_MIN_TEACHERS" }
-              - column: { name: group_id,  valueNumeric: 3 }
               - column: { name: int_value, valueNumeric: 2 }
 
-  # ── 9. Annex ↔ Rules ────────────────────────────────────────────────────────
-  - changeSet:
-      id: td-9
-      author: mateusz
-      changes:
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 1 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 2 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 3 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 4 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 5 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 6 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 7 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 8 }
-        - insert:
-            tableName: annex_rule
-            columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: rule_id,  valueNumeric: 9 }
+  # ── 9. (annex ↔ rules intentionally empty — global rules apply to all annexes)
 
   # ── 10. Time blocks (TEMPLATE) ───────────────────────────────────────────────
   # Anna Kowalska (id=1) — Biedronki (id=1) — early shift 06:30–14:30
