@@ -104,7 +104,7 @@ export function CalendarGrid({
 
   return (
     <div className="flex-1 overflow-auto min-h-0">
-      <div className="m-16 min-w-[560px] border border-gray-400 rounded">
+      <div className="mx-16 mb-16 mt-2 min-w-[560px] border border-gray-400 rounded">
         {/* Sticky day header */}
         <div className="sticky top-0 z-10 flex bg-background border-b border-gray-400">
           <div className="w-12 shrink-0" />

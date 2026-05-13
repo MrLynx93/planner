@@ -1,8 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ScheduleHeader } from '@/components/schedule/ScheduleHeader';
-import { CalendarGrid } from '@/components/schedule/CalendarGrid';
-import { MonthCalendarGrid } from '@/components/schedule/MonthCalendarGrid';
+import { Calendar } from '@/components/schedule/Calendar';
 import {
   getWeekStart,
   getWeekDays,
@@ -237,33 +236,26 @@ export function GroupSchedulePage() {
         selectedFilterId={selectedGroupId}
         onFilterChange={setSelectedGroupId}
         filterPlaceholder={t('schedule.selectGroup')}
-        viewMode={viewMode}
-        onViewModeChange={setViewMode}
-        weekStart={weekStart}
-        onWeekChange={setWeekStart}
-        monthDate={monthDate}
-        onMonthChange={setMonthDate}
         showExceptions={showExceptions}
         onShowExceptionsChange={setShowExceptions}
       />
       <div className="flex flex-1 min-h-0">
         {currentAnnex ? (
-          viewMode === 'week' ? (
-            <CalendarGrid
-              blocks={filteredBlocks}
-              annex={currentAnnex}
-              weekDays={weekDays}
-              onBlockContextMenu={setContextBlock}
-              showExceptions={showExceptions}
-              exceptionReasonByTimeBlockId={exceptionReasonByTimeBlockId}
-              removedExceptions={removedExceptions}
-            />
-          ) : (
-            <MonthCalendarGrid
-              blocksByDate={monthBlocksByDate}
-              monthDate={monthDate}
-            />
-          )
+          <Calendar
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            weekStart={weekStart}
+            onWeekChange={setWeekStart}
+            monthDate={monthDate}
+            onMonthChange={setMonthDate}
+            blocks={filteredBlocks}
+            annex={currentAnnex}
+            onBlockContextMenu={setContextBlock}
+            showExceptions={showExceptions}
+            exceptionReasonByTimeBlockId={exceptionReasonByTimeBlockId}
+            removedExceptions={removedExceptions}
+            monthBlocksByDate={monthBlocksByDate}
+          />
         ) : (
           <div className="flex flex-1 items-center justify-center text-muted-foreground text-sm">
             {t('schedule.selectAnnex')}
