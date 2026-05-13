@@ -19,10 +19,11 @@ import {
   CalendarX2,
   Globe,
   AlertTriangle,
+  Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
-import { useNavigationMode } from '@/context/NavigationModeContext';
+import { useNavigationMode, type NavigationMode } from '@/context/NavigationModeContext';
 
 interface NavItem {
   labelKey: string;
@@ -125,7 +126,12 @@ function SidebarSection({
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { t, i18n } = useTranslation();
-  const { mode } = useNavigationMode();
+  const { mode, setMode } = useNavigationMode();
+
+  const modeTabs: { id: NavigationMode; labelKey: string; icon: React.ElementType }[] = [
+    { id: 'current-work', labelKey: 'topbar.currentWork', icon: CalendarDays },
+    { id: 'management', labelKey: 'topbar.management', icon: Settings2 },
+  ];
   const { data: annexes = [] } = useGetAnnexesQuery();
   const draft = annexes.find((a) => a.state === 'DRAFT');
   const current = annexes.find((a) => a.state === 'CURRENT');
@@ -268,6 +274,47 @@ export function Sidebar() {
             <ChevronLeft className="h-4 w-4" />
           )}
         </button>
+      </div>
+
+      {/* Mode toggle */}
+      <div className={cn('border-b border-border p-2', collapsed && 'px-1')}>
+        {collapsed ? (
+          <div className="flex flex-col gap-1">
+            {modeTabs.map(({ id, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setMode(id)}
+                title={t(`topbar.${id === 'current-work' ? 'currentWork' : 'management'}` as Parameters<typeof t>[0])}
+                className={cn(
+                  'flex w-full items-center justify-center rounded-md p-2 transition-colors',
+                  mode === id
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                )}
+              >
+                <Icon className="h-4 w-4" />
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex rounded-lg bg-muted p-0.5 gap-0.5">
+            {modeTabs.map(({ id, labelKey, icon: Icon }) => (
+              <button
+                key={id}
+                onClick={() => setMode(id)}
+                className={cn(
+                  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-all',
+                  mode === id
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <Icon className="h-3.5 w-3.5 shrink-0" />
+                {t(labelKey as Parameters<typeof t>[0])}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Nav */}
