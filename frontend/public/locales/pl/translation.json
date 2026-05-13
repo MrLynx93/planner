@@ -6,6 +6,7 @@
     "sections": {
       "schedule": "Aktualny plan",
       "draftAnnex": "Planuj nowy aneks",
+      "currentAnnex": "Aktualny aneks",
       "management": "Zarządzanie"
     },
     "items": {
@@ -30,6 +31,10 @@
       "closedDays": "Dni zamknięcia",
       "violations": "Błędy w planie"
     }
+  },
+  "topbar": {
+    "currentWork": "Bieżąca praca",
+    "management": "Zarządzanie"
   },
   "sidebar": {
     "collapse": "Zwiń pasek boczny",

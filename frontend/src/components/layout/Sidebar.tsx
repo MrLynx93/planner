@@ -11,6 +11,7 @@ import {
   XCircle,
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   LayoutGrid,
   Languages,
   Settings,
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
+import { useNavigationMode } from '@/context/NavigationModeContext';
 
 interface NavItem {
   labelKey: string;
@@ -60,46 +62,62 @@ const managementItems: NavItem[] = [
 function SidebarSection({
   title,
   items,
-  collapsed,
+  sidebarCollapsed,
+  defaultOpen = true,
 }: {
   title: string;
   items: NavItem[];
-  collapsed: boolean;
+  sidebarCollapsed: boolean;
+  defaultOpen?: boolean;
 }) {
   const { t } = useTranslation();
+  const [open, setOpen] = useState(defaultOpen);
 
   return (
     <div className="flex flex-col gap-0.5">
-      {!collapsed && (
-        <span className="px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          {title}
-        </span>
-      )}
-      {collapsed && <div className="mx-3 my-1 border-t border-border" />}
-      {items.map((item) => (
-        <NavLink
-          key={item.to}
-          to={item.to}
-          title={
-            collapsed ? t(item.labelKey as Parameters<typeof t>[0]) : undefined
-          }
-          className={({ isActive }) =>
-            cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
-              'hover:bg-accent hover:text-accent-foreground',
-              isActive
-                ? 'bg-accent text-accent-foreground'
-                : 'text-foreground/70',
-              collapsed && 'justify-center px-2'
-            )
-          }
+      {!sidebarCollapsed ? (
+        <button
+          onClick={() => setOpen((o) => !o)}
+          className="flex w-full items-center justify-between rounded-md px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-foreground/60 hover:bg-accent hover:text-foreground transition-colors"
         >
-          <item.icon className="h-4 w-4 shrink-0" />
-          {!collapsed && (
-            <span>{t(item.labelKey as Parameters<typeof t>[0])}</span>
-          )}
-        </NavLink>
-      ))}
+          {title}
+          <ChevronDown
+            className={cn(
+              'h-3.5 w-3.5 shrink-0 transition-transform duration-200',
+              !open && '-rotate-90'
+            )}
+          />
+        </button>
+      ) : (
+        <div className="mx-3 my-1 border-t border-border" />
+      )}
+      {(open || sidebarCollapsed) &&
+        items.map((item) => (
+          <NavLink
+            key={item.to}
+            to={item.to}
+            title={
+              sidebarCollapsed
+                ? t(item.labelKey as Parameters<typeof t>[0])
+                : undefined
+            }
+            className={({ isActive }) =>
+              cn(
+                'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+                'hover:bg-accent hover:text-accent-foreground',
+                isActive
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-foreground/70',
+                sidebarCollapsed && 'justify-center px-2'
+              )
+            }
+          >
+            <item.icon className="h-4 w-4 shrink-0" />
+            {!sidebarCollapsed && (
+              <span>{t(item.labelKey as Parameters<typeof t>[0])}</span>
+            )}
+          </NavLink>
+        ))}
     </div>
   );
 }
@@ -107,9 +125,12 @@ function SidebarSection({
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { t, i18n } = useTranslation();
+  const { mode } = useNavigationMode();
   const { data: annexes = [] } = useGetAnnexesQuery();
   const draft = annexes.find((a) => a.state === 'DRAFT');
+  const current = annexes.find((a) => a.state === 'CURRENT');
   const base = draft ? `/annexes/${draft.id}` : '/annexes';
+  const currentBase = current ? `/annexes/${current.id}` : '/annexes';
   const draftAnnexItems: NavItem[] = draft
     ? [
         {
@@ -160,6 +181,56 @@ export function Sidebar() {
       ]
     : [{ labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 }];
 
+  const currentAnnexItems: NavItem[] = current
+    ? [
+        {
+          labelKey: 'nav.items.draftAnnexSettings',
+          to: `${currentBase}/settings`,
+          icon: Settings,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexTeachers',
+          to: `${currentBase}/teachers`,
+          icon: Users,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexGroups',
+          to: `${currentBase}/groups`,
+          icon: LayoutGrid,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexChildren',
+          to: `${currentBase}/children`,
+          icon: Baby,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexRules',
+          to: `${currentBase}/rules`,
+          icon: Scale,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexPlanGroups',
+          to: `${currentBase}/plan/groups`,
+          icon: CalendarDays,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexPlanTeachers',
+          to: `${currentBase}/plan/teachers`,
+          icon: CalendarDays,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexPlanOverview',
+          to: `${currentBase}/plan/overview`,
+          icon: CalendarRange,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexViolations',
+          to: `${currentBase}/violations`,
+          icon: AlertTriangle,
+        },
+      ]
+    : [];
+
   const otherLang = i18n.language.startsWith('pl') ? 'en' : 'pl';
 
   return (
@@ -201,21 +272,36 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-2 py-3">
-        <SidebarSection
-          title={t('nav.sections.schedule')}
-          items={scheduleItems}
-          collapsed={collapsed}
-        />
-        <SidebarSection
-          title={t('nav.sections.draftAnnex')}
-          items={draftAnnexItems}
-          collapsed={collapsed}
-        />
-        <SidebarSection
-          title={t('nav.sections.management')}
-          items={managementItems}
-          collapsed={collapsed}
-        />
+        {mode === 'current-work' && (
+          <>
+            <SidebarSection
+              title={t('nav.sections.schedule')}
+              items={scheduleItems}
+              sidebarCollapsed={collapsed}
+            />
+            {current && (
+              <SidebarSection
+                title={t('nav.sections.currentAnnex')}
+                items={currentAnnexItems}
+                sidebarCollapsed={collapsed}
+              />
+            )}
+          </>
+        )}
+        {mode === 'management' && (
+          <>
+            <SidebarSection
+              title={t('nav.sections.draftAnnex')}
+              items={draftAnnexItems}
+              sidebarCollapsed={collapsed}
+            />
+            <SidebarSection
+              title={t('nav.sections.management')}
+              items={managementItems}
+              sidebarCollapsed={collapsed}
+            />
+          </>
+        )}
       </nav>
 
       {/* Language switcher */}

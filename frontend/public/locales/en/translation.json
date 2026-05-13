@@ -6,6 +6,7 @@
     "sections": {
       "schedule": "Current plan",
       "draftAnnex": "Draft Annex",
+      "currentAnnex": "Current Annex",
       "management": "Management"
     },
     "items": {
@@ -30,6 +31,10 @@
       "closedDays": "Closed Days",
       "violations": "Plan Errors"
     }
+  },
+  "topbar": {
+    "currentWork": "Current Work",
+    "management": "Management"
   },
   "sidebar": {
     "collapse": "Collapse sidebar",
