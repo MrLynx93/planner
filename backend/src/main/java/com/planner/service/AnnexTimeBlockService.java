@@ -3,6 +3,7 @@ package com.planner.service;
 import com.planner.dto.AnnexTimeBlockDto;
 import com.planner.entity.*;
 import com.planner.repository.AnnexTimeBlockRepository;
+import com.planner.repository.TimeBlockModificationRepository;
 import com.planner.repository.TimeBlockRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ public class AnnexTimeBlockService {
 
     private final AnnexTimeBlockRepository annexTimeBlockRepository;
     private final TimeBlockRepository timeBlockRepository;
+    private final TimeBlockModificationRepository timeBlockModificationRepository;
     private final AnnexService annexService;
     private final TeacherService teacherService;
     private final GroupService groupService;
@@ -53,6 +55,8 @@ public class AnnexTimeBlockService {
                 .orElseThrow(() -> new EntityNotFoundException("AnnexTimeBlock not found: " + annexTimeBlockId));
         TimeBlock timeBlock = atb.getTimeBlock();
         annexTimeBlockRepository.delete(atb);
+        timeBlockModificationRepository.deleteAll(
+                timeBlockModificationRepository.findByTimeBlockId(timeBlock.getId()));
         timeBlockRepository.delete(timeBlock);
     }
 

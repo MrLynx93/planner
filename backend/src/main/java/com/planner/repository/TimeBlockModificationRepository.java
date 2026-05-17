@@ -11,4 +11,6 @@ public interface TimeBlockModificationRepository extends JpaRepository<TimeBlock
     List<TimeBlockModification> findByModificationGroupId(Integer modificationGroupId);
 
     List<TimeBlockModification> findByModificationGroupAnnexIdAndDateBetween(Integer annexId, LocalDate from, LocalDate to);
+
+    List<TimeBlockModification> findByTimeBlockId(Integer timeBlockId);
 }
