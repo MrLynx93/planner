@@ -16,7 +16,7 @@ export function AnnexPlanGroupPage() {
   const { t } = useTranslation();
   const annex = useOutletContext<AnnexDto>();
   const annexId = annex.id!;
-  const editable = annex.state === 'DRAFT';
+  const editable = annex.state === 'DRAFT' || annex.state === 'CURRENT';
 
   const { data: groups = [] } = useGetAnnexGroupsQuery(annexId);
   const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId);
