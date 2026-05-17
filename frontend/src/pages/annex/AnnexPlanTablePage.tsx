@@ -112,7 +112,7 @@ export function AnnexPlanTablePage() {
                 </td>
               )}
               <td className="border border-border px-3 py-2 whitespace-nowrap text-muted-foreground">
-                {teacher ? `${teacher.firstName} ${teacher.lastName}` : '—'}
+                {teacher ? `${teacher.firstName.charAt(0)}.${teacher.lastName}` : '—'}
               </td>
               {WEEK_DAYS.map((day) => (
                 <td key={day} className="border border-border px-1 py-1 min-w-[120px]">
