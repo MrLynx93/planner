@@ -153,7 +153,10 @@
     "dayMode": "Dzień",
     "weekMode": "Tydzień",
     "dragDisabledInWeekMode": "Przełącz na widok dnia, aby dodawać bloki",
-    "hours": "Godz."
+    "hours": "Godz.",
+    "editBlock": "Edytuj blok",
+    "startTime": "Godzina rozpoczęcia",
+    "endTime": "Godzina zakończenia"
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",

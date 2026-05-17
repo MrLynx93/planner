@@ -153,7 +153,10 @@
     "dayMode": "Day",
     "weekMode": "Week",
     "dragDisabledInWeekMode": "Switch to Day mode to add blocks",
-    "hours": "Hours"
+    "hours": "Hours",
+    "editBlock": "Edit time block",
+    "startTime": "Start time",
+    "endTime": "End time"
   },
   "schedule": {
     "selectGroup": "Select group",
