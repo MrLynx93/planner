@@ -20,6 +20,7 @@ import {
   Globe,
   AlertTriangle,
   Settings2,
+  Table2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
@@ -180,6 +181,11 @@ export function Sidebar() {
           icon: CalendarRange,
         },
         {
+          labelKey: 'nav.items.draftAnnexPlanTable',
+          to: `${base}/plan/table`,
+          icon: Table2,
+        },
+        {
           labelKey: 'nav.items.draftAnnexViolations',
           to: `${base}/violations`,
           icon: AlertTriangle,
@@ -228,6 +234,11 @@ export function Sidebar() {
           labelKey: 'nav.items.draftAnnexPlanOverview',
           to: `${currentBase}/plan/overview`,
           icon: CalendarRange,
+        },
+        {
+          labelKey: 'nav.items.draftAnnexPlanTable',
+          to: `${currentBase}/plan/table`,
+          icon: Table2,
         },
         {
           labelKey: 'nav.items.draftAnnexViolations',

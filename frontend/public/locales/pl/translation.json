@@ -22,6 +22,7 @@
       "draftAnnexPlanGroups": "Plan wg grupy",
       "draftAnnexPlanTeachers": "Plan wg nauczyciela",
       "draftAnnexPlanOverview": "Plan ogólny",
+      "draftAnnexPlanTable": "Plan tabelaryczny",
       "draftAnnexViolations": "Błędy w planie",
       "teachers": "Nauczyciele",
       "groups": "Grupy",
@@ -151,7 +152,8 @@
     "groups": "Grupy",
     "dayMode": "Dzień",
     "weekMode": "Tydzień",
-    "dragDisabledInWeekMode": "Przełącz na widok dnia, aby dodawać bloki"
+    "dragDisabledInWeekMode": "Przełącz na widok dnia, aby dodawać bloki",
+    "hours": "Godz."
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",

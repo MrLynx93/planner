@@ -19,6 +19,7 @@ import { AnnexViolationsPage } from '@/pages/annex/AnnexViolationsPage';
 import { AnnexPlanGroupPage } from '@/pages/annex/AnnexPlanGroupPage';
 import { AnnexPlanTeacherPage } from '@/pages/annex/AnnexPlanTeacherPage';
 import { AnnexPlanOverviewPage } from '@/pages/annex/AnnexPlanOverviewPage';
+import { AnnexPlanTablePage } from '@/pages/annex/AnnexPlanTablePage';
 import { GlobalRulesPage } from '@/pages/GlobalRulesPage';
 import { ViolationsPage } from '@/pages/ViolationsPage';
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="plan/groups" element={<AnnexPlanGroupPage />} />
           <Route path="plan/teachers" element={<AnnexPlanTeacherPage />} />
           <Route path="plan/overview" element={<AnnexPlanOverviewPage />} />
+          <Route path="plan/table" element={<AnnexPlanTablePage />} />
         </Route>
       </Route>
     </Routes>

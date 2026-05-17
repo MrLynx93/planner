@@ -22,6 +22,7 @@
       "draftAnnexPlanGroups": "Plan by Group",
       "draftAnnexPlanTeachers": "Plan by Teacher",
       "draftAnnexPlanOverview": "Plan Overview",
+      "draftAnnexPlanTable": "Plan Table",
       "draftAnnexPlan Errors": "Plan Errors",
       "teachers": "Teachers",
       "groups": "Groups",
@@ -151,7 +152,8 @@
     "groups": "Groups",
     "dayMode": "Day",
     "weekMode": "Week",
-    "dragDisabledInWeekMode": "Switch to Day mode to add blocks"
+    "dragDisabledInWeekMode": "Switch to Day mode to add blocks",
+    "hours": "Hours"
   },
   "schedule": {
     "selectGroup": "Select group",
