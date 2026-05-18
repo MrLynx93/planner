@@ -195,7 +195,7 @@ export function AnnexesPage() {
                       <button
                         className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
                         onClick={() =>
-                          navigate(`/annexes/${annex.id}/settings`)
+                          navigate(`/annexes/${annex.id}/plan/table`)
                         }
                       >
                         {t('common.open')}

@@ -43,7 +43,7 @@ function App() {
         <Route path="/global-rules" element={<GlobalRulesPage />} />
         <Route path="/violations" element={<ViolationsPage />} />
         <Route path="/annexes/:id" element={<AnnexLayout />}>
-          <Route index element={<Navigate to="settings" replace />} />
+          <Route index element={<Navigate to="plan/table" replace />} />
           <Route path="settings" element={<AnnexSettingsPage />} />
           <Route path="teachers" element={<AnnexTeachersPage />} />
           <Route path="groups" element={<AnnexGroupsPage />} />

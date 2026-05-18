@@ -6,6 +6,7 @@ import { useGetAnnexesQuery } from '@/store/annexesApi';
 interface Crumb {
   label: string;
   to?: string;
+  tag?: { label: string; className: string };
 }
 
 const STATIC_ROUTES: Record<string, string> = {
@@ -47,11 +48,18 @@ function useBreadcrumbs(): Crumb[] {
     const annexName = annex?.name ?? `#${annexId}`;
     const subLabelKey = ANNEX_SUB_LABELS[subPath];
 
+    const stateTagClass = annex?.state === 'CURRENT'
+      ? 'bg-green-100 text-green-800'
+      : annex?.state === 'FINISHED'
+        ? 'bg-gray-100 text-gray-600'
+        : 'bg-yellow-100 text-yellow-800';
+
     return [
       { label: t('pages.annexes.title'), to: '/annexes' },
       {
         label: annexName,
-        to: subLabelKey ? `/annexes/${annexId}/settings` : undefined,
+        to: subLabelKey ? `/annexes/${annexId}/plan/table` : undefined,
+        tag: annex ? { label: t(`pages.annexes.states.${annex.state}` as Parameters<typeof t>[0]), className: stateTagClass } : undefined,
       },
       ...(subLabelKey
         ? [{ label: t(subLabelKey as Parameters<typeof t>[0]) }]
@@ -91,13 +99,23 @@ export function TopBar() {
               {crumb.to && !isLast ? (
                 <Link
                   to={crumb.to}
-                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors"
                 >
                   {crumb.label}
+                  {crumb.tag && (
+                    <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${crumb.tag.className}`}>
+                      {crumb.tag.label}
+                    </span>
+                  )}
                 </Link>
               ) : (
-                <span className={isLast ? 'font-medium text-foreground' : 'text-muted-foreground'}>
+                <span className={`flex items-center gap-1.5 ${isLast ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
                   {crumb.label}
+                  {crumb.tag && (
+                    <span className={`rounded px-1.5 py-0.5 text-xs font-medium ${crumb.tag.className}`}>
+                      {crumb.tag.label}
+                    </span>
+                  )}
                 </span>
               )}
             </span>

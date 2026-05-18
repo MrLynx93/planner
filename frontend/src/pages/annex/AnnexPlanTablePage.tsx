@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Download } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
+import { exportPlanTableToExcel } from '@/utils/exportPlanTable';
 import { HorizontalTimeCell } from '@/components/schedule/HorizontalTimeCell';
 import { cn } from '@/lib/utils';
 import {
@@ -29,6 +30,7 @@ interface Row {
   group: AnnexGroupDto;
   teacher: AnnexTeacherDto | null;
   isFirstInGroup: boolean;
+  isLastInGroup: boolean;
   groupSize: number;
 }
 
@@ -52,13 +54,14 @@ function buildRows(
       .map((x) => x.teacher as AnnexTeacherDto);
 
     if (sortedTeachers.length === 0) {
-      return [{ group, teacher: null, isFirstInGroup: true, groupSize: 1 }];
+      return [{ group, teacher: null, isFirstInGroup: true, isLastInGroup: true, groupSize: 1 }];
     }
 
     return sortedTeachers.map((teacher, idx) => ({
       group,
       teacher,
       isFirstInGroup: idx === 0,
+      isLastInGroup: idx === sortedTeachers.length - 1,
       groupSize: sortedTeachers.length,
     }));
   });
@@ -139,6 +142,10 @@ export function AnnexPlanTablePage() {
     setEditModal(null);
   };
 
+  const handleExport = () => {
+    exportPlanTableToExcel(annex.name, rows, allBlocks);
+  };
+
   const handleDeleteFromModal = () => {
     if (!editModal) return;
     deleteTimeBlock({ annexId, annexTimeBlockId: editModal.block.id });
@@ -149,6 +156,15 @@ export function AnnexPlanTablePage() {
     <div className="h-full flex min-h-0">
       {/* Table area */}
       <div className="flex-1 overflow-auto p-6 min-w-0">
+        <div className="flex justify-end mb-3">
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+          >
+            <Download className="h-4 w-4" />
+            {t('draftPlan.exportExcel', 'Export to Excel')}
+          </button>
+        </div>
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-muted text-left">
@@ -169,7 +185,7 @@ export function AnnexPlanTablePage() {
             </tr>
           </thead>
           <tbody>
-            {rows.map(({ group, teacher, isFirstInGroup, groupSize }) => (
+            {rows.map(({ group, teacher, isFirstInGroup, isLastInGroup, groupSize }) => (
               <tr
                 key={`${group.groupId}-${teacher?.teacherId ?? 'empty'}`}
                 className="hover:bg-accent/30 transition-colors"
@@ -193,6 +209,8 @@ export function AnnexPlanTablePage() {
                       key={day}
                       className={cn(
                         'border border-border px-1 py-1 min-w-[120px] transition-colors',
+                        !isFirstInGroup && 'border-t-transparent',
+                        !isLastInGroup && 'border-b-transparent',
                         editable && isDragTarget && 'bg-primary/10 outline outline-2 outline-primary'
                       )}
                       onDragOver={

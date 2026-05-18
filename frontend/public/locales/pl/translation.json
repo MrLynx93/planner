@@ -154,6 +154,7 @@
     "weekMode": "Tydzień",
     "dragDisabledInWeekMode": "Przełącz na widok dnia, aby dodawać bloki",
     "hours": "Godz.",
+    "exportExcel": "Eksportuj do Excel",
     "editBlock": "Edytuj blok",
     "startTime": "Godzina rozpoczęcia",
     "endTime": "Godzina zakończenia"

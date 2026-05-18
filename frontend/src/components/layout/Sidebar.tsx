@@ -141,6 +141,11 @@ export function Sidebar() {
   const draftAnnexItems: NavItem[] = draft
     ? [
         {
+          labelKey: 'nav.items.draftAnnexPlanTable',
+          to: `${base}/plan/table`,
+          icon: Table2,
+        },
+        {
           labelKey: 'nav.items.draftAnnexSettings',
           to: `${base}/settings`,
           icon: Settings,
@@ -181,11 +186,6 @@ export function Sidebar() {
           icon: CalendarRange,
         },
         {
-          labelKey: 'nav.items.draftAnnexPlanTable',
-          to: `${base}/plan/table`,
-          icon: Table2,
-        },
-        {
           labelKey: 'nav.items.draftAnnexViolations',
           to: `${base}/violations`,
           icon: AlertTriangle,
@@ -195,6 +195,11 @@ export function Sidebar() {
 
   const currentAnnexItems: NavItem[] = current
     ? [
+        {
+          labelKey: 'nav.items.draftAnnexPlanTable',
+          to: `${currentBase}/plan/table`,
+          icon: Table2,
+        },
         {
           labelKey: 'nav.items.draftAnnexSettings',
           to: `${currentBase}/settings`,
@@ -234,11 +239,6 @@ export function Sidebar() {
           labelKey: 'nav.items.draftAnnexPlanOverview',
           to: `${currentBase}/plan/overview`,
           icon: CalendarRange,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanTable',
-          to: `${currentBase}/plan/table`,
-          icon: Table2,
         },
         {
           labelKey: 'nav.items.draftAnnexViolations',
