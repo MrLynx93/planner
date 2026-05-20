@@ -71,20 +71,20 @@ public class ViolationService {
             int teacherId = teacher.getId();
             String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
 
-            // TEACHER_MONTHLY_HOURS_MIN
-            Integer minHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MONTHLY_HOURS_MIN);
-            if (minHours != null) {
-                int totalMinutes = workingDays.stream()
-                        .flatMap(d -> blocksByDay.getOrDefault(d, List.of()).stream())
-                        .filter(b -> b.teacherId == teacherId)
-                        .mapToInt(BlockInfo::durationMinutes)
+            // TEACHER_WEEKLY_HOURS_MIN — checked against the template (standard week)
+            Integer minWeeklyHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
+            if (minWeeklyHours != null) {
+                int weeklyMinutes = templateBlocks.stream()
+                        .filter(atb -> atb.getTimeBlock().getTeacher().getId().equals(teacherId))
+                        .mapToInt(atb -> (int) Duration.between(
+                                atb.getTimeBlock().getStartTime(), atb.getTimeBlock().getEndTime()).toMinutes())
                         .sum();
-                int actualHours = totalMinutes / 60;
-                if (actualHours < minHours) {
+                int actualWeeklyHours = weeklyMinutes / 60;
+                if (actualWeeklyHours < minWeeklyHours) {
                     violations.add(new ViolationDto(
-                            ViolationType.TEACHER_MONTHLY_HOURS_TOO_LOW, "ERROR",
+                            ViolationType.TEACHER_WEEKLY_HOURS_TOO_LOW, "ERROR",
                             teacherId, teacherName, null, null, null, null, null,
-                            minHours, actualHours
+                            minWeeklyHours, actualWeeklyHours
                     ));
                 }
             }

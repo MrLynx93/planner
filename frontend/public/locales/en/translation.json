@@ -208,7 +208,7 @@
     "createFromBlock": "Create exception from this block"
   },
   "ruleTypes": {
-    "TEACHER_MONTHLY_HOURS_MIN": "Min monthly hours (teacher)",
+    "TEACHER_WEEKLY_HOURS_MIN": "Min weekly hours (teacher)",
     "TEACHER_MAX_HOURS_PER_DAY": "Max hours per day (teacher)",
     "GROUP_MIN_TEACHERS": "Min teachers (group)",
     "TEACHER_MAX_FREE_HOURS_MONTHLY": "Max free hours/month (teacher)"
@@ -228,7 +228,7 @@
     "year": "Year",
     "month": "Month",
     "messages": {
-      "TEACHER_MONTHLY_HOURS_TOO_LOW": "{{name}} has {{actual}}h but minimum is {{rule}}h/month",
+      "TEACHER_WEEKLY_HOURS_TOO_LOW": "{{name}} has {{actual}}h/week but minimum is {{rule}}h/week",
       "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} has {{actual}}h on {{date}} but maximum is {{rule}}h/day",
       "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} has {{actual}}h free but maximum is {{rule}}h/month",
       "GROUP_UNDERSTAFFED": "{{name}} has {{actual}} teacher(s) on {{date}} from {{startTime}} to {{endTime}} but minimum is {{rule}}"

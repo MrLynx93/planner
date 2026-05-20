@@ -30,7 +30,7 @@ export function AnnexRulesPage() {
 
   const [adding, setAdding] = useState(false);
   const [ruleType, setRuleType] = useState<RuleType>(
-    'TEACHER_MONTHLY_HOURS_MIN'
+    'TEACHER_WEEKLY_HOURS_MIN'
   );
   const [teacherId, setTeacherId] = useState<number | null>(null);
   const [groupId, setGroupId] = useState<number | null>(null);
@@ -41,7 +41,7 @@ export function AnnexRulesPage() {
 
   function openAdd() {
     setAdding(true);
-    setRuleType('TEACHER_MONTHLY_HOURS_MIN');
+    setRuleType('TEACHER_WEEKLY_HOURS_MIN');
     setTeacherId(null);
     setGroupId(null);
     setIntValue('');

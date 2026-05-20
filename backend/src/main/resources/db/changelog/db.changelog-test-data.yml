@@ -209,12 +209,12 @@ databaseChangeLog:
       id: td-8
       author: mateusz
       changes:
-        # TEACHER_MONTHLY_HOURS_MIN — 160 h/month for all teachers (global default)
+        # TEACHER_WEEKLY_HOURS_MIN — 40 h/week for all teachers (global default)
         - insert:
             tableName: rule
             columns:
-              - column: { name: type,      value: "TEACHER_MONTHLY_HOURS_MIN" }
-              - column: { name: int_value, valueNumeric: 160 }
+              - column: { name: type,      value: "TEACHER_WEEKLY_HOURS_MIN" }
+              - column: { name: int_value, valueNumeric: 40 }
         # GROUP_MIN_TEACHERS — at least 2 teachers per group at all times (global default)
         - insert:
             tableName: rule
