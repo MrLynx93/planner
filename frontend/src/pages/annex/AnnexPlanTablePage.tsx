@@ -76,12 +76,6 @@ function weeklyHours(blocks: ScheduleBlock[], groupId: number, teacherId: number
   return (mins / 60).toFixed(1);
 }
 
-function teacherTotalWeeklyHours(blocks: ScheduleBlock[], teacherId: number): number {
-  const mins = blocks
-    .filter((b) => b.teacherId === teacherId)
-    .reduce((sum, b) => sum + timeToMinutes(b.endTime) - timeToMinutes(b.startTime), 0);
-  return mins / 60;
-}
 
 function effectiveMinHours(rules: RuleWithSourceDto[], teacherId: number): number | null {
   const relevant = rules.filter((r) => r.ruleType === 'TEACHER_WEEKLY_HOURS_MIN');
@@ -287,13 +281,18 @@ export function AnnexPlanTablePage() {
                 <td className="border border-border px-3 py-2 text-right font-mono text-xs">
                   {(() => {
                     if (!teacher) return <span className="text-muted-foreground">—</span>;
-                    const minH = effectiveMinHours(rules, teacher.teacherId);
-                    if (minH === null) return <span className="text-muted-foreground">—</span>;
-                    const diff = teacherTotalWeeklyHours(allBlocks, teacher.teacherId) - minH;
-                    const label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h`;
-                    const color =
-                      diff > 0 ? 'text-amber-600' : diff < 0 ? 'text-destructive' : 'text-green-600';
-                    return <span className={color}>{label}</span>;
+                    const groupHours = parseFloat(weeklyHours(allBlocks, group.groupId, teacher.teacherId));
+                    if (teacher.defaultGroupId === group.groupId) {
+                      const minH = effectiveMinHours(rules, teacher.teacherId);
+                      if (minH === null) return <span className="text-muted-foreground">—</span>;
+                      const diff = groupHours - minH;
+                      const label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h`;
+                      const color = diff < 0 ? 'text-destructive' : '';
+                      return <span className={color}>{label}</span>;
+                    } else {
+                      if (groupHours === 0) return <span className="text-muted-foreground">—</span>;
+                      return <span>{`+${groupHours.toFixed(1)}h`}</span>;
+                    }
                   })()}
                 </td>
               </tr>
