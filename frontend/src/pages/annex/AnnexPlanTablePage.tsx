@@ -118,6 +118,7 @@ export function AnnexPlanTablePage() {
   const [panelOpen, setPanelOpen] = useState(true);
   const [dragOverCell, setDragOverCell] = useState<{ groupId: number; day: DayOfWeek } | null>(null);
   const [editModal, setEditModal] = useState<EditModal | null>(null);
+  const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
 
   const rows = buildRows(groups, teachers, allBlocks);
 
@@ -222,7 +223,21 @@ export function AnnexPlanTablePage() {
                     {group.groupName}
                   </td>
                 )}
-                <td className="border border-border px-3 py-2 whitespace-nowrap text-muted-foreground">
+                <td
+                  className={cn(
+                    'border border-border px-3 py-2 whitespace-nowrap cursor-default',
+                    teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground'
+                  )}
+                  onMouseMove={teacher ? (e) => {
+                    const content = teacher.defaultGroupId === group.groupId
+                      ? t('draftPlan.tooltipAssignedHere')
+                      : teacher.defaultGroupName
+                        ? t('draftPlan.tooltipOverhoursInGroup', { groupName: teacher.defaultGroupName })
+                        : t('draftPlan.tooltipOverhoursNoGroup');
+                    setTooltip({ x: e.clientX, y: e.clientY, content });
+                  } : undefined}
+                  onMouseLeave={teacher ? () => setTooltip(null) : undefined}
+                >
                   {teacher ? `${teacher.firstName.charAt(0)}.${teacher.lastName}` : '—'}
                 </td>
                 {WEEK_DAYS.map((day) => {
@@ -399,6 +414,15 @@ export function AnnexPlanTablePage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {tooltip && (
+        <div
+          className="fixed z-50 pointer-events-none bg-foreground text-background rounded-md shadow-lg px-3 py-2 text-sm font-medium"
+          style={{ left: tooltip.x + 14, top: tooltip.y + 14 }}
+        >
+          {tooltip.content}
         </div>
       )}
     </div>

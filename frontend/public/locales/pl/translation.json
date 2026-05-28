@@ -168,7 +168,10 @@
     "editBlock": "Edytuj blok",
     "startTime": "Godzina rozpoczęcia",
     "endTime": "Godzina zakończenia",
-    "overhours": "Nadgodziny"
+    "overhours": "Nadgodziny",
+    "tooltipAssignedHere": "Nauczyciel przypisany do tej grupy",
+    "tooltipOverhoursInGroup": "Nadgodziny w tej grupie — przypisany do grupy {{groupName}}",
+    "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy"
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",

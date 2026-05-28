@@ -168,7 +168,10 @@
     "editBlock": "Edit time block",
     "startTime": "Start time",
     "endTime": "End time",
-    "overhours": "Overhours"
+    "overhours": "Overhours",
+    "tooltipAssignedHere": "Assigned to this group",
+    "tooltipOverhoursInGroup": "Overhours in this group — assigned to {{groupName}}",
+    "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group"
   },
   "schedule": {
     "selectGroup": "Select group",
