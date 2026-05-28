@@ -1,0 +1,12 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-rename-monthly-to-weekly-hours-rule
+      author: planner
+      changes:
+        - update:
+            tableName: rule
+            columns:
+              - column:
+                  name: type
+                  value: "TEACHER_WEEKLY_HOURS_MIN"
+            where: "type = 'TEACHER_MONTHLY_HOURS_MIN'"

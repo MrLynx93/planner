@@ -108,25 +108,7 @@ public class ViolationService {
                 }
             }
 
-            // TEACHER_MAX_FREE_HOURS_MONTHLY
-            Integer maxFree = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_FREE_HOURS_MONTHLY);
-            if (maxFree != null) {
-                long scheduleMinutesPerDay = Duration.between(annex.getScheduleStartTime(), annex.getScheduleEndTime()).toMinutes();
-                int totalCapacityMinutes = workingDays.size() * (int) scheduleMinutesPerDay;
-                int workedMinutes = workingDays.stream()
-                        .flatMap(d -> blocksByDay.getOrDefault(d, List.of()).stream())
-                        .filter(b -> b.teacherId == teacherId)
-                        .mapToInt(BlockInfo::durationMinutes)
-                        .sum();
-                int freeHours = (totalCapacityMinutes - workedMinutes) / 60;
-                if (freeHours > maxFree) {
-                    violations.add(new ViolationDto(
-                            ViolationType.TEACHER_FREE_HOURS_TOO_HIGH, "WARNING",
-                            teacherId, teacherName, null, null, null, null, null,
-                            maxFree, freeHours
-                    ));
-                }
-            }
+
         }
 
         // Check group rules
