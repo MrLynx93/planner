@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft, Download } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
+import { getColorForId } from '@/components/schedule/colors';
 import { exportPlanTableToExcel } from '@/utils/exportPlanTable';
 import { HorizontalTimeCell } from '@/components/schedule/HorizontalTimeCell';
 import { cn } from '@/lib/utils';
@@ -159,7 +160,7 @@ export function AnnexPlanTablePage() {
   };
 
   const handleExport = () => {
-    exportPlanTableToExcel(annex.name, rows, allBlocks);
+    exportPlanTableToExcel(annex.name, rows, allBlocks, rules);
   };
 
   const handleDeleteFromModal = () => {
@@ -207,7 +208,7 @@ export function AnnexPlanTablePage() {
             {rows.map(({ group, teacher, isFirstInGroup, isLastInGroup, groupSize }) => (
               <tr
                 key={`${group.groupId}-${teacher?.teacherId ?? 'empty'}`}
-                className="hover:bg-accent/30 transition-colors"
+                className="group"
               >
                 {isFirstInGroup && (
                   <td
@@ -219,7 +220,7 @@ export function AnnexPlanTablePage() {
                 )}
                 <td
                   className={cn(
-                    'border border-border px-3 py-2 whitespace-nowrap cursor-default',
+                    'border border-border px-3 py-2 whitespace-nowrap cursor-default transition-colors group-hover:bg-muted-foreground/20',
                     teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground'
                   )}
                   onMouseMove={teacher ? (e) => {
@@ -241,7 +242,7 @@ export function AnnexPlanTablePage() {
                     <td
                       key={day}
                       className={cn(
-                        'border border-border px-1 py-1 min-w-[120px] transition-colors',
+                        'border border-border px-1 py-1 min-w-[120px] transition-colors group-hover:bg-muted-foreground/20',
                         !isFirstInGroup && 'border-t-transparent',
                         !isLastInGroup && 'border-b-transparent',
                         editable && isDragTarget && 'bg-primary/10 outline outline-2 outline-primary'
@@ -275,10 +276,10 @@ export function AnnexPlanTablePage() {
                     </td>
                   );
                 })}
-                <td className="border border-border px-3 py-2 text-right font-mono text-xs text-muted-foreground">
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground')}>
                   {teacher ? `${weeklyHours(allBlocks, group.groupId, teacher.teacherId)}h` : '—'}
                 </td>
-                <td className="border border-border px-3 py-2 text-right font-mono text-xs">
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold')}>
                   {(() => {
                     if (!teacher) return <span className="text-muted-foreground">—</span>;
                     const groupHours = parseFloat(weeklyHours(allBlocks, group.groupId, teacher.teacherId));
@@ -343,21 +344,27 @@ export function AnnexPlanTablePage() {
             {teachers.length === 0 ? (
               <p className="text-xs text-muted-foreground px-1">{t('common.noItems')}</p>
             ) : (
-              teachers.map((teacher) => (
-                <div
-                  key={teacher.teacherId}
-                  draggable={editable}
-                  onDragStart={(e) => e.dataTransfer.setData('id', String(teacher.teacherId))}
-                  className={cn(
-                    'px-3 py-2 rounded text-sm border border-border select-none',
-                    editable
-                      ? 'cursor-grab active:cursor-grabbing hover:bg-accent'
-                      : 'opacity-50 cursor-default'
-                  )}
-                >
-                  {teacher.firstName.charAt(0)}.{teacher.lastName}
-                </div>
-              ))
+              teachers.map((teacher) => {
+                const color = getColorForId(teacher.teacherId);
+                return (
+                  <div
+                    key={teacher.teacherId}
+                    draggable={editable}
+                    onDragStart={(e) => e.dataTransfer.setData('id', String(teacher.teacherId))}
+                    className={cn(
+                      'px-3 py-2 rounded text-sm select-none',
+                      editable ? 'cursor-grab active:cursor-grabbing' : 'opacity-50 cursor-default'
+                    )}
+                    style={{
+                      backgroundColor: color.bg,
+                      borderLeft: `3px solid ${color.border}`,
+                      color: color.text,
+                    }}
+                  >
+                    {teacher.firstName.charAt(0)}.{teacher.lastName}
+                  </div>
+                );
+              })
             )}
           </div>
         )}

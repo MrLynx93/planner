@@ -2,6 +2,7 @@ import ExcelJS from 'exceljs';
 import type { AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
+import type { RuleWithSourceDto } from '@/types';
 
 const DAY_LABELS: Record<DayOfWeek, string> = {
   MONDAY: 'Mon',
@@ -69,7 +70,44 @@ function teacherBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> 
 }
 
 function hoursBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
-  return { top: top ? MEDIUM : NONE, bottom: bottom ? MEDIUM : NONE, left: MEDIUM, right: MEDIUM };
+  return { top: top ? MEDIUM : NONE, bottom: bottom ? MEDIUM : NONE, left: MEDIUM, right: THIN };
+}
+
+function overhoursBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
+  return { top: top ? MEDIUM : NONE, bottom: bottom ? MEDIUM : NONE, left: THIN, right: MEDIUM };
+}
+
+function effectiveMinHours(rules: RuleWithSourceDto[], teacherId: number): number | null {
+  const relevant = rules.filter((r) => r.ruleType === 'TEACHER_WEEKLY_HOURS_MIN');
+  return (
+    relevant.find((r) => r.annexRuleId !== null && r.teacherId === teacherId)?.intValue ??
+    relevant.find((r) => r.annexRuleId === null && r.teacherId === teacherId)?.intValue ??
+    relevant.find((r) => r.annexRuleId !== null && r.teacherId === null)?.intValue ??
+    relevant.find((r) => r.annexRuleId === null && r.teacherId === null)?.intValue ??
+    null
+  );
+}
+
+function overhoursValue(
+  blocks: ScheduleBlock[],
+  group: AnnexGroupDto,
+  teacher: AnnexTeacherDto,
+  rules: RuleWithSourceDto[]
+): { text: string; isNegative: boolean } {
+  const mins = blocks
+    .filter((b) => b.groupId === group.groupId && b.teacherId === teacher.teacherId)
+    .reduce((sum, b) => sum + timeToMinutes(b.endTime) - timeToMinutes(b.startTime), 0);
+  const groupHours = mins / 60;
+
+  if (teacher.defaultGroupId === group.groupId) {
+    const minH = effectiveMinHours(rules, teacher.teacherId);
+    if (minH === null) return { text: '—', isNegative: false };
+    const diff = groupHours - minH;
+    return { text: `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h`, isNegative: diff < 0 };
+  } else {
+    if (groupHours === 0) return { text: '—', isNegative: false };
+    return { text: `+${groupHours.toFixed(1)}h`, isNegative: false };
+  }
 }
 
 interface ExportRow {
@@ -83,7 +121,8 @@ interface ExportRow {
 export async function exportPlanTableToExcel(
   annexName: string,
   rows: ExportRow[],
-  allBlocks: ScheduleBlock[]
+  allBlocks: ScheduleBlock[],
+  rules: RuleWithSourceDto[]
 ): Promise<void> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Planner';
@@ -109,11 +148,12 @@ export async function exportPlanTableToExcel(
     { width: 11 },
     ...WEEK_DAYS.map(() => ({ width: 18 })),
     { width: 8 },
+    { width: 10 },
   ];
 
   // ── Header row ──────────────────────────────────────────────────────────
   const headerRow = sheet.addRow([
-    'Group', 'Teacher', ...WEEK_DAYS.map((d) => DAY_LABELS[d]), 'Hours',
+    'Group', 'Teacher', ...WEEK_DAYS.map((d) => DAY_LABELS[d]), 'Hours', 'Overhours',
   ]);
   headerRow.height = 20;
   headerRow.eachCell((cell) => {
@@ -135,6 +175,7 @@ export async function exportPlanTableToExcel(
       dayBlocksText(allBlocks, group.groupId, teacher.teacherId, day)
     );
     const hoursText = weeklyHoursText(allBlocks, group.groupId, teacher.teacherId);
+    const overhours = overhoursValue(allBlocks, group, teacher, rules);
     const teacherName = `${teacher.firstName.charAt(0)}.${teacher.lastName}`;
 
     const dataRow = sheet.addRow([
@@ -142,6 +183,7 @@ export async function exportPlanTableToExcel(
       teacherName,
       ...dayTexts,
       hoursText,
+      overhours.text,
     ]);
 
     const maxLines = Math.max(1, ...dayTexts.map((t) => (t ? t.split('\n').length : 1)));
@@ -172,11 +214,17 @@ export async function exportPlanTableToExcel(
         }
         cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
         cell.border = dayBorder(isFirstInGroup, isLastInGroup, col === 3, col === 2 + WEEK_DAYS.length);
-      } else {
+      } else if (col === 2 + WEEK_DAYS.length + 1) {
         // Hours column
-        cell.font = { bold: true, size: 10, color: { argb: toArgb(color.border) } };
+        cell.font = { bold: true, size: 10, color: { argb: 'FF1F2937' } };
         cell.alignment = { vertical: 'middle', horizontal: 'right' };
         cell.border = hoursBorder(isFirstInGroup, isLastInGroup);
+      } else {
+        // Overhours column
+        const isNeg = overhours.isNegative;
+        cell.font = { bold: teacher.defaultGroupId === group.groupId, size: 10, color: { argb: isNeg ? 'FFDC2626' : 'FF1F2937' } };
+        cell.alignment = { vertical: 'middle', horizontal: 'right' };
+        cell.border = overhoursBorder(isFirstInGroup, isLastInGroup);
       }
     });
 
