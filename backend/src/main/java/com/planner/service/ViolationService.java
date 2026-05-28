@@ -100,7 +100,7 @@ public class ViolationService {
                     int dayHours = dayMinutes / 60;
                     if (dayHours > maxPerDay) {
                         violations.add(new ViolationDto(
-                                ViolationType.TEACHER_DAILY_HOURS_EXCEEDED, "WARNING",
+                                ViolationType.TEACHER_DAILY_HOURS_TOO_HIGH, "WARNING",
                                 teacherId, teacherName, null, null, day, null, null,
                                 maxPerDay, dayHours
                         ));
@@ -121,7 +121,7 @@ public class ViolationService {
                 int freeHours = (totalCapacityMinutes - workedMinutes) / 60;
                 if (freeHours > maxFree) {
                     violations.add(new ViolationDto(
-                            ViolationType.TEACHER_FREE_HOURS_EXCEEDED, "WARNING",
+                            ViolationType.TEACHER_FREE_HOURS_TOO_HIGH, "WARNING",
                             teacherId, teacherName, null, null, null, null, null,
                             maxFree, freeHours
                     ));
@@ -135,7 +135,9 @@ public class ViolationService {
             String groupName = ag.getGroup().getName();
 
             Integer minTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
-            if (minTeachers == null) continue;
+            Integer maxTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
+
+            if (minTeachers == null && maxTeachers == null) continue;
 
             for (LocalDate day : workingDays) {
                 List<BlockInfo> dayBlocks = blocksByDay.getOrDefault(day, List.of()).stream()
@@ -143,12 +145,14 @@ public class ViolationService {
                         .collect(Collectors.toList());
 
                 if (dayBlocks.isEmpty()) {
-                    violations.add(new ViolationDto(
-                            ViolationType.GROUP_UNDERSTAFFED, "ERROR",
-                            null, null, groupId, groupName, day,
-                            annex.getScheduleStartTime(), annex.getScheduleEndTime(),
-                            minTeachers, 0
-                    ));
+                    if (minTeachers != null) {
+                        violations.add(new ViolationDto(
+                                ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
+                                null, null, groupId, groupName, day,
+                                annex.getScheduleStartTime(), annex.getScheduleEndTime(),
+                                minTeachers, 0
+                        ));
+                    }
                     continue;
                 }
 
@@ -174,12 +178,20 @@ public class ViolationService {
                             .distinct()
                             .count();
 
-                    if (teacherCount < minTeachers) {
+                    if (minTeachers != null && teacherCount < minTeachers) {
                         violations.add(new ViolationDto(
-                                ViolationType.GROUP_UNDERSTAFFED, "ERROR",
+                                ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, day,
                                 intervalStart, intervalEnd,
                                 minTeachers, (int) teacherCount
+                        ));
+                    }
+                    if (maxTeachers != null && teacherCount > maxTeachers) {
+                        violations.add(new ViolationDto(
+                                ViolationType.GROUP_TEACHER_COUNT_TOO_HIGH, "WARNING",
+                                null, null, groupId, groupName, day,
+                                intervalStart, intervalEnd,
+                                maxTeachers, (int) teacherCount
                         ));
                     }
                 }
