@@ -17,6 +17,7 @@
       "draftAnnexSettings": "Ustawienia aneksu",
       "draftAnnexTeachers": "Nauczyciele",
       "draftAnnexGroups": "Grupy",
+      "draftAnnexStaff": "Kadra",
       "draftAnnexChildren": "Dzieci",
       "draftAnnexRules": "Reguły",
       "draftAnnexPlanGroups": "Plan wg grupy",
@@ -127,6 +128,12 @@
         "title": "Reguły"
       }
     },
+    "annexStaff": {
+      "title": "Kadra",
+      "groups": "Grupy",
+      "availableTeachers": "Dostępni nauczyciele",
+      "availableGroups": "Dostępne grupy"
+    },
     "closedDays": {
       "title": "Dni zamknięcia",
       "add": "Dodaj dzień zamknięcia",
@@ -160,7 +167,8 @@
     "exportExcel": "Eksportuj do Excel",
     "editBlock": "Edytuj blok",
     "startTime": "Godzina rozpoczęcia",
-    "endTime": "Godzina zakończenia"
+    "endTime": "Godzina zakończenia",
+    "overhours": "Nadgodziny"
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",

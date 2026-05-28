@@ -991,3 +991,49 @@ databaseChangeLog:
             columns:
               - column: { name: annex_id, valueNumeric: 1 }
               - column: { name: time_block_id, valueNumeric: 41 }
+
+  # ── 21. Assign default groups to annex teachers ──────────────────────────────
+  - changeSet:
+      id: td-21
+      author: mateusz
+      changes:
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 1 }
+            where: "annex_id = 1 AND teacher_id = 1"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 1 }
+            where: "annex_id = 1 AND teacher_id = 2"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 2 }
+            where: "annex_id = 1 AND teacher_id = 3"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 2 }
+            where: "annex_id = 1 AND teacher_id = 4"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 3 }
+            where: "annex_id = 1 AND teacher_id = 5"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 3 }
+            where: "annex_id = 1 AND teacher_id = 6"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 4 }
+            where: "annex_id = 1 AND teacher_id = 7"
+        - update:
+            tableName: annex_teacher
+            columns:
+              - column: { name: default_group_id, valueNumeric: 4 }
+            where: "annex_id = 1 AND teacher_id = 8"

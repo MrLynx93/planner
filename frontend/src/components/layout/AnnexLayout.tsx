@@ -4,7 +4,6 @@ import {
   Settings,
   Users,
   LayoutGrid,
-  Baby,
   Scale,
   CalendarDays,
   AlertTriangle,
@@ -21,9 +20,7 @@ const tabs = [
     icon: Table2,
   },
   { labelKey: 'nav.items.draftAnnexSettings', to: 'settings', icon: Settings },
-  { labelKey: 'nav.items.draftAnnexTeachers', to: 'teachers', icon: Users },
-  { labelKey: 'nav.items.draftAnnexGroups', to: 'groups', icon: LayoutGrid },
-  { labelKey: 'nav.items.draftAnnexChildren', to: 'children', icon: Baby },
+  { labelKey: 'nav.items.draftAnnexStaff', to: 'staff', icon: Users },
   { labelKey: 'nav.items.draftAnnexRules', to: 'rules', icon: Scale },
   {
     labelKey: 'nav.items.draftAnnexPlanGroups',

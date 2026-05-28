@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-add-default-group-to-annex-teacher
+      author: planner
+      changes:
+        - addColumn:
+            tableName: annex_teacher
+            columns:
+              - column:
+                  name: default_group_id
+                  type: INT
+                  constraints:
+                    nullable: true
+                    foreignKeyName: fk_annexteacher_default_group
+                    references: groups(id)

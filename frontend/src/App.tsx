@@ -7,12 +7,9 @@ import { ScheduleExceptionsPage } from '@/pages/schedule/ScheduleExceptionsPage'
 import { AnnexesPage } from '@/pages/AnnexesPage';
 import { TeachersPage } from '@/pages/TeachersPage';
 import { GroupsPage } from '@/pages/GroupsPage';
-import { ChildrenPage } from '@/pages/ChildrenPage';
 import { ClosedDaysPage } from '@/pages/ClosedDaysPage';
 import { AnnexSettingsPage } from '@/pages/annex/AnnexSettingsPage';
-import { AnnexTeachersPage } from '@/pages/annex/AnnexTeachersPage';
-import { AnnexGroupsPage } from '@/pages/annex/AnnexGroupsPage';
-import { AnnexChildrenPage } from '@/pages/annex/AnnexChildrenPage';
+import { AnnexStaffPage } from '@/pages/annex/AnnexStaffPage';
 import { AnnexRulesPage } from '@/pages/annex/AnnexRulesPage'
 import { AnnexViolationsPage } from '@/pages/annex/AnnexViolationsPage';
 import { AnnexPlanGroupPage } from '@/pages/annex/AnnexPlanGroupPage';
@@ -36,16 +33,13 @@ function App() {
         <Route path="/annexes" element={<AnnexesPage />} />
         <Route path="/teachers" element={<TeachersPage />} />
         <Route path="/groups" element={<GroupsPage />} />
-        <Route path="/children" element={<ChildrenPage />} />
         <Route path="/closed-days" element={<ClosedDaysPage />} />
         <Route path="/global-rules" element={<GlobalRulesPage />} />
         <Route path="/violations" element={<ViolationsPage />} />
         <Route path="/annexes/:id" element={<AnnexLayout />}>
           <Route index element={<Navigate to="plan/table" replace />} />
           <Route path="settings" element={<AnnexSettingsPage />} />
-          <Route path="teachers" element={<AnnexTeachersPage />} />
-          <Route path="groups" element={<AnnexGroupsPage />} />
-          <Route path="children" element={<AnnexChildrenPage />} />
+          <Route path="staff" element={<AnnexStaffPage />} />
           <Route path="rules" element={<AnnexRulesPage />} />
           <Route path="violations" element={<AnnexViolationsPage />} />
           <Route path="plan/groups" element={<AnnexPlanGroupPage />} />

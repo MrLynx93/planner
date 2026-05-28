@@ -11,10 +11,12 @@ import {
   useGetAnnexGroupsQuery,
   useGetAnnexTeachersQuery,
   useGetAnnexTimeBlocksQuery,
+  useGetAnnexRulesCombinedQuery,
   useCreateAnnexTimeBlockMutation,
   useUpdateAnnexTimeBlockMutation,
   useDeleteAnnexTimeBlockMutation,
 } from '@/store/annexesApi';
+import type { RuleWithSourceDto } from '@/types';
 
 const DAY_LABELS: Record<DayOfWeek, string> = {
   MONDAY: 'Mon',
@@ -74,6 +76,24 @@ function weeklyHours(blocks: ScheduleBlock[], groupId: number, teacherId: number
   return (mins / 60).toFixed(1);
 }
 
+function teacherTotalWeeklyHours(blocks: ScheduleBlock[], teacherId: number): number {
+  const mins = blocks
+    .filter((b) => b.teacherId === teacherId)
+    .reduce((sum, b) => sum + timeToMinutes(b.endTime) - timeToMinutes(b.startTime), 0);
+  return mins / 60;
+}
+
+function effectiveMinHours(rules: RuleWithSourceDto[], teacherId: number): number | null {
+  const relevant = rules.filter((r) => r.ruleType === 'TEACHER_WEEKLY_HOURS_MIN');
+  return (
+    relevant.find((r) => r.annexRuleId !== null && r.teacherId === teacherId)?.intValue ??
+    relevant.find((r) => r.annexRuleId === null && r.teacherId === teacherId)?.intValue ??
+    relevant.find((r) => r.annexRuleId !== null && r.teacherId === null)?.intValue ??
+    relevant.find((r) => r.annexRuleId === null && r.teacherId === null)?.intValue ??
+    null
+  );
+}
+
 interface EditModal {
   block: ScheduleBlock;
   startTime: string;
@@ -89,6 +109,7 @@ export function AnnexPlanTablePage() {
   const { data: groups = [] } = useGetAnnexGroupsQuery(annexId);
   const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId);
   const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId);
+  const { data: rules = [] } = useGetAnnexRulesCombinedQuery(annexId);
 
   const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
   const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
@@ -182,6 +203,9 @@ export function AnnexPlanTablePage() {
               <th className="border border-border px-3 py-2 font-semibold text-right whitespace-nowrap w-16">
                 {t('draftPlan.hours')}
               </th>
+              <th className="border border-border px-3 py-2 font-semibold text-right whitespace-nowrap w-20">
+                {t('draftPlan.overhours')}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -245,12 +269,24 @@ export function AnnexPlanTablePage() {
                 <td className="border border-border px-3 py-2 text-right font-mono text-xs text-muted-foreground">
                   {teacher ? `${weeklyHours(allBlocks, group.groupId, teacher.teacherId)}h` : '—'}
                 </td>
+                <td className="border border-border px-3 py-2 text-right font-mono text-xs">
+                  {(() => {
+                    if (!teacher) return <span className="text-muted-foreground">—</span>;
+                    const minH = effectiveMinHours(rules, teacher.teacherId);
+                    if (minH === null) return <span className="text-muted-foreground">—</span>;
+                    const diff = teacherTotalWeeklyHours(allBlocks, teacher.teacherId) - minH;
+                    const label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h`;
+                    const color =
+                      diff > 0 ? 'text-amber-600' : diff < 0 ? 'text-destructive' : 'text-green-600';
+                    return <span className={color}>{label}</span>;
+                  })()}
+                </td>
               </tr>
             ))}
             {rows.length === 0 && (
               <tr>
                 <td
-                  colSpan={2 + WEEK_DAYS.length + 1}
+                  colSpan={2 + WEEK_DAYS.length + 2}
                   className="border border-border px-3 py-8 text-center text-muted-foreground"
                 >
                   {t('common.noItems')}

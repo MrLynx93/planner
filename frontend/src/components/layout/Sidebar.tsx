@@ -6,7 +6,6 @@ import {
   Users,
   User,
   Building2,
-  Baby,
   Scale,
   XCircle,
   ChevronLeft,
@@ -55,7 +54,6 @@ const managementItems: NavItem[] = [
   { labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 },
   { labelKey: 'nav.items.teachers', to: '/teachers', icon: Users },
   { labelKey: 'nav.items.groups', to: '/groups', icon: LayoutGrid },
-  { labelKey: 'nav.items.children', to: '/children', icon: Baby },
   { labelKey: 'nav.items.globalRules', to: '/global-rules', icon: Globe },
   { labelKey: 'nav.items.closedDays', to: '/closed-days', icon: XCircle },
 ];
@@ -150,19 +148,9 @@ export function Sidebar() {
           icon: Settings,
         },
         {
-          labelKey: 'nav.items.draftAnnexTeachers',
-          to: `${base}/teachers`,
+          labelKey: 'nav.items.draftAnnexStaff',
+          to: `${base}/staff`,
           icon: Users,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexGroups',
-          to: `${base}/groups`,
-          icon: LayoutGrid,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexChildren',
-          to: `${base}/children`,
-          icon: Baby,
         },
         {
           labelKey: 'nav.items.draftAnnexRules',
@@ -205,19 +193,9 @@ export function Sidebar() {
           icon: Settings,
         },
         {
-          labelKey: 'nav.items.draftAnnexTeachers',
-          to: `${currentBase}/teachers`,
+          labelKey: 'nav.items.draftAnnexStaff',
+          to: `${currentBase}/staff`,
           icon: Users,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexGroups',
-          to: `${currentBase}/groups`,
-          icon: LayoutGrid,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexChildren',
-          to: `${currentBase}/children`,
-          icon: Baby,
         },
         {
           labelKey: 'nav.items.draftAnnexRules',

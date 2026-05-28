@@ -55,6 +55,9 @@ public class AnnexMembershipService {
         AnnexTeacher at = new AnnexTeacher();
         at.setAnnex(annex);
         at.setTeacher(teacher);
+        if (dto.defaultGroupId() != null) {
+            at.setDefaultGroup(groupService.getOrThrow(dto.defaultGroupId()));
+        }
         return toTeacherDto(annexTeacherRepository.save(at));
     }
 
@@ -62,6 +65,11 @@ public class AnnexMembershipService {
         AnnexTeacher at = annexTeacherRepository.findById(annexTeacherId)
                 .filter(a -> a.getAnnex().getId().equals(annexId))
                 .orElseThrow(() -> new EntityNotFoundException("AnnexTeacher not found: " + annexTeacherId));
+        if (dto.defaultGroupId() != null) {
+            at.setDefaultGroup(groupService.getOrThrow(dto.defaultGroupId()));
+        } else {
+            at.setDefaultGroup(null);
+        }
         return toTeacherDto(annexTeacherRepository.save(at));
     }
 
@@ -82,7 +90,9 @@ public class AnnexMembershipService {
                 at.getAnnex().getId(),
                 at.getTeacher().getId(),
                 at.getTeacher().getFirstName(),
-                at.getTeacher().getLastName()
+                at.getTeacher().getLastName(),
+                at.getDefaultGroup() != null ? at.getDefaultGroup().getId() : null,
+                at.getDefaultGroup() != null ? at.getDefaultGroup().getName() : null
         );
     }
 }
