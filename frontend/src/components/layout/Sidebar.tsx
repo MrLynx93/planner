@@ -56,7 +56,6 @@ const managementItems: NavItem[] = [
   { labelKey: 'nav.items.teachers', to: '/teachers', icon: Users },
   { labelKey: 'nav.items.groups', to: '/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.children', to: '/children', icon: Baby },
-  { labelKey: 'nav.items.rules', to: '/rules', icon: Scale },
   { labelKey: 'nav.items.globalRules', to: '/global-rules', icon: Globe },
   { labelKey: 'nav.items.closedDays', to: '/closed-days', icon: XCircle },
 ];

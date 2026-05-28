@@ -1,6 +1,7 @@
 package com.planner.controller;
 
 import com.planner.dto.AnnexRuleDto;
+import com.planner.dto.RuleWithSourceDto;
 import com.planner.service.AnnexRuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,10 +21,21 @@ public class AnnexRuleController {
         return ruleService.findByAnnex(id);
     }
 
+    @GetMapping("/{id}/rules/combined")
+    public List<RuleWithSourceDto> getCombinedRules(@PathVariable Integer id) {
+        return ruleService.findCombinedForAnnex(id);
+    }
+
     @PostMapping("/{id}/rules")
     @ResponseStatus(HttpStatus.CREATED)
     public AnnexRuleDto addRule(@PathVariable Integer id, @RequestBody AnnexRuleDto dto) {
         return ruleService.create(id, dto);
+    }
+
+    @PutMapping("/{id}/rules/{annexRuleId}")
+    public AnnexRuleDto updateRule(@PathVariable Integer id, @PathVariable Integer annexRuleId,
+                                   @RequestBody AnnexRuleDto dto) {
+        return ruleService.update(id, annexRuleId, dto.intValue());
     }
 
     @DeleteMapping("/{id}/rules/{annexRuleId}")

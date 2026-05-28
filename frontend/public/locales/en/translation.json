@@ -88,7 +88,10 @@
       "ruleType": "Rule Type",
       "value": "Value",
       "teacher": "Teacher",
-      "group": "Group"
+      "group": "Group",
+      "source": "Source",
+      "sourceGlobal": "Global",
+      "sourceAnnex": "Annex"
     },
     "annex": {
       "currentWarning": "This is the active annex. Changes take effect immediately."
@@ -211,7 +214,7 @@
     "TEACHER_WEEKLY_HOURS_MIN": "Min weekly hours (teacher)",
     "TEACHER_MAX_HOURS_PER_DAY": "Max hours per day (teacher)",
     "GROUP_MIN_TEACHERS": "Min teachers (group)",
-    "TEACHER_MAX_FREE_HOURS_MONTHLY": "Max free hours/month (teacher)"
+    "GROUP_MAX_TEACHERS": "Max teachers (group)"
   },
   "violations": {
     "title": "Plan Errors",

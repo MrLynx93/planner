@@ -75,6 +75,20 @@ export interface GlobalRuleDto {
   intValue: number;
 }
 
+export interface RuleWithSourceDto {
+  ruleId: number;
+  annexRuleId: number | null;
+  annexId: number | null;
+  annexName: string | null;
+  ruleType: RuleType;
+  teacherId: number | null;
+  teacherFirstName: string | null;
+  teacherLastName: string | null;
+  groupId: number | null;
+  groupName: string | null;
+  intValue: number;
+}
+
 export type ViolationType =
   | 'TEACHER_WEEKLY_HOURS_TOO_LOW'
   | 'TEACHER_DAILY_HOURS_TOO_HIGH'

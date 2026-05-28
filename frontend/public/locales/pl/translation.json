@@ -88,7 +88,10 @@
       "ruleType": "Typ reguły",
       "value": "Wartość",
       "teacher": "Nauczyciel",
-      "group": "Grupa"
+      "group": "Grupa",
+      "source": "Źródło",
+      "sourceGlobal": "Globalna",
+      "sourceAnnex": "Aneks"
     },
     "annex": {
       "currentWarning": "To jest bieżący aneks. Zmiany są natychmiastowo aktywne."
@@ -211,7 +214,7 @@
     "TEACHER_WEEKLY_HOURS_MIN": "Minimalna liczba godzin nauczyciela w tygodniu",
     "TEACHER_MAX_HOURS_PER_DAY": "Maksymalna liczba godzin nauczyciela w ciągu dnia",
     "GROUP_MIN_TEACHERS": "Minimalna liczba nauczycieli w grupie",
-    "TEACHER_MAX_FREE_HOURS_MONTHLY": "Maksymalna liczba wolnych godzin nauczyciela w miesiącu"
+    "GROUP_MAX_TEACHERS": "Maksymalna liczba nauczycieli w grupie"
   },
   "violations": {
     "title": "Błędy w planie",

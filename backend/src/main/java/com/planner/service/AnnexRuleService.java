@@ -1,6 +1,7 @@
 package com.planner.service;
 
 import com.planner.dto.AnnexRuleDto;
+import com.planner.dto.RuleWithSourceDto;
 import com.planner.entity.*;
 import com.planner.repository.AnnexRuleRepository;
 import com.planner.repository.RuleRepository;
@@ -9,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,6 +25,43 @@ public class AnnexRuleService {
 
     public List<AnnexRuleDto> findByAnnex(Integer annexId) {
         return annexRuleRepository.findByAnnexId(annexId).stream().map(this::toDto).toList();
+    }
+
+    public List<RuleWithSourceDto> findCombinedForAnnex(Integer annexId) {
+        List<RuleWithSourceDto> result = new ArrayList<>();
+        ruleRepository.findGlobalRules().forEach(rule -> result.add(new RuleWithSourceDto(
+                rule.getId(), null, null, null,
+                rule.getType(),
+                rule.getTeacher() != null ? rule.getTeacher().getId() : null,
+                rule.getTeacher() != null ? rule.getTeacher().getFirstName() : null,
+                rule.getTeacher() != null ? rule.getTeacher().getLastName() : null,
+                rule.getGroup() != null ? rule.getGroup().getId() : null,
+                rule.getGroup() != null ? rule.getGroup().getName() : null,
+                rule.getIntValue()
+        )));
+        annexRuleRepository.findByAnnexId(annexId).forEach(ar -> result.add(new RuleWithSourceDto(
+                ar.getRule().getId(),
+                ar.getId(),
+                ar.getAnnex().getId(),
+                ar.getAnnex().getName(),
+                ar.getRule().getType(),
+                ar.getRule().getTeacher() != null ? ar.getRule().getTeacher().getId() : null,
+                ar.getRule().getTeacher() != null ? ar.getRule().getTeacher().getFirstName() : null,
+                ar.getRule().getTeacher() != null ? ar.getRule().getTeacher().getLastName() : null,
+                ar.getRule().getGroup() != null ? ar.getRule().getGroup().getId() : null,
+                ar.getRule().getGroup() != null ? ar.getRule().getGroup().getName() : null,
+                ar.getRule().getIntValue()
+        )));
+        return result;
+    }
+
+    @Transactional
+    public AnnexRuleDto update(Integer annexId, Integer annexRuleId, int intValue) {
+        AnnexRule annexRule = annexRuleRepository.findById(annexRuleId)
+                .filter(ar -> ar.getAnnex().getId().equals(annexId))
+                .orElseThrow(() -> new EntityNotFoundException("AnnexRule not found: " + annexRuleId));
+        annexRule.getRule().setIntValue(intValue);
+        return toDto(annexRule);
     }
 
     @Transactional

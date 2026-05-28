@@ -930,6 +930,22 @@ databaseChangeLog:
               - column: { name: start_time,  value: "06:30:00" }
               - column: { name: end_time,    value: "17:00:00" }
 
+  # ── 19b. Group teacher count rules ──────────────────────────────────────────
+  - changeSet:
+      id: td-19b
+      author: mateusz
+      changes:
+        - update:
+            tableName: rule
+            columns:
+              - column: { name: int_value, valueNumeric: 1 }
+            where: "type = 'GROUP_MIN_TEACHERS' AND group_id IS NULL AND teacher_id IS NULL"
+        - insert:
+            tableName: rule
+            columns:
+              - column: { name: type,      value: "GROUP_MAX_TEACHERS" }
+              - column: { name: int_value, valueNumeric: 1 }
+
   # ── 20. Annex ↔ extra time blocks ────────────────────────────────────────────
   - changeSet:
       id: td-20

@@ -1,6 +1,7 @@
 package com.planner.controller;
 
 import com.planner.dto.GlobalRuleDto;
+import com.planner.dto.RuleWithSourceDto;
 import com.planner.service.GlobalRuleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -20,10 +21,20 @@ public class GlobalRuleController {
         return globalRuleService.findAll();
     }
 
+    @GetMapping("/with-source")
+    public List<RuleWithSourceDto> getAllWithSource() {
+        return globalRuleService.findAllWithSource();
+    }
+
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public GlobalRuleDto create(@RequestBody GlobalRuleDto dto) {
         return globalRuleService.create(dto);
+    }
+
+    @PutMapping("/{id}")
+    public GlobalRuleDto update(@PathVariable Integer id, @RequestBody GlobalRuleDto dto) {
+        return globalRuleService.update(id, dto.intValue());
     }
 
     @DeleteMapping("/{id}")

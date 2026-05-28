@@ -5,15 +5,16 @@ import type { GlobalRuleDto, RuleType } from '@/types';
 import {
   useGetGlobalRulesQuery,
   useCreateGlobalRuleMutation,
+  useUpdateGlobalRuleMutation,
   useDeleteGlobalRuleMutation,
 } from '@/store/globalRulesApi';
 import { useGetTeachersQuery } from '@/store/teachersApi';
 import { useGetGroupsQuery } from '@/store/groupsApi';
 
 const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
+  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full';
 const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24';
+  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full';
 
 export function GlobalRulesPage() {
   const { t } = useTranslation();
@@ -22,21 +23,27 @@ export function GlobalRulesPage() {
   const { data: teachers = [] } = useGetTeachersQuery();
   const { data: groups = [] } = useGetGroupsQuery();
   const [createRule] = useCreateGlobalRuleMutation();
+  const [updateRule] = useUpdateGlobalRuleMutation();
   const [deleteRule] = useDeleteGlobalRuleMutation();
 
-  const [adding, setAdding] = useState(false);
-  const [ruleType, setRuleType] = useState<RuleType>(
-    'TEACHER_WEEKLY_HOURS_MIN'
-  );
+  const [ruleType, setRuleType] = useState<RuleType>('TEACHER_WEEKLY_HOURS_MIN');
   const [teacherId, setTeacherId] = useState<number | null>(null);
   const [groupId, setGroupId] = useState<number | null>(null);
   const [intValue, setIntValue] = useState('');
 
+  const [editId, setEditId] = useState<number | null>(null);
+  const [editValue, setEditValue] = useState('');
+
+  const sorted = [...rules].sort((a, b) =>
+    `${a.ruleType}|${a.teacherId ?? ''}|${a.groupId ?? ''}`.localeCompare(
+      `${b.ruleType}|${b.teacherId ?? ''}|${b.groupId ?? ''}`
+    )
+  );
+
   const needsTeacher = RULE_NEEDS_TEACHER.includes(ruleType);
   const needsGroup = RULE_NEEDS_GROUP.includes(ruleType);
 
-  function openAdd() {
-    setAdding(true);
+  function resetForm() {
     setRuleType('TEACHER_WEEKLY_HOURS_MIN');
     setTeacherId(null);
     setGroupId(null);
@@ -48,15 +55,26 @@ export function GlobalRulesPage() {
     const dto: GlobalRuleDto = {
       id: null,
       ruleType,
-      teacherId: null,
+      teacherId: needsTeacher ? teacherId : null,
       teacherFirstName: null,
       teacherLastName: null,
-      groupId: null,
+      groupId: needsGroup ? groupId : null,
       groupName: null,
       intValue: Number(intValue),
     };
     await createRule(dto);
-    setAdding(false);
+    resetForm();
+  }
+
+  function openEdit(ruleId: number, value: number) {
+    setEditId(ruleId);
+    setEditValue(String(value));
+  }
+
+  async function handleUpdate(id: number) {
+    if (!editValue) return;
+    await updateRule({ id, intValue: Number(editValue) });
+    setEditId(null);
   }
 
   async function handleDelete(id: number) {
@@ -66,37 +84,101 @@ export function GlobalRulesPage() {
 
   function ruleLabel(rule: GlobalRuleDto): string {
     const parts: string[] = [t(`ruleTypes.${rule.ruleType}`)];
-    if (rule.teacherFirstName)
-      parts.push(`${rule.teacherFirstName} ${rule.teacherLastName}`);
+    if (rule.teacherFirstName) parts.push(`${rule.teacherFirstName} ${rule.teacherLastName}`);
     if (rule.groupName) parts.push(rule.groupName);
     return parts.join(' — ');
   }
 
   return (
-    <div className="flex flex-col gap-6 p-6 max-w-2xl">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">
-            {t('pages.globalRules.title')}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            {t('pages.globalRules.description')}
-          </p>
-        </div>
-        {!adding && (
-          <button
-            className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
-            onClick={openAdd}
-          >
-            {t('pages.rules.add')}
-          </button>
-        )}
+    <div className="flex flex-col gap-4 p-6 w-full">
+      <div>
+        <h1 className="text-xl font-semibold">{t('pages.globalRules.title')}</h1>
+        <p className="mt-1 inline-block rounded-md bg-yellow-50 border border-yellow-200 px-3 py-2 text-xs text-yellow-800">{t('pages.globalRules.description')}</p>
       </div>
 
-      {adding && (
+      <div className="flex gap-6">
+      {/* Table */}
+      <div className="flex flex-col flex-1 min-w-0">
+        <div className="rounded-lg border border-border p-4">
+        {isLoading ? (
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+        ) : rules.length === 0 ? (
+          <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left text-muted-foreground">
+                <th className="pb-2 pr-4 font-medium">{t('pages.rules.ruleType')}</th>
+                <th className="pb-2 pr-4 font-medium">{t('pages.rules.value')}</th>
+                <th className="pb-2 font-medium" />
+              </tr>
+            </thead>
+            <tbody>
+              {sorted.map((rule) => (
+                <tr key={rule.id} className="border-b border-border last:border-0 h-10">
+                  <td className="pr-4 align-middle">{ruleLabel(rule)}</td>
+                  <td className="pr-4 align-middle">
+                    {editId === rule.id ? (
+                      <input
+                        type="number"
+                        min="0"
+                        className="rounded-md border border-border bg-background px-2.5 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24 h-7"
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        autoFocus
+                      />
+                    ) : (
+                      rule.intValue
+                    )}
+                  </td>
+                  <td className="align-middle">
+                    <div className="flex justify-end gap-2">
+                      {editId === rule.id ? (
+                        <>
+                          <button
+                            className="rounded-md bg-primary text-primary-foreground px-2.5 py-1 text-xs hover:bg-primary/90 transition-colors"
+                            onClick={() => handleUpdate(rule.id!)}
+                          >
+                            {t('common.save')}
+                          </button>
+                          <button
+                            className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                            onClick={() => setEditId(null)}
+                          >
+                            {t('common.cancel')}
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                            onClick={() => openEdit(rule.id!, rule.intValue)}
+                          >
+                            {t('common.edit')}
+                          </button>
+                          <button
+                            className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
+                            onClick={() => handleDelete(rule.id!)}
+                          >
+                            {t('common.delete')}
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        </div>
+      </div>
+
+      {/* Add form */}
+      <div className="flex-1">
         <div className="rounded-lg border border-border p-4 flex flex-col gap-3">
           <h2 className="font-medium text-sm">{t('pages.rules.add')}</h2>
-          <div className="flex gap-3 flex-wrap items-end">
+          <div className="flex flex-col gap-3">
             <div>
               <label className="block text-xs text-muted-foreground mb-1">
                 {t('pages.rules.ruleType')}
@@ -125,9 +207,7 @@ export function GlobalRulesPage() {
                 <select
                   className={selectClass}
                   value={teacherId ?? ''}
-                  onChange={(e) =>
-                    setTeacherId(e.target.value ? Number(e.target.value) : null)
-                  }
+                  onChange={(e) => setTeacherId(e.target.value ? Number(e.target.value) : null)}
                 >
                   <option value="">{t('pages.globalRules.allTeachers')}</option>
                   {teachers.map((teacher) => (
@@ -146,9 +226,7 @@ export function GlobalRulesPage() {
                 <select
                   className={selectClass}
                   value={groupId ?? ''}
-                  onChange={(e) =>
-                    setGroupId(e.target.value ? Number(e.target.value) : null)
-                  }
+                  onChange={(e) => setGroupId(e.target.value ? Number(e.target.value) : null)}
                 >
                   <option value="">{t('pages.globalRules.allGroups')}</option>
                   {groups.map((g) => (
@@ -181,54 +259,14 @@ export function GlobalRulesPage() {
             </button>
             <button
               className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-              onClick={() => setAdding(false)}
+              onClick={resetForm}
             >
               {t('common.cancel')}
             </button>
           </div>
         </div>
-      )}
-
-      {isLoading ? (
-        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-      ) : rules.length === 0 ? (
-        <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
-      ) : (
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left text-muted-foreground">
-              <th className="pb-2 pr-4 font-medium">
-                {t('pages.rules.ruleType')}
-              </th>
-              <th className="pb-2 pr-4 font-medium">
-                {t('pages.rules.value')}
-              </th>
-              <th className="pb-2 font-medium" />
-            </tr>
-          </thead>
-          <tbody>
-            {rules.map((rule) => (
-              <tr
-                key={rule.id}
-                className="border-b border-border last:border-0"
-              >
-                <td className="py-2 pr-4">{ruleLabel(rule)}</td>
-                <td className="py-2 pr-4">{rule.intValue}</td>
-                <td className="py-2">
-                  <div className="flex justify-end">
-                    <button
-                      className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
-                      onClick={() => handleDelete(rule.id!)}
-                    >
-                      {t('common.delete')}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      </div>
+      </div>
     </div>
   );
 }

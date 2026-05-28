@@ -5,7 +5,7 @@ import type {
   AnnexTeacherDto,
   ScheduleBlock,
 } from '@/components/schedule/types';
-import type { AnnexRuleDto, AnnexChildGroupDto } from '@/types';
+import type { AnnexRuleDto, AnnexChildGroupDto, RuleWithSourceDto } from '@/types';
 
 type CreateAnnexTimeBlockArg = {
   annexId: number;
@@ -146,6 +146,10 @@ export const annexesApi = api.injectEndpoints({
       query: (annexId) => `/annexes/${annexId}/rules`,
       providesTags: ['AnnexRule'],
     }),
+    getAnnexRulesCombined: builder.query<RuleWithSourceDto[], number>({
+      query: (annexId) => `/annexes/${annexId}/rules/combined`,
+      providesTags: ['AnnexRule', 'GlobalRule'],
+    }),
     createAnnexRule: builder.mutation<
       AnnexRuleDto,
       { annexId: number; dto: AnnexRuleDto }
@@ -154,6 +158,17 @@ export const annexesApi = api.injectEndpoints({
         url: `/annexes/${annexId}/rules`,
         method: 'POST',
         body: dto,
+      }),
+      invalidatesTags: ['AnnexRule'],
+    }),
+    updateAnnexRule: builder.mutation<
+      AnnexRuleDto,
+      { annexId: number; annexRuleId: number; intValue: number }
+    >({
+      query: ({ annexId, annexRuleId, intValue }) => ({
+        url: `/annexes/${annexId}/rules/${annexRuleId}`,
+        method: 'PUT',
+        body: { intValue },
       }),
       invalidatesTags: ['AnnexRule'],
     }),
@@ -216,7 +231,9 @@ export const {
   useRemoveAnnexTeacherMutation,
   useGetAnnexTimeBlocksQuery,
   useGetAnnexRulesQuery,
+  useGetAnnexRulesCombinedQuery,
   useCreateAnnexRuleMutation,
+  useUpdateAnnexRuleMutation,
   useDeleteAnnexRuleMutation,
   useActivateAnnexMutation,
   useGetAnnexChildrenQuery,
