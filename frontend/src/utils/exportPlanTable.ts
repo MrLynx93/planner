@@ -4,15 +4,13 @@ import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
 import type { RuleWithSourceDto } from '@/types';
 
-const DAY_LABELS: Record<DayOfWeek, string> = {
-  MONDAY: 'Mon',
-  TUESDAY: 'Tue',
-  WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu',
-  FRIDAY: 'Fri',
-  SATURDAY: 'Sat',
-  SUNDAY: 'Sun',
-};
+export interface ExportLabels {
+  group: string;
+  teacher: string;
+  hours: string;
+  overhours: string;
+  days: Record<DayOfWeek, string>;
+}
 
 // Convert CSS #rrggbb to ExcelJS ARGB (fully opaque)
 function toArgb(hex: string): string {
@@ -122,7 +120,8 @@ export async function exportPlanTableToExcel(
   annexName: string,
   rows: ExportRow[],
   allBlocks: ScheduleBlock[],
-  rules: RuleWithSourceDto[]
+  rules: RuleWithSourceDto[],
+  labels: ExportLabels
 ): Promise<void> {
   const workbook = new ExcelJS.Workbook();
   workbook.creator = 'Planner';
@@ -153,7 +152,7 @@ export async function exportPlanTableToExcel(
 
   // ── Header row ──────────────────────────────────────────────────────────
   const headerRow = sheet.addRow([
-    'Group', 'Teacher', ...WEEK_DAYS.map((d) => DAY_LABELS[d]), 'Hours', 'Overhours',
+    labels.group, labels.teacher, ...WEEK_DAYS.map((d) => labels.days[d]), labels.hours, labels.overhours,
   ]);
   headerRow.height = 20;
   headerRow.eachCell((cell) => {

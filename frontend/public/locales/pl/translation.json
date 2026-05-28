@@ -169,6 +169,15 @@
     "startTime": "Godzina rozpoczęcia",
     "endTime": "Godzina zakończenia",
     "overhours": "Nadgodziny",
+    "days": {
+      "MONDAY": "Pon",
+      "TUESDAY": "Wt",
+      "WEDNESDAY": "Śr",
+      "THURSDAY": "Czw",
+      "FRIDAY": "Pt",
+      "SATURDAY": "Sob",
+      "SUNDAY": "Nd"
+    },
     "tooltipAssignedHere": "Nauczyciel przypisany do tej grupy",
     "tooltipOverhoursInGroup": "Nadgodziny w tej grupie — przypisany do grupy {{groupName}}",
     "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy"

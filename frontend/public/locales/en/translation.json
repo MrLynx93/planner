@@ -169,6 +169,15 @@
     "startTime": "Start time",
     "endTime": "End time",
     "overhours": "Overhours",
+    "days": {
+      "MONDAY": "Mon",
+      "TUESDAY": "Tue",
+      "WEDNESDAY": "Wed",
+      "THURSDAY": "Thu",
+      "FRIDAY": "Fri",
+      "SATURDAY": "Sat",
+      "SUNDAY": "Sun"
+    },
     "tooltipAssignedHere": "Assigned to this group",
     "tooltipOverhoursInGroup": "Overhours in this group — assigned to {{groupName}}",
     "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group"

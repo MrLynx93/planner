@@ -5,7 +5,7 @@ import { ChevronRight, ChevronLeft, Download } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
-import { exportPlanTableToExcel } from '@/utils/exportPlanTable';
+import { exportPlanTableToExcel, type ExportLabels } from '@/utils/exportPlanTable';
 import { HorizontalTimeCell } from '@/components/schedule/HorizontalTimeCell';
 import { cn } from '@/lib/utils';
 import {
@@ -160,7 +160,16 @@ export function AnnexPlanTablePage() {
   };
 
   const handleExport = () => {
-    exportPlanTableToExcel(annex.name, rows, allBlocks, rules);
+    const labels: ExportLabels = {
+      group: t('draftPlan.group'),
+      teacher: t('draftPlan.teacher'),
+      hours: t('draftPlan.hours'),
+      overhours: t('draftPlan.overhours'),
+      days: Object.fromEntries(
+        WEEK_DAYS.map((d) => [d, t(`draftPlan.days.${d}` as Parameters<typeof t>[0])])
+      ) as ExportLabels['days'],
+    };
+    exportPlanTableToExcel(annex.name, rows, allBlocks, rules, labels);
   };
 
   const handleDeleteFromModal = () => {
