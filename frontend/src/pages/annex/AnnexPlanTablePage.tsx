@@ -126,7 +126,7 @@ function HoursSummaryTable({
           const minH = effectiveMinHours(rules, teacher.teacherId);
           const diff = minH !== null ? totalHours - minH : null;
           return (
-            <tr key={teacher.teacherId} className="border-b border-border last:border-0">
+            <tr key={teacher.teacherId} className="border-b border-border last:border-0 hover:bg-muted-foreground/20 transition-colors">
               <td className="py-1.5 pr-4 font-medium">
                 {teacher.firstName.charAt(0)}.{teacher.lastName}
               </td>
@@ -197,7 +197,7 @@ function TemplateViolationRow({
 
   return (
     <tr
-      className="border-b border-border last:border-0 cursor-default"
+      className="border-b border-border last:border-0 cursor-default hover:bg-muted-foreground/20 transition-colors"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
