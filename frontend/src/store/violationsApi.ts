@@ -1,5 +1,5 @@
 import { api } from './api';
-import type { ViolationDto } from '@/types';
+import type { TemplateViolationDto, ViolationDto } from '@/types';
 
 type GetViolationsArg = { annexId: number; year: number; month: number };
 
@@ -10,7 +10,11 @@ export const violationsApi = api.injectEndpoints({
         `/annexes/${annexId}/violations?year=${year}&month=${month}`,
       providesTags: ['Violation'],
     }),
+    getTemplateViolations: builder.query<TemplateViolationDto[], number>({
+      query: (annexId) => `/annexes/${annexId}/violations/template`,
+      providesTags: ['Violation', 'AnnexTimeBlock'],
+    }),
   }),
 });
 
-export const { useGetViolationsQuery } = violationsApi;
+export const { useGetViolationsQuery, useGetTemplateViolationsQuery } = violationsApi;

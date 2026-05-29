@@ -178,6 +178,15 @@
       "SATURDAY": "Sob",
       "SUNDAY": "Nd"
     },
+    "daysFull": {
+      "MONDAY": "poniedziałek",
+      "TUESDAY": "wtorek",
+      "WEDNESDAY": "środa",
+      "THURSDAY": "czwartek",
+      "FRIDAY": "piątek",
+      "SATURDAY": "sobota",
+      "SUNDAY": "niedziela"
+    },
     "tooltipAssignedHere": "Nauczyciel przypisany do tej grupy",
     "tooltipOverhoursInGroup": "Nadgodziny w tej grupie — przypisany do grupy {{groupName}}",
     "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy"
@@ -239,6 +248,7 @@
   "violations": {
     "title": "Błędy w planie",
     "noViolations": "Brak błędów w planie.",
+    "error": "Błąd",
     "collapse": "Zwiń panel naruszeń",
     "thisWeek": "Ten tydzień",
     "thisMonth": "Ten miesiąc",
@@ -255,6 +265,12 @@
       "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} ma {{actual}}h w dniu {{date}}, maksimum to {{rule}}h/dzień",
       "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} ma {{actual}}h wolnych, maksimum to {{rule}}h/miesiąc",
       "GROUP_UNDERSTAFFED": "Grupa {{name}} ma {{actual}} nauczyciela/i w dniu {{date}} w godzinach {{startTime}}–{{endTime}}, wymagane minimum to {{rule}}"
+    },
+    "templateMessages": {
+      "TEACHER_WEEKLY_HOURS_TOO_LOW": "{{name}} ma {{actual}}h/tydzień, minimum to {{rule}}h.",
+      "TEACHER_DAILY_HOURS_TOO_HIGH": "{{name}} w {{dayOfWeek}}: {{actual}}h, maks. {{rule}}h.",
+      "GROUP_TEACHER_COUNT_TOO_LOW": "Grupa {{name}} w {{dayOfWeek}} ma {{actual}} nauczycieli w godzinach {{startTime}}–{{endTime}}. Powinna mieć {{rule}}.",
+      "GROUP_TEACHER_COUNT_TOO_HIGH": "Grupa {{name}} w {{dayOfWeek}} ma {{actual}} nauczycieli w godzinach {{startTime}}–{{endTime}}. Powinna mieć maksymalnie {{rule}}."
     },
     "months": {
       "1": "Styczeń", "2": "Luty", "3": "Marzec", "4": "Kwiecień",

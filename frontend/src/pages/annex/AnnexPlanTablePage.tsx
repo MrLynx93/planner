@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft, Download } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
@@ -17,7 +17,8 @@ import {
   useUpdateAnnexTimeBlockMutation,
   useDeleteAnnexTimeBlockMutation,
 } from '@/store/annexesApi';
-import type { RuleWithSourceDto } from '@/types';
+import type { RuleWithSourceDto, TemplateViolationDto } from '@/types';
+import { useGetTemplateViolationsQuery } from '@/store/violationsApi';
 
 const DAY_LABELS: Record<DayOfWeek, string> = {
   MONDAY: 'Mon',
@@ -95,6 +96,35 @@ interface EditModal {
   endTime: string;
 }
 
+function TemplateViolationRow({ v }: { v: TemplateViolationDto }) {
+  const { t } = useTranslation();
+  const dayLabel = v.dayOfWeek
+    ? t(`draftPlan.daysFull.${v.dayOfWeek}` as Parameters<typeof t>[0])
+    : '';
+  const message = t(
+    `violations.templateMessages.${v.violationType}` as Parameters<typeof t>[0],
+    {
+      name: v.teacherName ?? v.groupName ?? '',
+      actual: v.actualValue,
+      rule: v.ruleValue,
+      dayOfWeek: dayLabel,
+      startTime: v.startTime ? v.startTime.substring(0, 5) : '',
+      endTime: v.endTime ? v.endTime.substring(0, 5) : '',
+    }
+  );
+
+  return (
+    <tr className="border-b border-border last:border-0">
+      <td className="py-1.5 pr-2 align-top">
+        <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap bg-destructive/10 text-destructive">
+          {t('violations.error')}
+        </span>
+      </td>
+      <td className="py-1.5 text-base text-foreground/80">{message}</td>
+    </tr>
+  );
+}
+
 export function AnnexPlanTablePage() {
   const { t } = useTranslation();
   const annex = useOutletContext<AnnexDto>();
@@ -105,12 +135,63 @@ export function AnnexPlanTablePage() {
   const { data: teachers = [] } = useGetAnnexTeachersQuery(annexId);
   const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId);
   const { data: rules = [] } = useGetAnnexRulesCombinedQuery(annexId);
+  const { data: templateViolations = [] } = useGetTemplateViolationsQuery(annexId);
 
   const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
   const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
   const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation();
 
+  const containerRef = useRef<HTMLDivElement>(null);
+
   const [panelOpen, setPanelOpen] = useState(true);
+  const [panelWidth, setPanelWidth] = useState(208);
+  const [bottomPanelOpen, setBottomPanelOpen] = useState(true);
+  const [bottomPanelHeight, setBottomPanelHeight] = useState(420);
+  const resizing = useRef(false);
+
+  const handleResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    resizing.current = true;
+    const startX = e.clientX;
+    const startWidth = panelWidth;
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!resizing.current) return;
+      const delta = startX - ev.clientX;
+      setPanelWidth(Math.max(160, Math.min(520, startWidth + delta)));
+    };
+    const onMouseUp = () => {
+      resizing.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  const handleBottomResizeMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    resizing.current = true;
+    const startY = e.clientY;
+    const startHeight = bottomPanelHeight;
+    const maxHeight = containerRef.current
+      ? containerRef.current.clientHeight - 80
+      : 800;
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!resizing.current) return;
+      const delta = startY - ev.clientY;
+      setBottomPanelHeight(Math.max(80, Math.min(maxHeight, startHeight + delta)));
+    };
+    const onMouseUp = () => {
+      resizing.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
   const [dragOverCell, setDragOverCell] = useState<{ groupId: number; day: DayOfWeek } | null>(null);
   const [editModal, setEditModal] = useState<EditModal | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
@@ -179,7 +260,9 @@ export function AnnexPlanTablePage() {
   };
 
   return (
-    <div className="h-full flex min-h-0">
+    <div ref={containerRef} className="h-full flex flex-col min-h-0">
+      {/* Top: table + right panel */}
+      <div className="flex flex-1 min-h-0">
       {/* Table area */}
       <div className="flex-1 overflow-auto p-6 min-w-0">
         <div className="flex justify-end mb-3">
@@ -323,11 +406,15 @@ export function AnnexPlanTablePage() {
 
       {/* Right panel */}
       <div
-        className={cn(
-          'border-l border-border shrink-0 flex flex-col transition-all duration-200',
-          panelOpen ? 'w-52' : 'w-9'
-        )}
+        className="border-l border-border shrink-0 flex flex-col relative"
+        style={{ width: panelOpen ? panelWidth : 36 }}
       >
+        {panelOpen && (
+          <div
+            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-10 hover:bg-primary/40 transition-colors"
+            onMouseDown={handleResizeMouseDown}
+          />
+        )}
         <div className="flex items-center border-b border-border px-2 py-2 shrink-0">
           {panelOpen && (
             <p className="flex-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
@@ -374,6 +461,55 @@ export function AnnexPlanTablePage() {
                   </div>
                 );
               })
+            )}
+          </div>
+        )}
+      </div>
+      </div>{/* end top row */}
+
+      {/* Bottom violations panel */}
+      <div
+        className="border-t border-border shrink-0 flex flex-col relative"
+        style={{ height: bottomPanelOpen ? bottomPanelHeight : 36 }}
+      >
+        {/* Resize handle on top edge */}
+        {bottomPanelOpen && (
+          <div
+            className="absolute top-0 left-0 right-0 h-1.5 cursor-row-resize z-10 hover:bg-primary/40 transition-colors"
+            onMouseDown={handleBottomResizeMouseDown}
+          />
+        )}
+        {/* Header */}
+        <div className="flex items-center border-b border-border px-3 py-2 shrink-0 gap-2">
+          <p className="flex-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            {t('violations.title')}
+            {templateViolations.length > 0 && (
+              <span className="ml-2 font-normal normal-case text-destructive">
+                {templateViolations.length} {t('violations.errors').toLowerCase()}
+              </span>
+            )}
+          </p>
+          <button
+            onClick={() => setBottomPanelOpen((o) => !o)}
+            className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+          >
+            {bottomPanelOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </button>
+        </div>
+
+        {/* Content */}
+        {bottomPanelOpen && (
+          <div className="overflow-auto flex-1 px-4 py-3">
+            {templateViolations.length === 0 ? (
+              <p className="text-sm text-muted-foreground">{t('violations.noViolations')}</p>
+            ) : (
+              <table className="text-sm">
+                <tbody>
+                  {templateViolations.map((v, i) => (
+                    <TemplateViolationRow key={i} v={v} />
+                  ))}
+                </tbody>
+              </table>
             )}
           </div>
         )}

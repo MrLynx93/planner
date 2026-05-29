@@ -178,6 +178,15 @@
       "SATURDAY": "Sat",
       "SUNDAY": "Sun"
     },
+    "daysFull": {
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday",
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday"
+    },
     "tooltipAssignedHere": "Assigned to this group",
     "tooltipOverhoursInGroup": "Overhours in this group — assigned to {{groupName}}",
     "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group"
@@ -239,6 +248,8 @@
   "violations": {
     "title": "Plan Errors",
     "noPlan Errors": "No violations found.",
+    "noViolations": "No violations found.",
+    "error": "Error",
     "collapse": "Collapse violations panel",
     "thisWeek": "This week",
     "thisMonth": "This month",
@@ -255,6 +266,12 @@
       "TEACHER_DAILY_HOURS_EXCEEDED": "{{name}} has {{actual}}h on {{date}} but maximum is {{rule}}h/day",
       "TEACHER_FREE_HOURS_EXCEEDED": "{{name}} has {{actual}}h free but maximum is {{rule}}h/month",
       "GROUP_UNDERSTAFFED": "{{name}} has {{actual}} teacher(s) on {{date}} from {{startTime}} to {{endTime}} but minimum is {{rule}}"
+    },
+    "templateMessages": {
+      "TEACHER_WEEKLY_HOURS_TOO_LOW": "{{name}} has {{actual}}h/week, minimum is {{rule}}h.",
+      "TEACHER_DAILY_HOURS_TOO_HIGH": "{{name}} on {{dayOfWeek}}: {{actual}}h, max {{rule}}h.",
+      "GROUP_TEACHER_COUNT_TOO_LOW": "Group {{name}} on {{dayOfWeek}} has {{actual}} teacher(s) from {{startTime}} to {{endTime}}. Should have {{rule}}.",
+      "GROUP_TEACHER_COUNT_TOO_HIGH": "Group {{name}} on {{dayOfWeek}} has {{actual}} teacher(s) from {{startTime}} to {{endTime}}. Should have at most {{rule}}."
     },
     "months": {
       "1": "January", "2": "February", "3": "March", "4": "April",

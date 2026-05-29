@@ -1,5 +1,6 @@
 package com.planner.controller;
 
+import com.planner.dto.TemplateViolationDto;
 import com.planner.dto.ViolationDto;
 import com.planner.service.ViolationService;
 import lombok.RequiredArgsConstructor;
@@ -20,5 +21,10 @@ public class ViolationController {
             @RequestParam int year,
             @RequestParam int month) {
         return violationService.findViolations(id, year, month);
+    }
+
+    @GetMapping("/{id}/violations/template")
+    public List<TemplateViolationDto> getTemplateViolations(@PathVariable Integer id) {
+        return violationService.findTemplateViolations(id);
     }
 }

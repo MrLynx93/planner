@@ -108,3 +108,17 @@ export interface ViolationDto {
   ruleValue: number;
   actualValue: number;
 }
+
+export interface TemplateViolationDto {
+  violationType: ViolationType;
+  severity: 'ERROR' | 'WARNING';
+  teacherId: number | null;
+  teacherName: string | null;
+  groupId: number | null;
+  groupName: string | null;
+  dayOfWeek: string | null;
+  startTime: string | null;
+  endTime: string | null;
+  ruleValue: number;
+  actualValue: number;
+}

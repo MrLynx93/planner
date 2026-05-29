@@ -1,5 +1,6 @@
 package com.planner.service;
 
+import com.planner.dto.TemplateViolationDto;
 import com.planner.dto.ViolationDto;
 import com.planner.entity.*;
 import com.planner.repository.*;
@@ -175,6 +176,130 @@ public class ViolationService {
                                 intervalStart, intervalEnd,
                                 maxTeachers, (int) teacherCount
                         ));
+                    }
+                }
+            }
+        }
+
+        return violations;
+    }
+
+    public List<TemplateViolationDto> findTemplateViolations(Integer annexId) {
+        Annex annex = annexService.getOrThrow(annexId);
+        List<AnnexTimeBlock> templateBlocks = annexTimeBlockRepository.findByAnnexId(annexId);
+        List<AnnexTeacher> annexTeachers = annexTeacherRepository.findByAnnexId(annexId);
+        List<AnnexGroup> annexGroups = annexGroupRepository.findByAnnexId(annexId);
+
+        List<TemplateViolationDto> violations = new ArrayList<>();
+
+        List<DayOfWeek> weekDays = List.of(
+                DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY,
+                DayOfWeek.THURSDAY, DayOfWeek.FRIDAY);
+
+        for (AnnexTeacher at : annexTeachers) {
+            Teacher teacher = at.getTeacher();
+            int teacherId = teacher.getId();
+            String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
+
+            Integer minWeeklyHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
+            if (minWeeklyHours != null) {
+                int weeklyMinutes = templateBlocks.stream()
+                        .filter(atb -> atb.getTimeBlock().getTeacher().getId().equals(teacherId))
+                        .mapToInt(atb -> (int) Duration.between(
+                                atb.getTimeBlock().getStartTime(), atb.getTimeBlock().getEndTime()).toMinutes())
+                        .sum();
+                int actualWeeklyHours = weeklyMinutes / 60;
+                if (actualWeeklyHours < minWeeklyHours) {
+                    violations.add(new TemplateViolationDto(
+                            ViolationType.TEACHER_WEEKLY_HOURS_TOO_LOW, "ERROR",
+                            teacherId, teacherName, null, null, null, null, null,
+                            minWeeklyHours, actualWeeklyHours));
+                }
+            }
+
+            Integer maxPerDay = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
+            if (maxPerDay != null) {
+                for (DayOfWeek dow : weekDays) {
+                    int dayMinutes = templateBlocks.stream()
+                            .filter(atb -> atb.getTimeBlock().getTeacher().getId().equals(teacherId)
+                                    && atb.getTimeBlock().getDayOfWeek() == dow)
+                            .mapToInt(atb -> (int) Duration.between(
+                                    atb.getTimeBlock().getStartTime(), atb.getTimeBlock().getEndTime()).toMinutes())
+                            .sum();
+                    if (dayMinutes / 60 > maxPerDay) {
+                        violations.add(new TemplateViolationDto(
+                                ViolationType.TEACHER_DAILY_HOURS_TOO_HIGH, "ERROR",
+                                teacherId, teacherName, null, null, dow.name(),
+                                null, null, maxPerDay, dayMinutes / 60));
+                    }
+                }
+            }
+        }
+
+        for (AnnexGroup ag : annexGroups) {
+            int groupId = ag.getGroup().getId();
+            String groupName = ag.getGroup().getName();
+
+            Integer minTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
+            Integer maxTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
+
+            if (minTeachers == null && maxTeachers == null) continue;
+
+            for (DayOfWeek dow : weekDays) {
+                List<BlockInfo> dayBlocks = templateBlocks.stream()
+                        .filter(atb -> atb.getTimeBlock().getGroup().getId().equals(groupId)
+                                && atb.getTimeBlock().getDayOfWeek() == dow)
+                        .map(atb -> new BlockInfo(
+                                atb.getTimeBlock().getTeacher().getId(),
+                                atb.getTimeBlock().getGroup().getId(),
+                                atb.getTimeBlock().getStartTime(),
+                                atb.getTimeBlock().getEndTime()))
+                        .collect(Collectors.toList());
+
+                if (dayBlocks.isEmpty()) {
+                    if (minTeachers != null) {
+                        violations.add(new TemplateViolationDto(
+                                ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
+                                null, null, groupId, groupName, dow.name(),
+                                annex.getScheduleStartTime(), annex.getScheduleEndTime(),
+                                minTeachers, 0));
+                    }
+                    continue;
+                }
+
+                Set<LocalTime> timePoints = new TreeSet<>();
+                timePoints.add(annex.getScheduleStartTime());
+                timePoints.add(annex.getScheduleEndTime());
+                for (BlockInfo b : dayBlocks) {
+                    timePoints.add(b.startTime());
+                    timePoints.add(b.endTime());
+                }
+
+                List<LocalTime> sorted = new ArrayList<>(timePoints);
+                for (int i = 0; i < sorted.size() - 1; i++) {
+                    LocalTime intervalStart = sorted.get(i);
+                    LocalTime intervalEnd = sorted.get(i + 1);
+                    if (!intervalStart.isBefore(intervalEnd)) continue;
+
+                    LocalTime mid = intervalStart.plusMinutes(
+                            Duration.between(intervalStart, intervalEnd).toMinutes() / 2);
+                    long teacherCount = dayBlocks.stream()
+                            .filter(b -> !b.startTime().isAfter(mid) && b.endTime().isAfter(mid))
+                            .map(BlockInfo::teacherId)
+                            .distinct()
+                            .count();
+
+                    if (minTeachers != null && teacherCount < minTeachers) {
+                        violations.add(new TemplateViolationDto(
+                                ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
+                                null, null, groupId, groupName, dow.name(),
+                                intervalStart, intervalEnd, minTeachers, (int) teacherCount));
+                    }
+                    if (maxTeachers != null && teacherCount > maxTeachers) {
+                        violations.add(new TemplateViolationDto(
+                                ViolationType.GROUP_TEACHER_COUNT_TOO_HIGH, "ERROR",
+                                null, null, groupId, groupName, dow.name(),
+                                intervalStart, intervalEnd, maxTeachers, (int) teacherCount));
                     }
                 }
             }
