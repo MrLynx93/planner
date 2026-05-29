@@ -71,11 +71,11 @@ planner/
 - **Annex** — top-level organizational period. Holds operating hours (`opening_time`, `closing_time`) and owns all plans, rules, and memberships.
 - **AnnexTeacher** — scopes a teacher to an annex with annex-specific attributes: `default_group`.
 - **AnnexGroup** — scopes a group to an annex. Preserves history when groups are added or dissolved between annexes.
-- **Rule** — a generic configurable rule with a `type`, optional `group_id`, optional `teacher_id`, and an `int_value`. Supported types:
-  - `TEACHER_MONTHLY_HOURS_MIN` — teacher must work at least X hours/month (uses `teacher_id`)
+- **Rule** — a generic configurable rule with a `type`, optional `group_id`, optional `teacher_id`, and an `int_value`. Supported types (`RuleType` enum):
+  - `TEACHER_WEEKLY_HOURS_MIN` — teacher must work at least X hours/week (uses `teacher_id`)
   - `TEACHER_MAX_HOURS_PER_DAY` — teacher must not exceed X hours/day (uses `teacher_id`)
   - `GROUP_MIN_TEACHERS` — group must have at least X teachers at all times (uses `group_id`)
-  - `TEACHER_MAX_FREE_HOURS_MONTHLY` — teacher may have at most X free hours/month (uses `teacher_id`)
+  - `GROUP_MAX_TEACHERS` — group must have at most X teachers at all times (uses `group_id`)
 - **AnnexRule** — links a `Rule` to an `Annex`, allowing each annex to have its own set of rules.
 - **TimeBlock** — a reusable block definition: teacher, group, day of week, start and end time. `type` is either `TEMPLATE` (part of the standard week, linked via `AnnexTimeBlock`) or `MODIFICATION` (a one-off block used by an ADD modification).
 - **AnnexTimeBlock** — links a `TEMPLATE` `TimeBlock` to an annex, forming the standard weekly schedule.
@@ -90,7 +90,7 @@ planner/
 - A teacher normally covers one group for the full week.
 - A teacher may split hours across multiple groups within a single day, as long as all staffing rules are satisfied.
 - Each group must meet its minimum teacher coverage at all times.
-- Teacher monthly hour requirements are defined via `TEACHER_MONTHLY_HOURS_MIN` rules linked to the annex.
+- Teacher weekly hour requirements are defined via `TEACHER_WEEKLY_HOURS_MIN` rules linked to the annex.
 
 ---
 
@@ -118,11 +118,11 @@ planner/
 - Automatic replacement search is **out of scope** for now (planned for a future version).
 
 ### 5. Validation Dashboard
-- Runs against the computed schedule for a given week and surfaces errors/warnings such as:
-  - A group has no teacher assigned for a time slot.
-  - A teacher has unassigned hours (total scheduled for month < `TEACHER_MONTHLY_HOURS_MIN` rule value).
-  - A teacher is double-booked.
-  - A group is below minimum staffing threshold.
+- Two validation modes:
+  - **Date-based** (`GET /api/annexes/{id}/violations?year=&month=`): checks the effective schedule (template + modifications) for a real calendar month against working days (Mon–Fri, excluding closed days).
+  - **Template-based** (`GET /api/annexes/{id}/violations/template`): checks the template schedule against day-of-week patterns (no real dates). Used in the Plan Table view.
+- Violation types (`ViolationType` enum): `TEACHER_WEEKLY_HOURS_TOO_LOW`, `TEACHER_DAILY_HOURS_TOO_HIGH`, `GROUP_TEACHER_COUNT_TOO_LOW`, `GROUP_TEACHER_COUNT_TOO_HIGH`.
+- All template violations are severity `ERROR`. Date-based violations use `ERROR`/`WARNING`.
 
 ### 6. CRUD Management Views
 - Create/edit/delete Annexes (with operating hours).
@@ -273,18 +273,17 @@ AppLayout (sidebar + outlet)
 ├── /annexes                  → AnnexesPage           (CRUD table for all annexes)
 ├── /teachers                 → TeachersPage
 ├── /groups                   → GroupsPage
-├── /children                 → ChildrenPage
 ├── /rules                    → RulesPage
 ├── /closed-days              → ClosedDaysPage
 └── /annexes/:id              → AnnexLayout           (tabs header + outlet)
     ├── settings              → AnnexSettingsPage
     ├── teachers              → AnnexTeachersPage
     ├── groups                → AnnexGroupsPage
-    ├── children              → AnnexChildrenPage
     ├── rules                 → AnnexRulesPage
     ├── plan/groups           → AnnexPlanGroupPage     (draft planner by group)
     ├── plan/teachers         → AnnexPlanTeacherPage   (draft planner by teacher)
-    └── plan/overview         → AnnexPlanOverviewPage  (full-day overview planner)
+    ├── plan/overview         → AnnexPlanOverviewPage  (full-day overview planner)
+    └── plan/table            → AnnexPlanTablePage     (tabular view with violations)
 ```
 
 ### Layout Components
@@ -315,21 +314,53 @@ All three pages: get `annex` from `useOutletContext<AnnexDto>()`, set `editable 
 
 **`AnnexPlanOverviewPage`** — Day/Week toggle. Day mode: `xAxis="groups"` (each group = column for selected day), drop teacher on group column. Week mode: `xAxis="days"` showing all blocks, editing only (no DnD creation). Day navigation: prev/next + day tabs.
 
+**`AnnexPlanTablePage`** (`pages/annex/AnnexPlanTablePage.tsx`) — Tabular plan view. Layout: `flex flex-col h-full` with three zones:
+1. **Table area** (scrollable, `flex-1`): columns = Group | Teacher | Mon–Fri | Hours | Overhours. One row per (group, teacher) pair; group cell spans all its teacher rows via `rowSpan`. Teachers sorted by earliest block start time within the group.
+   - **Teacher cell**: bold + normal color when `teacher.defaultGroupId === group.groupId`; muted otherwise. Custom tooltip follows mouse showing assignment status.
+   - **Day cells**: use `HorizontalTimeCell` component — proportional horizontal bars for each block. Drag-and-drop teacher from right panel to create a new full-day block. Click a block to open an edit modal (start/end time, delete).
+   - **Hours cell**: total hours for that teacher in that group only across all days.
+   - **Overhours cell**: if teacher's default group matches this row → shows `actual − minWeekly` (red if negative); otherwise → shows `+Xh` for all hours in this group (none = `—`).
+2. **Right panel** (collapsible, resizable by dragging left edge, min 160 / max 520): color-coded teacher chips (`getColorForId`) draggable onto day cells.
+3. **Bottom violations panel** (resizable by dragging top edge, default 420px, max = container height − 80): shows `TemplateViolationDto[]` from `GET /annexes/{id}/violations/template`. All displayed as errors. Toggle to collapse to header bar.
+
+Export button calls `exportPlanTableToExcel(annexName, rows, allBlocks, rules, labels)` — landscape A4 xlsx via ExcelJS. Teacher/day cells are color-coded; group column merged across teacher rows; overhours column bold for default-group rows, red for negative values. `labels` is built from `t()` calls so column headers respect the active language.
+
+`HorizontalTimeCell` (`components/schedule/HorizontalTimeCell.tsx`) — renders blocks as proportional horizontal bars within a table cell, proportional to the annex schedule window. Supports resize handles and delete on hover.
+
+### Rules Organization
+
+Rules have a three-level priority resolved by `RuleResolutionService`:
+
+1. **Annex-specific, entity-scoped** — `AnnexRule` linking an annex to a `Rule` that has a `teacher_id` or `group_id` set.
+2. **Annex default** — `AnnexRule` linking an annex to a `Rule` with no `teacher_id`/`group_id` (applies to all teachers or groups in that annex).
+3. **Global default** — a `Rule` with no `AnnexRule` entry and no `teacher_id`/`group_id` (applies everywhere unless overridden).
+
+`RuleWithSourceDto` (Java record, also mirrored in `frontend/src/types.ts`) carries: `ruleId`, `annexRuleId` (null if global), `annexId`, `annexName`, `ruleType`, `teacherId`, `groupId`, `intValue`. The frontend uses `annexRuleId === null` to distinguish global from annex-scoped rules.
+
+Frontend resolution helper `effectiveMinHours(rules, teacherId)` in both `AnnexPlanTablePage` and `exportPlanTable.ts` replicates the same priority order in order to compute overhours display without an extra API call.
+
+`useGetAnnexRulesCombinedQuery(annexId)` → `RuleWithSourceDto[]` returns all rules visible to that annex (annex-specific + global) in one endpoint.
+
 ### RTK Query API (`frontend/src/store/annexesApi.ts`)
 
 All queries/mutations are injected into the base `api` (`store/api.ts`, `baseUrl: '/api'`). Key hooks:
 
 ```
 useGetAnnexesQuery()
-useGetAnnexGroupsQuery(annexId)        → AnnexGroupDto[]   {id, annexId, groupId, groupName}
-useGetAnnexTeachersQuery(annexId)      → AnnexTeacherDto[] {id, annexId, teacherId, firstName, lastName, defaultGroupId, defaultGroupName}
-useGetAnnexTimeBlocksQuery(annexId)    → ScheduleBlock[]
-useCreateAnnexTimeBlockMutation()      → POST /annexes/{id}/time-blocks
-useUpdateAnnexTimeBlockMutation()      → PUT  /annexes/{id}/time-blocks/{annexTimeBlockId}  (startTime, endTime only)
-useDeleteAnnexTimeBlockMutation()      → DELETE /annexes/{id}/time-blocks/{annexTimeBlockId}
+useGetAnnexGroupsQuery(annexId)          → AnnexGroupDto[]       {id, annexId, groupId, groupName}
+useGetAnnexTeachersQuery(annexId)        → AnnexTeacherDto[]     {id, annexId, teacherId, firstName, lastName, defaultGroupId, defaultGroupName}
+useGetAnnexTimeBlocksQuery(annexId)      → ScheduleBlock[]
+useGetAnnexRulesCombinedQuery(annexId)   → RuleWithSourceDto[]   all rules visible to this annex (annex + global)
+useCreateAnnexTimeBlockMutation()        → POST   /annexes/{id}/time-blocks
+useUpdateAnnexTimeBlockMutation()        → PUT    /annexes/{id}/time-blocks/{annexTimeBlockId}  (startTime, endTime only)
+useDeleteAnnexTimeBlockMutation()        → DELETE /annexes/{id}/time-blocks/{annexTimeBlockId}
+
+// from store/violationsApi.ts
+useGetViolationsQuery({annexId, year, month})  → ViolationDto[]          GET /annexes/{id}/violations?year=&month=
+useGetTemplateViolationsQuery(annexId)         → TemplateViolationDto[]  GET /annexes/{id}/violations/template
 ```
 
-Tags: `Annex`, `AnnexGroup`, `AnnexTeacher`, `AnnexTimeBlock`, `AnnexRule`, `AnnexChildGroup`, `Teacher`, `Group`, `Child`, `ClosedDay`.
+Tags: `Annex`, `AnnexGroup`, `AnnexTeacher`, `AnnexTimeBlock`, `AnnexRule`, `Teacher`, `Group`, `ClosedDay`, `Violation`.
 
 ---
 
@@ -360,18 +391,21 @@ The draft annex's weekly schedule is built from `TEMPLATE` `TimeBlock` records l
 backend/src/main/java/com/planner/
 ├── controller/
 │   ├── AnnexController.java
-│   ├── AnnexTimeBlockController.java   GET/POST/PUT/DELETE /api/annexes/{id}/time-blocks
+│   ├── AnnexTimeBlockController.java     GET/POST/PUT/DELETE /api/annexes/{id}/time-blocks
 │   ├── AnnexTeacherController.java
 │   ├── AnnexGroupController.java
+│   ├── ViolationController.java          GET /api/annexes/{id}/violations  and  /violations/template
 │   ├── TeacherController.java
 │   └── GroupController.java
 ├── service/
-│   ├── AnnexService.java               enforces one-DRAFT rule, handles activation
-│   ├── AnnexTimeBlockService.java      create/update/delete TimeBlock + AnnexTimeBlock
-│   └── AnnexMembershipService.java     teacher/group assignments to annexes
-├── entity/                             JPA entities (Annex, TimeBlock, AnnexTimeBlock, …)
-├── dto/                                Records (AnnexDto, AnnexTimeBlockDto, …)
-└── repository/                         Spring Data JPA repos
+│   ├── AnnexService.java                 enforces one-DRAFT rule, handles activation
+│   ├── AnnexTimeBlockService.java        create/update/delete TimeBlock + AnnexTimeBlock
+│   ├── AnnexMembershipService.java       teacher/group assignments to annexes
+│   ├── ViolationService.java             findViolations() (date-based) + findTemplateViolations() (template)
+│   └── RuleResolutionService.java        resolveForTeacher() / resolveForGroup() with 3-level priority
+├── entity/                               JPA entities (Annex, TimeBlock, AnnexTimeBlock, Rule, RuleType, ViolationType, …)
+├── dto/                                  Records (AnnexDto, RuleWithSourceDto, ViolationDto, TemplateViolationDto, …)
+└── repository/                           Spring Data JPA repos
 ```
 
 ---
