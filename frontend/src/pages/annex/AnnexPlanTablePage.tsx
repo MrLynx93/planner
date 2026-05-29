@@ -100,10 +100,14 @@ function HoursSummaryTable({
   teachers,
   allBlocks,
   rules,
+  onTeacherMouseEnter,
+  onTeacherMouseLeave,
 }: {
   teachers: AnnexTeacherDto[];
   allBlocks: ScheduleBlock[];
   rules: RuleWithSourceDto[];
+  onTeacherMouseEnter: (id: number) => void;
+  onTeacherMouseLeave: () => void;
 }) {
   const { t } = useTranslation();
   return (
@@ -126,7 +130,7 @@ function HoursSummaryTable({
           const minH = effectiveMinHours(rules, teacher.teacherId);
           const diff = minH !== null ? totalHours - minH : null;
           return (
-            <tr key={teacher.teacherId} className="border-b border-border last:border-0 hover:bg-muted-foreground/20 transition-colors">
+            <tr key={teacher.teacherId} className="border-b border-border last:border-0 hover:bg-muted-foreground/20 transition-colors" onMouseEnter={() => onTeacherMouseEnter(teacher.teacherId)} onMouseLeave={onTeacherMouseLeave}>
               <td className="py-1.5 pr-4 font-medium">
                 {teacher.firstName.charAt(0)}.{teacher.lastName}
               </td>
@@ -282,6 +286,7 @@ export function AnnexPlanTablePage() {
   const [editModal, setEditModal] = useState<EditModal | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
   const [hoveredViolation, setHoveredViolation] = useState<TemplateViolationDto | null>(null);
+  const [hoveredSummaryTeacherId, setHoveredSummaryTeacherId] = useState<number | null>(null);
   const [showViolations, setShowViolations] = useState(true);
   const [showSummary, setShowSummary] = useState(true);
 
@@ -403,6 +408,7 @@ export function AnnexPlanTablePage() {
                   className={cn(
                     'border border-border px-3 py-2 whitespace-nowrap cursor-default transition-colors group-hover:bg-muted-foreground/20',
                     teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground',
+                    hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20',
                     isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive'
                   )}
                   onMouseMove={teacher ? (e) => {
@@ -428,6 +434,7 @@ export function AnnexPlanTablePage() {
                         !isFirstInGroup && 'border-t-transparent',
                         !isLastInGroup && 'border-b-transparent',
                         editable && isDragTarget && 'bg-primary/10 outline outline-2 outline-primary',
+                        hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20',
                         isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, day) && 'ring-2 ring-inset ring-destructive'
                       )}
                       onDragOver={
@@ -459,10 +466,10 @@ export function AnnexPlanTablePage() {
                     </td>
                   );
                 })}
-                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground', hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
                   {teacher ? `${weeklyHours(allBlocks, group.groupId, teacher.teacherId)}h` : '—'}
                 </td>
-                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold', hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
                   {(() => {
                     if (!teacher) return <span className="text-muted-foreground">—</span>;
                     const groupHours = parseFloat(weeklyHours(allBlocks, group.groupId, teacher.teacherId));
@@ -630,7 +637,7 @@ export function AnnexPlanTablePage() {
             )}
             {showSummary && (
               <div className="overflow-auto flex-1 px-4 py-3">
-                <HoursSummaryTable teachers={teachers} allBlocks={allBlocks} rules={rules} />
+                <HoursSummaryTable teachers={teachers} allBlocks={allBlocks} rules={rules} onTeacherMouseEnter={setHoveredSummaryTeacherId} onTeacherMouseLeave={() => setHoveredSummaryTeacherId(null)} />
               </div>
             )}
           </div>
