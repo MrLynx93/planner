@@ -97,7 +97,7 @@ export function HorizontalTimeCell({
   );
 
   return (
-    <div ref={containerRef} className="relative h-9 bg-gray-50 rounded">
+    <div ref={containerRef} className="relative h-9 rounded">
       {blocks.map((block) => {
         const preview = resizePreview.get(block.id);
         const displayStart = preview?.startTime ?? block.startTime;
