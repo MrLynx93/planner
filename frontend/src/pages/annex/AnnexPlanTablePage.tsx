@@ -96,7 +96,35 @@ interface EditModal {
   endTime: string;
 }
 
-function TemplateViolationRow({ v }: { v: TemplateViolationDto }) {
+function isCellHighlighted(
+  v: TemplateViolationDto | null,
+  row: { groupId: number; teacherId: number | null },
+  day: DayOfWeek | null
+): boolean {
+  if (!v) return false;
+  switch (v.violationType) {
+    case 'TEACHER_WEEKLY_HOURS_TOO_LOW':
+      return row.teacherId !== null && v.teacherId === row.teacherId;
+    case 'TEACHER_DAILY_HOURS_TOO_HIGH':
+      if (!row.teacherId || v.teacherId !== row.teacherId) return false;
+      return day === null || v.dayOfWeek === day;
+    case 'GROUP_TEACHER_COUNT_TOO_LOW':
+    case 'GROUP_TEACHER_COUNT_TOO_HIGH':
+      if (v.groupId !== row.groupId || day === null) return false;
+      return v.dayOfWeek === day;
+  }
+  return false;
+}
+
+function TemplateViolationRow({
+  v,
+  onMouseEnter,
+  onMouseLeave,
+}: {
+  v: TemplateViolationDto;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
+}) {
   const { t } = useTranslation();
   const dayLabel = v.dayOfWeek
     ? t(`draftPlan.daysFull.${v.dayOfWeek}` as Parameters<typeof t>[0])
@@ -114,7 +142,11 @@ function TemplateViolationRow({ v }: { v: TemplateViolationDto }) {
   );
 
   return (
-    <tr className="border-b border-border last:border-0">
+    <tr
+      className="border-b border-border last:border-0 cursor-default"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
       <td className="py-1.5 pr-2 align-top">
         <span className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-semibold whitespace-nowrap bg-destructive/10 text-destructive">
           {t('violations.error')}
@@ -195,6 +227,7 @@ export function AnnexPlanTablePage() {
   const [dragOverCell, setDragOverCell] = useState<{ groupId: number; day: DayOfWeek } | null>(null);
   const [editModal, setEditModal] = useState<EditModal | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
+  const [hoveredViolation, setHoveredViolation] = useState<TemplateViolationDto | null>(null);
 
   const rows = buildRows(groups, teachers, allBlocks);
 
@@ -313,7 +346,8 @@ export function AnnexPlanTablePage() {
                 <td
                   className={cn(
                     'border border-border px-3 py-2 whitespace-nowrap cursor-default transition-colors group-hover:bg-muted-foreground/20',
-                    teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground'
+                    teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground',
+                    isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive'
                   )}
                   onMouseMove={teacher ? (e) => {
                     const content = teacher.defaultGroupId === group.groupId
@@ -337,7 +371,8 @@ export function AnnexPlanTablePage() {
                         'border border-border px-1 py-1 min-w-[120px] transition-colors group-hover:bg-muted-foreground/20',
                         !isFirstInGroup && 'border-t-transparent',
                         !isLastInGroup && 'border-b-transparent',
-                        editable && isDragTarget && 'bg-primary/10 outline outline-2 outline-primary'
+                        editable && isDragTarget && 'bg-primary/10 outline outline-2 outline-primary',
+                        isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, day) && 'ring-2 ring-inset ring-destructive'
                       )}
                       onDragOver={
                         editable
@@ -368,10 +403,10 @@ export function AnnexPlanTablePage() {
                     </td>
                   );
                 })}
-                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground')}>
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
                   {teacher ? `${weeklyHours(allBlocks, group.groupId, teacher.teacherId)}h` : '—'}
                 </td>
-                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold')}>
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
                   {(() => {
                     if (!teacher) return <span className="text-muted-foreground">—</span>;
                     const groupHours = parseFloat(weeklyHours(allBlocks, group.groupId, teacher.teacherId));
@@ -506,7 +541,12 @@ export function AnnexPlanTablePage() {
               <table className="text-sm">
                 <tbody>
                   {templateViolations.map((v, i) => (
-                    <TemplateViolationRow key={i} v={v} />
+                    <TemplateViolationRow
+                      key={i}
+                      v={v}
+                      onMouseEnter={() => setHoveredViolation(v)}
+                      onMouseLeave={() => setHoveredViolation(null)}
+                    />
                   ))}
                 </tbody>
               </table>
