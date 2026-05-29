@@ -187,6 +187,8 @@
       "SATURDAY": "sobota",
       "SUNDAY": "niedziela"
     },
+    "hoursSummary": "Podsumowanie godzin",
+    "minHours": "Min. godz.",
     "tooltipAssignedHere": "Nauczyciel przypisany do tej grupy",
     "tooltipOverhoursInGroup": "Nadgodziny w tej grupie — przypisany do grupy {{groupName}}",
     "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy"

@@ -96,6 +96,60 @@ interface EditModal {
   endTime: string;
 }
 
+function HoursSummaryTable({
+  teachers,
+  allBlocks,
+  rules,
+}: {
+  teachers: AnnexTeacherDto[];
+  allBlocks: ScheduleBlock[];
+  rules: RuleWithSourceDto[];
+}) {
+  const { t } = useTranslation();
+  return (
+    <table className="text-sm w-full">
+      <thead>
+        <tr className="text-left text-xs text-muted-foreground border-b border-border">
+          <th className="pb-1.5 pr-4 font-medium">{t('draftPlan.teacher')}</th>
+          <th className="pb-1.5 pr-4 font-medium">{t('draftPlan.group')}</th>
+          <th className="pb-1.5 pr-4 font-medium text-right">{t('draftPlan.hours')}</th>
+          <th className="pb-1.5 pr-4 font-medium text-right">{t('draftPlan.minHours')}</th>
+          <th className="pb-1.5 font-medium text-right">{t('draftPlan.overhours')}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {teachers.map((teacher) => {
+          const totalMins = allBlocks
+            .filter((b) => b.teacherId === teacher.teacherId)
+            .reduce((sum, b) => sum + timeToMinutes(b.endTime) - timeToMinutes(b.startTime), 0);
+          const totalHours = totalMins / 60;
+          const minH = effectiveMinHours(rules, teacher.teacherId);
+          const diff = minH !== null ? totalHours - minH : null;
+          return (
+            <tr key={teacher.teacherId} className="border-b border-border last:border-0">
+              <td className="py-1.5 pr-4 font-medium">
+                {teacher.firstName.charAt(0)}.{teacher.lastName}
+              </td>
+              <td className="py-1.5 pr-4 text-muted-foreground text-xs">
+                {teacher.defaultGroupName ?? '—'}
+              </td>
+              <td className="py-1.5 pr-4 text-right font-mono text-xs">
+                {totalHours.toFixed(1)}h
+              </td>
+              <td className="py-1.5 pr-4 text-right font-mono text-xs text-muted-foreground">
+                {minH !== null ? `${minH}h` : '—'}
+              </td>
+              <td className={cn('py-1.5 text-right font-mono text-xs', diff !== null && diff < 0 ? 'text-destructive' : '')}>
+                {diff !== null ? `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h` : '—'}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  );
+}
+
 function isCellHighlighted(
   v: TemplateViolationDto | null,
   row: { groupId: number; teacherId: number | null },
@@ -228,6 +282,8 @@ export function AnnexPlanTablePage() {
   const [editModal, setEditModal] = useState<EditModal | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
   const [hoveredViolation, setHoveredViolation] = useState<TemplateViolationDto | null>(null);
+  const [showViolations, setShowViolations] = useState(true);
+  const [showSummary, setShowSummary] = useState(true);
 
   const rows = buildRows(groups, teachers, allBlocks);
 
@@ -514,42 +570,68 @@ export function AnnexPlanTablePage() {
             onMouseDown={handleBottomResizeMouseDown}
           />
         )}
-        {/* Header */}
-        <div className="flex items-center border-b border-border px-3 py-2 shrink-0 gap-2">
-          <p className="flex-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        {/* Header with tabs */}
+        <div className="flex items-center border-b border-border px-1 py-0 shrink-0">
+          <button
+            onClick={() => setShowViolations((v) => !v)}
+            className={cn(
+              'px-3 py-2 text-xs font-medium border-b-2 transition-colors',
+              showViolations
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
             {t('violations.title')}
             {templateViolations.length > 0 && (
-              <span className="ml-2 font-normal normal-case text-destructive">
-                {templateViolations.length} {t('violations.errors').toLowerCase()}
-              </span>
+              <span className="ml-1.5 text-destructive">({templateViolations.length})</span>
             )}
-          </p>
+          </button>
+          <button
+            onClick={() => setShowSummary((v) => !v)}
+            className={cn(
+              'px-3 py-2 text-xs font-medium border-b-2 transition-colors',
+              showSummary
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {t('draftPlan.hoursSummary')}
+          </button>
+          <div className="flex-1" />
           <button
             onClick={() => setBottomPanelOpen((o) => !o)}
-            className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+            className="rounded p-1 mr-1 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           >
             {bottomPanelOpen ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
           </button>
         </div>
 
-        {/* Content */}
-        {bottomPanelOpen && (
-          <div className="overflow-auto flex-1 px-4 py-3">
-            {templateViolations.length === 0 ? (
-              <p className="text-sm text-muted-foreground">{t('violations.noViolations')}</p>
-            ) : (
-              <table className="text-sm">
-                <tbody>
-                  {templateViolations.map((v, i) => (
-                    <TemplateViolationRow
-                      key={i}
-                      v={v}
-                      onMouseEnter={() => setHoveredViolation(v)}
-                      onMouseLeave={() => setHoveredViolation(null)}
-                    />
-                  ))}
-                </tbody>
-              </table>
+        {bottomPanelOpen && (showViolations || showSummary) && (
+          <div className="flex flex-1 min-h-0">
+            {showViolations && (
+              <div className={cn('overflow-auto flex-1 px-4 py-3', showSummary && 'border-r border-border')}>
+                {templateViolations.length === 0 ? (
+                  <p className="text-sm text-muted-foreground">{t('violations.noViolations')}</p>
+                ) : (
+                  <table className="text-sm">
+                    <tbody>
+                      {templateViolations.map((v, i) => (
+                        <TemplateViolationRow
+                          key={i}
+                          v={v}
+                          onMouseEnter={() => setHoveredViolation(v)}
+                          onMouseLeave={() => setHoveredViolation(null)}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            )}
+            {showSummary && (
+              <div className="overflow-auto flex-1 px-4 py-3">
+                <HoursSummaryTable teachers={teachers} allBlocks={allBlocks} rules={rules} />
+              </div>
             )}
           </div>
         )}

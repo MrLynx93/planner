@@ -172,11 +172,6 @@ export function Sidebar() {
           to: `${base}/plan/overview`,
           icon: CalendarRange,
         },
-        {
-          labelKey: 'nav.items.draftAnnexViolations',
-          to: `${base}/violations`,
-          icon: AlertTriangle,
-        },
       ]
     : [{ labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 }];
 
@@ -216,11 +211,6 @@ export function Sidebar() {
           labelKey: 'nav.items.draftAnnexPlanOverview',
           to: `${currentBase}/plan/overview`,
           icon: CalendarRange,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexViolations',
-          to: `${currentBase}/violations`,
-          icon: AlertTriangle,
         },
       ]
     : [];
@@ -309,11 +299,6 @@ export function Sidebar() {
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-2 py-3">
         {mode === 'current-work' && (
           <>
-            <SidebarSection
-              title={t('nav.sections.schedule')}
-              items={scheduleItems}
-              sidebarCollapsed={collapsed}
-            />
             {current && (
               <SidebarSection
                 title={t('nav.sections.currentAnnex')}
@@ -321,6 +306,11 @@ export function Sidebar() {
                 sidebarCollapsed={collapsed}
               />
             )}
+            <SidebarSection
+              title={t('nav.sections.schedule')}
+              items={scheduleItems}
+              sidebarCollapsed={collapsed}
+            />
           </>
         )}
         {mode === 'management' && (

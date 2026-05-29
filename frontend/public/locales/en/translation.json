@@ -187,6 +187,8 @@
       "SATURDAY": "Saturday",
       "SUNDAY": "Sunday"
     },
+    "hoursSummary": "Hours Summary",
+    "minHours": "Min hours",
     "tooltipAssignedHere": "Assigned to this group",
     "tooltipOverhoursInGroup": "Overhours in this group — assigned to {{groupName}}",
     "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group"

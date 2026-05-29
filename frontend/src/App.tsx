@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useGetAnnexesQuery } from '@/store/annexesApi';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { AnnexLayout } from '@/components/layout/AnnexLayout';
 import { GroupSchedulePage } from '@/pages/schedule/GroupSchedulePage';
@@ -11,7 +12,6 @@ import { ClosedDaysPage } from '@/pages/ClosedDaysPage';
 import { AnnexSettingsPage } from '@/pages/annex/AnnexSettingsPage';
 import { AnnexStaffPage } from '@/pages/annex/AnnexStaffPage';
 import { AnnexRulesPage } from '@/pages/annex/AnnexRulesPage'
-import { AnnexViolationsPage } from '@/pages/annex/AnnexViolationsPage';
 import { AnnexPlanGroupPage } from '@/pages/annex/AnnexPlanGroupPage';
 import { AnnexPlanTeacherPage } from '@/pages/annex/AnnexPlanTeacherPage';
 import { AnnexPlanOverviewPage } from '@/pages/annex/AnnexPlanOverviewPage';
@@ -19,11 +19,21 @@ import { AnnexPlanTablePage } from '@/pages/annex/AnnexPlanTablePage';
 import { GlobalRulesPage } from '@/pages/GlobalRulesPage';
 import { ViolationsPage } from '@/pages/ViolationsPage';
 
+function DefaultRedirect() {
+  const { data: annexes = [], isLoading } = useGetAnnexesQuery();
+  if (isLoading) return null;
+  const draft = annexes.find((a) => a.state === 'DRAFT');
+  if (draft) return <Navigate to={`/annexes/${draft.id}/plan/table`} replace />;
+  const current = annexes.find((a) => a.state === 'CURRENT');
+  if (current) return <Navigate to={`/annexes/${current.id}/plan/table`} replace />;
+  return <Navigate to="/schedule/groups" replace />;
+}
+
 function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/schedule/groups" replace />} />
+        <Route index element={<DefaultRedirect />} />
         <Route path="/schedule/groups" element={<GroupSchedulePage />} />
         <Route path="/schedule/teachers" element={<TeacherSchedulePage />} />
         <Route
@@ -41,7 +51,6 @@ function App() {
           <Route path="settings" element={<AnnexSettingsPage />} />
           <Route path="staff" element={<AnnexStaffPage />} />
           <Route path="rules" element={<AnnexRulesPage />} />
-          <Route path="violations" element={<AnnexViolationsPage />} />
           <Route path="plan/groups" element={<AnnexPlanGroupPage />} />
           <Route path="plan/teachers" element={<AnnexPlanTeacherPage />} />
           <Route path="plan/overview" element={<AnnexPlanOverviewPage />} />

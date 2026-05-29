@@ -6,7 +6,6 @@ import {
   LayoutGrid,
   Scale,
   CalendarDays,
-  AlertTriangle,
   Table2,
 } from 'lucide-react';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
@@ -36,11 +35,6 @@ const tabs = [
     labelKey: 'nav.items.draftAnnexPlanOverview',
     to: 'plan/overview',
     icon: LayoutGrid,
-  },
-  {
-    labelKey: 'nav.items.draftAnnexViolations',
-    to: 'violations',
-    icon: AlertTriangle,
   },
 ];
 
