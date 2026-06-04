@@ -9,11 +9,15 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AnnexMembershipService {
+
+    private static final LocalTime DEFAULT_SCHEDULE_START = LocalTime.of(6, 0);
+    private static final LocalTime DEFAULT_SCHEDULE_END = LocalTime.of(20, 0);
 
     private final AnnexGroupRepository annexGroupRepository;
     private final AnnexTeacherRepository annexTeacherRepository;
@@ -33,6 +37,15 @@ public class AnnexMembershipService {
         AnnexGroup ag = new AnnexGroup();
         ag.setAnnex(annex);
         ag.setGroup(group);
+        return toGroupDto(annexGroupRepository.save(ag));
+    }
+
+    public AnnexGroupDto updateGroup(Integer annexId, Integer annexGroupId, AnnexGroupDto dto) {
+        AnnexGroup ag = annexGroupRepository.findById(annexGroupId)
+                .filter(a -> a.getAnnex().getId().equals(annexId))
+                .orElseThrow(() -> new EntityNotFoundException("AnnexGroup not found: " + annexGroupId));
+        ag.setScheduleStartTime(dto.scheduleStartTime());
+        ag.setScheduleEndTime(dto.scheduleEndTime());
         return toGroupDto(annexGroupRepository.save(ag));
     }
 
@@ -81,7 +94,22 @@ public class AnnexMembershipService {
     }
 
     private AnnexGroupDto toGroupDto(AnnexGroup ag) {
-        return new AnnexGroupDto(ag.getId(), ag.getAnnex().getId(), ag.getGroup().getId(), ag.getGroup().getName());
+        LocalTime groupStart = ag.getGroup().getScheduleStartTime();
+        LocalTime groupEnd = ag.getGroup().getScheduleEndTime();
+        LocalTime effectiveStart = ag.getScheduleStartTime() != null ? ag.getScheduleStartTime()
+                : groupStart != null ? groupStart : DEFAULT_SCHEDULE_START;
+        LocalTime effectiveEnd = ag.getScheduleEndTime() != null ? ag.getScheduleEndTime()
+                : groupEnd != null ? groupEnd : DEFAULT_SCHEDULE_END;
+        return new AnnexGroupDto(
+                ag.getId(),
+                ag.getAnnex().getId(),
+                ag.getGroup().getId(),
+                ag.getGroup().getName(),
+                ag.getScheduleStartTime(),
+                ag.getScheduleEndTime(),
+                effectiveStart,
+                effectiveEnd
+        );
     }
 
     private AnnexTeacherDto toTeacherDto(AnnexTeacher at) {

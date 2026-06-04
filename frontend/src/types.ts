@@ -7,6 +7,8 @@ export interface TeacherDto {
 export interface GroupDto {
   id: number | null;
   name: string;
+  scheduleStartTime: string | null;
+  scheduleEndTime: string | null;
 }
 
 export interface ChildDto {

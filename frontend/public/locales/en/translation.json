@@ -131,6 +131,10 @@
     "annexStaff": {
       "title": "Staff",
       "groups": "Groups",
+      "teachers": "Teachers",
+      "schedule": "Schedule",
+      "unassigned": "Without group",
+      "includeInAnnex": "Include in annex",
       "availableTeachers": "Available teachers",
       "availableGroups": "Available groups"
     },

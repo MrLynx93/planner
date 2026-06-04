@@ -15,6 +15,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ViolationService {
 
+    private static final LocalTime DEFAULT_SCHEDULE_START = LocalTime.of(6, 0);
+    private static final LocalTime DEFAULT_SCHEDULE_END = LocalTime.of(20, 0);
+
     private final AnnexService annexService;
     private final AnnexTeacherRepository annexTeacherRepository;
     private final AnnexGroupRepository annexGroupRepository;
@@ -22,6 +25,18 @@ public class ViolationService {
     private final TimeBlockModificationRepository modificationRepository;
     private final ClosedDayRepository closedDayRepository;
     private final RuleResolutionService ruleResolutionService;
+
+    private LocalTime effectiveStart(AnnexGroup ag) {
+        if (ag.getScheduleStartTime() != null) return ag.getScheduleStartTime();
+        if (ag.getGroup().getScheduleStartTime() != null) return ag.getGroup().getScheduleStartTime();
+        return DEFAULT_SCHEDULE_START;
+    }
+
+    private LocalTime effectiveEnd(AnnexGroup ag) {
+        if (ag.getScheduleEndTime() != null) return ag.getScheduleEndTime();
+        if (ag.getGroup().getScheduleEndTime() != null) return ag.getGroup().getScheduleEndTime();
+        return DEFAULT_SCHEDULE_END;
+    }
 
     public List<ViolationDto> findViolations(Integer annexId, int year, int month) {
         Annex annex = annexService.getOrThrow(annexId);
@@ -127,12 +142,15 @@ public class ViolationService {
                         .filter(b -> b.groupId == groupId)
                         .collect(Collectors.toList());
 
+                LocalTime groupStart = effectiveStart(ag);
+                LocalTime groupEnd = effectiveEnd(ag);
+
                 if (dayBlocks.isEmpty()) {
                     if (minTeachers != null) {
                         violations.add(new ViolationDto(
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, day,
-                                annex.getScheduleStartTime(), annex.getScheduleEndTime(),
+                                groupStart, groupEnd,
                                 minTeachers, 0
                         ));
                     }
@@ -141,8 +159,8 @@ public class ViolationService {
 
                 // Find all time points to check coverage intervals
                 Set<LocalTime> timePoints = new TreeSet<>();
-                timePoints.add(annex.getScheduleStartTime());
-                timePoints.add(annex.getScheduleEndTime());
+                timePoints.add(groupStart);
+                timePoints.add(groupEnd);
                 for (BlockInfo b : dayBlocks) {
                     timePoints.add(b.startTime);
                     timePoints.add(b.endTime);
@@ -185,7 +203,7 @@ public class ViolationService {
     }
 
     public List<TemplateViolationDto> findTemplateViolations(Integer annexId) {
-        Annex annex = annexService.getOrThrow(annexId);
+        annexService.getOrThrow(annexId);
         List<AnnexTimeBlock> templateBlocks = annexTimeBlockRepository.findByAnnexId(annexId);
         List<AnnexTeacher> annexTeachers = annexTeacherRepository.findByAnnexId(annexId);
         List<AnnexGroup> annexGroups = annexGroupRepository.findByAnnexId(annexId);
@@ -256,20 +274,23 @@ public class ViolationService {
                                 atb.getTimeBlock().getEndTime()))
                         .collect(Collectors.toList());
 
+                LocalTime groupStart = effectiveStart(ag);
+                LocalTime groupEnd = effectiveEnd(ag);
+
                 if (dayBlocks.isEmpty()) {
                     if (minTeachers != null) {
                         violations.add(new TemplateViolationDto(
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, dow.name(),
-                                annex.getScheduleStartTime(), annex.getScheduleEndTime(),
+                                groupStart, groupEnd,
                                 minTeachers, 0));
                     }
                     continue;
                 }
 
                 Set<LocalTime> timePoints = new TreeSet<>();
-                timePoints.add(annex.getScheduleStartTime());
-                timePoints.add(annex.getScheduleEndTime());
+                timePoints.add(groupStart);
+                timePoints.add(groupEnd);
                 for (BlockInfo b : dayBlocks) {
                     timePoints.add(b.startTime());
                     timePoints.add(b.endTime());

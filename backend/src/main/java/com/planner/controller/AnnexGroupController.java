@@ -26,6 +26,14 @@ public class AnnexGroupController {
         return membershipService.addGroup(id, dto);
     }
 
+    @PutMapping("/{id}/groups/{annexGroupId}")
+    public AnnexGroupDto updateGroup(
+            @PathVariable Integer id,
+            @PathVariable Integer annexGroupId,
+            @RequestBody AnnexGroupDto dto) {
+        return membershipService.updateGroup(id, annexGroupId, dto);
+    }
+
     @DeleteMapping("/{id}/groups/{annexGroupId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeGroup(@PathVariable Integer id, @PathVariable Integer annexGroupId) {

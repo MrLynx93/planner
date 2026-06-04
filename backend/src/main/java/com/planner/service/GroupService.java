@@ -25,13 +25,13 @@ public class GroupService {
 
     public GroupDto create(GroupDto dto) {
         Group group = new Group();
-        group.setName(dto.name());
+        apply(group, dto);
         return toDto(groupRepository.save(group));
     }
 
     public GroupDto update(Integer id, GroupDto dto) {
         Group group = getOrThrow(id);
-        group.setName(dto.name());
+        apply(group, dto);
         return toDto(groupRepository.save(group));
     }
 
@@ -44,7 +44,18 @@ public class GroupService {
                 .orElseThrow(() -> new EntityNotFoundException("Group not found: " + id));
     }
 
+    private void apply(Group group, GroupDto dto) {
+        group.setName(dto.name());
+        group.setScheduleStartTime(dto.scheduleStartTime());
+        group.setScheduleEndTime(dto.scheduleEndTime());
+    }
+
     public GroupDto toDto(Group group) {
-        return new GroupDto(group.getId(), group.getName());
+        return new GroupDto(
+                group.getId(),
+                group.getName(),
+                group.getScheduleStartTime(),
+                group.getScheduleEndTime()
+        );
     }
 }

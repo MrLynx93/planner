@@ -1,0 +1,51 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: 006-01-add-schedule-times-to-groups
+      author: mateusz
+      changes:
+        - addColumn:
+            tableName: groups
+            columns:
+              - column:
+                  name: schedule_start_time
+                  type: TIME
+              - column:
+                  name: schedule_end_time
+                  type: TIME
+
+  - changeSet:
+      id: 006-02-add-schedule-times-to-annex-group
+      author: mateusz
+      changes:
+        - addColumn:
+            tableName: annex_group
+            columns:
+              - column:
+                  name: schedule_start_time
+                  type: TIME
+              - column:
+                  name: schedule_end_time
+                  type: TIME
+
+  - changeSet:
+      id: 006-03-migrate-schedule-times-from-annex
+      author: mateusz
+      changes:
+        - sql:
+            sql: >
+              UPDATE annex_group
+              SET schedule_start_time = (SELECT schedule_start_time FROM annex WHERE id = annex_group.annex_id),
+                  schedule_end_time   = (SELECT schedule_end_time   FROM annex WHERE id = annex_group.annex_id)
+
+  - changeSet:
+      id: 006-04-drop-schedule-times-from-annex
+      author: mateusz
+      changes:
+        - dropColumn:
+            tableName: annex
+            columns:
+              - column:
+                  name: schedule_start_time
+              - column:
+                  name: schedule_end_time

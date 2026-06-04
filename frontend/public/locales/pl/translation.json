@@ -131,6 +131,10 @@
     "annexStaff": {
       "title": "Kadra",
       "groups": "Grupy",
+      "teachers": "Nauczyciele",
+      "schedule": "Harmonogram",
+      "unassigned": "Bez grupy",
+      "includeInAnnex": "Uwzględnij w aneksie",
       "availableTeachers": "Dostępni nauczyciele",
       "availableGroups": "Dostępne grupy"
     },

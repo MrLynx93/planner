@@ -14,8 +14,6 @@ export interface AnnexDto {
   name: string;
   startDate: string | null; // "YYYY-MM-DD"
   endDate: string | null;
-  scheduleStartTime: string; // "HH:mm:ss"
-  scheduleEndTime: string;
   state: AnnexState;
 }
 
@@ -24,6 +22,10 @@ export interface AnnexGroupDto {
   annexId: number;
   groupId: number;
   groupName: string;
+  scheduleStartTime: string | null; // "HH:mm:ss", nullable — explicitly set for this annex
+  scheduleEndTime: string | null;
+  effectiveScheduleStartTime: string; // resolved: AnnexGroup → Group → system default
+  effectiveScheduleEndTime: string;
 }
 
 export interface AnnexTeacherDto {

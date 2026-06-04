@@ -8,12 +8,10 @@ databaseChangeLog:
         - insert:
             tableName: annex
             columns:
-              - column: { name: name,         value: "Rok szkolny 2025/2026" }
-              - column: { name: start_date,    valueDate: "2025-09-01" }
-              - column: { name: end_date,      value: null }
-              - column: { name: schedule_start_time,  value: "06:30:00" }
-              - column: { name: schedule_end_time,    value: "17:00:00" }
-              - column: { name: state,         value: "CURRENT" }
+              - column: { name: name,       value: "Rok szkolny 2025/2026" }
+              - column: { name: start_date, valueDate: "2025-09-01" }
+              - column: { name: end_date,   value: null }
+              - column: { name: state,      value: "CURRENT" }
 
   # ── 2. Groups ───────────────────────────────────────────────────────────────
   - changeSet:
@@ -113,18 +111,24 @@ databaseChangeLog:
         - insert:
             tableName: annex_group
             columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: group_id, valueNumeric: 1 }
+              - column: { name: annex_id,           valueNumeric: 1 }
+              - column: { name: group_id,            valueNumeric: 1 }
+              - column: { name: schedule_start_time, value: "06:30:00" }
+              - column: { name: schedule_end_time,   value: "17:00:00" }
         - insert:
             tableName: annex_group
             columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: group_id, valueNumeric: 2 }
+              - column: { name: annex_id,           valueNumeric: 1 }
+              - column: { name: group_id,            valueNumeric: 2 }
+              - column: { name: schedule_start_time, value: "06:30:00" }
+              - column: { name: schedule_end_time,   value: "17:00:00" }
         - insert:
             tableName: annex_group
             columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: group_id, valueNumeric: 3 }
+              - column: { name: annex_id,           valueNumeric: 1 }
+              - column: { name: group_id,            valueNumeric: 3 }
+              - column: { name: schedule_start_time, value: "06:30:00" }
+              - column: { name: schedule_end_time,   value: "17:00:00" }
 
   # ── 6. Annex ↔ Teachers (with default group) ────────────────────────────────
   - changeSet:
@@ -832,8 +836,10 @@ databaseChangeLog:
         - insert:
             tableName: annex_group
             columns:
-              - column: { name: annex_id, valueNumeric: 1 }
-              - column: { name: group_id, valueNumeric: 4 }
+              - column: { name: annex_id,           valueNumeric: 1 }
+              - column: { name: group_id,            valueNumeric: 4 }
+              - column: { name: schedule_start_time, value: "06:30:00" }
+              - column: { name: schedule_end_time,   value: "17:00:00" }
 
   # ── 19. Extra TEMPLATE time blocks ───────────────────────────────────────────
   #

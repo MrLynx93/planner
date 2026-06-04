@@ -70,14 +70,15 @@ export function AnnexPlanOverviewPage() {
         b.dayOfWeek === day
     );
     if (alreadyExists) return;
+    const targetGroup = groups.find((g) => g.groupId === columnGroupId);
     createTimeBlock({
       annexId,
       dto: {
         teacherId,
         groupId: columnGroupId,
         dayOfWeek: day,
-        startTime: annex.scheduleStartTime,
-        endTime: annex.scheduleEndTime,
+        startTime: targetGroup?.effectiveScheduleStartTime ?? '06:00:00',
+        endTime: targetGroup?.effectiveScheduleEndTime ?? '20:00:00',
         type: 'TEMPLATE',
       },
     });

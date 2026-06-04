@@ -9,3 +9,5 @@ databaseChangeLog:
       file: db/changelog/db.changelog-004.yml
   - include:
       file: db/changelog/db.changelog-005.yml
+  - include:
+      file: db/changelog/db.changelog-006.yml

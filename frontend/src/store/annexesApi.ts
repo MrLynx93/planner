@@ -40,6 +40,12 @@ type AddAnnexGroupArg = {
   annexId: number;
   dto: Omit<AnnexGroupDto, 'id'> & { id: null };
 };
+type UpdateAnnexGroupArg = {
+  annexId: number;
+  annexGroupId: number;
+  scheduleStartTime: string | null;
+  scheduleEndTime: string | null;
+};
 type RemoveAnnexGroupArg = { annexId: number; annexGroupId: number };
 
 export const annexesApi = api.injectEndpoints({
@@ -69,6 +75,14 @@ export const annexesApi = api.injectEndpoints({
         url: `/annexes/${annexId}/groups`,
         method: 'POST',
         body: dto,
+      }),
+      invalidatesTags: ['AnnexGroup'],
+    }),
+    updateAnnexGroup: builder.mutation<AnnexGroupDto, UpdateAnnexGroupArg>({
+      query: ({ annexId, annexGroupId, scheduleStartTime, scheduleEndTime }) => ({
+        url: `/annexes/${annexId}/groups/${annexGroupId}`,
+        method: 'PUT',
+        body: { scheduleStartTime, scheduleEndTime },
       }),
       invalidatesTags: ['AnnexGroup'],
     }),
@@ -224,6 +238,7 @@ export const {
   useDeleteAnnexMutation,
   useGetAnnexGroupsQuery,
   useAddAnnexGroupMutation,
+  useUpdateAnnexGroupMutation,
   useRemoveAnnexGroupMutation,
   useGetAnnexTeachersQuery,
   useAddAnnexTeacherMutation,

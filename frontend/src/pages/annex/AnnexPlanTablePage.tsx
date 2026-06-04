@@ -301,14 +301,15 @@ export function AnnexPlanTablePage() {
       (b) => b.teacherId === teacherId && b.groupId === groupId && b.dayOfWeek === day
     );
     if (alreadyExists) return;
+    const targetGroup = groups.find((g) => g.groupId === groupId);
     createTimeBlock({
       annexId,
       dto: {
         teacherId,
         groupId,
         dayOfWeek: day,
-        startTime: annex.scheduleStartTime,
-        endTime: annex.scheduleEndTime,
+        startTime: targetGroup?.effectiveScheduleStartTime ?? '06:00:00',
+        endTime: targetGroup?.effectiveScheduleEndTime ?? '20:00:00',
         type: 'TEMPLATE',
       },
     });
@@ -453,8 +454,8 @@ export function AnnexPlanTablePage() {
                               b.teacherId === teacher.teacherId &&
                               b.dayOfWeek === day
                           )}
-                          scheduleStart={annex.scheduleStartTime}
-                          scheduleEnd={annex.scheduleEndTime}
+                          scheduleStart={group.effectiveScheduleStartTime}
+                          scheduleEnd={group.effectiveScheduleEndTime}
                           editable={editable}
                           onResizeBlock={(id, start, end) =>
                             updateTimeBlock({ annexId, annexTimeBlockId: id, startTime: start, endTime: end })

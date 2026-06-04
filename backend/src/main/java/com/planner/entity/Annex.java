@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Entity
 @Table(name = "annex")
@@ -25,12 +24,6 @@ public class Annex {
 
     @Column(name = "end_date")
     private LocalDate endDate;
-
-    @Column(name = "schedule_start_time", nullable = false)
-    private LocalTime scheduleStartTime;
-
-    @Column(name = "schedule_end_time", nullable = false)
-    private LocalTime scheduleEndTime;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

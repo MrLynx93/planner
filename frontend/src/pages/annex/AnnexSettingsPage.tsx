@@ -7,14 +7,6 @@ import { useUpdateAnnexMutation } from '@/store/annexesApi';
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring';
 
-function toTimeInput(time: string): string {
-  return time ? time.substring(0, 5) : '';
-}
-
-function fromTimeInput(time: string): string {
-  return time ? `${time}:00` : '';
-}
-
 export function AnnexSettingsPage() {
   const { t } = useTranslation();
   const annex = useOutletContext<AnnexDto>();
@@ -23,24 +15,15 @@ export function AnnexSettingsPage() {
   const isReadOnly = annex.state === 'FINISHED';
 
   const [name, setName] = useState('');
-  const [scheduleStartTime, setScheduleStartTime] = useState('');
-  const [scheduleEndTime, setScheduleEndTime] = useState('');
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     setName(annex.name);
-    setScheduleStartTime(toTimeInput(annex.scheduleStartTime));
-    setScheduleEndTime(toTimeInput(annex.scheduleEndTime));
   }, [annex.id]);
 
   async function handleSave() {
-    if (!name.trim() || !scheduleStartTime || !scheduleEndTime) return;
-    await updateAnnex({
-      ...annex,
-      name: name.trim(),
-      scheduleStartTime: fromTimeInput(scheduleStartTime),
-      scheduleEndTime: fromTimeInput(scheduleEndTime),
-    });
+    if (!name.trim()) return;
+    await updateAnnex({ ...annex, name: name.trim() });
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -58,32 +41,6 @@ export function AnnexSettingsPage() {
             onChange={(e) => setName(e.target.value)}
             disabled={isReadOnly}
           />
-        </div>
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1">
-              {t('pages.annexes.scheduleStartTime')}
-            </label>
-            <input
-              type="time"
-              className={`${inputClass} w-full`}
-              value={scheduleStartTime}
-              onChange={(e) => setScheduleStartTime(e.target.value)}
-              disabled={isReadOnly}
-            />
-          </div>
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1">
-              {t('pages.annexes.scheduleEndTime')}
-            </label>
-            <input
-              type="time"
-              className={`${inputClass} w-full`}
-              value={scheduleEndTime}
-              onChange={(e) => setScheduleEndTime(e.target.value)}
-              disabled={isReadOnly}
-            />
-          </div>
         </div>
         {!isReadOnly && (
           <div className="flex items-center gap-3">
