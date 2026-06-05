@@ -4,22 +4,20 @@ import { useTranslation } from 'react-i18next';
 import {
   CalendarDays,
   Users,
-  User,
+
   Building2,
   Scale,
-  XCircle,
+
   ChevronLeft,
   ChevronRight,
   ChevronDown,
   LayoutGrid,
   Languages,
   Settings,
-  CalendarRange,
   CalendarX2,
   Globe,
   AlertTriangle,
   Settings2,
-  Table2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
@@ -35,12 +33,12 @@ const scheduleItems: NavItem[] = [
   {
     labelKey: 'nav.items.groupSchedule',
     to: '/schedule/groups',
-    icon: LayoutGrid,
+    icon: CalendarDays,
   },
   {
     labelKey: 'nav.items.teacherSchedule',
     to: '/schedule/teachers',
-    icon: User,
+    icon: CalendarDays,
   },
   {
     labelKey: 'nav.items.scheduleExceptions',
@@ -55,7 +53,6 @@ const managementItems: NavItem[] = [
   { labelKey: 'nav.items.teachers', to: '/teachers', icon: Users },
   { labelKey: 'nav.items.groups', to: '/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.globalRules', to: '/global-rules', icon: Globe },
-  { labelKey: 'nav.items.closedDays', to: '/closed-days', icon: XCircle },
 ];
 
 function SidebarSection({
@@ -137,81 +134,25 @@ export function Sidebar() {
   const currentBase = current ? `/annexes/${current.id}` : '/annexes';
   const draftAnnexItems: NavItem[] = draft
     ? [
-        {
-          labelKey: 'nav.items.draftAnnexPlanTable',
-          to: `${base}/plan/table`,
-          icon: Table2,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexSettings',
-          to: `${base}/settings`,
-          icon: Settings,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexStaff',
-          to: `${base}/staff`,
-          icon: Users,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexRules',
-          to: `${base}/rules`,
-          icon: Scale,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanGroups',
-          to: `${base}/plan/groups`,
-          icon: CalendarDays,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanTeachers',
-          to: `${base}/plan/teachers`,
-          icon: CalendarDays,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanOverview',
-          to: `${base}/plan/overview`,
-          icon: CalendarRange,
-        },
+        { labelKey: 'nav.items.draftAnnexPlanTable', to: `${base}/plan/table`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexPlanGroups', to: `${base}/plan/groups`, icon: CalendarDays },
+        { labelKey: 'nav.items.draftAnnexPlanTeachers', to: `${base}/plan/teachers`, icon: CalendarDays },
+        { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${base}/plan/overview`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexSettings', to: `${base}/settings`, icon: Settings },
+        { labelKey: 'nav.items.draftAnnexStaff', to: `${base}/staff`, icon: Users },
+        { labelKey: 'nav.items.draftAnnexRules', to: `${base}/rules`, icon: Scale },
       ]
     : [{ labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 }];
 
   const currentAnnexItems: NavItem[] = current
     ? [
-        {
-          labelKey: 'nav.items.draftAnnexPlanTable',
-          to: `${currentBase}/plan/table`,
-          icon: Table2,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexSettings',
-          to: `${currentBase}/settings`,
-          icon: Settings,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexStaff',
-          to: `${currentBase}/staff`,
-          icon: Users,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexRules',
-          to: `${currentBase}/rules`,
-          icon: Scale,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanGroups',
-          to: `${currentBase}/plan/groups`,
-          icon: CalendarDays,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanTeachers',
-          to: `${currentBase}/plan/teachers`,
-          icon: CalendarDays,
-        },
-        {
-          labelKey: 'nav.items.draftAnnexPlanOverview',
-          to: `${currentBase}/plan/overview`,
-          icon: CalendarRange,
-        },
+        { labelKey: 'nav.items.draftAnnexPlanTable', to: `${currentBase}/plan/table`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexPlanGroups', to: `${currentBase}/plan/groups`, icon: CalendarDays },
+        { labelKey: 'nav.items.draftAnnexPlanTeachers', to: `${currentBase}/plan/teachers`, icon: CalendarDays },
+        { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${currentBase}/plan/overview`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexSettings', to: `${currentBase}/settings`, icon: Settings },
+        { labelKey: 'nav.items.draftAnnexStaff', to: `${currentBase}/staff`, icon: Users },
+        { labelKey: 'nav.items.draftAnnexRules', to: `${currentBase}/rules`, icon: Scale },
       ]
     : [];
 

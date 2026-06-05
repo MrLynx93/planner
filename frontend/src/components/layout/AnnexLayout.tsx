@@ -3,39 +3,21 @@ import { useTranslation } from 'react-i18next';
 import {
   Settings,
   Users,
-  LayoutGrid,
   Scale,
   CalendarDays,
-  Table2,
 } from 'lucide-react';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
 import { cn } from '@/lib/utils';
 
 
 const tabs = [
-  {
-    labelKey: 'nav.items.draftAnnexPlanTable',
-    to: 'plan/table',
-    icon: Table2,
-  },
+  { labelKey: 'nav.items.draftAnnexPlanTable', to: 'plan/table', icon: CalendarDays },
+  { labelKey: 'nav.items.draftAnnexPlanGroups', to: 'plan/groups', icon: CalendarDays },
+  { labelKey: 'nav.items.draftAnnexPlanTeachers', to: 'plan/teachers', icon: CalendarDays },
+  { labelKey: 'nav.items.draftAnnexPlanOverview', to: 'plan/overview', icon: CalendarDays },
   { labelKey: 'nav.items.draftAnnexSettings', to: 'settings', icon: Settings },
   { labelKey: 'nav.items.draftAnnexStaff', to: 'staff', icon: Users },
   { labelKey: 'nav.items.draftAnnexRules', to: 'rules', icon: Scale },
-  {
-    labelKey: 'nav.items.draftAnnexPlanGroups',
-    to: 'plan/groups',
-    icon: CalendarDays,
-  },
-  {
-    labelKey: 'nav.items.draftAnnexPlanTeachers',
-    to: 'plan/teachers',
-    icon: CalendarDays,
-  },
-  {
-    labelKey: 'nav.items.draftAnnexPlanOverview',
-    to: 'plan/overview',
-    icon: LayoutGrid,
-  },
 ];
 
 export function AnnexLayout() {

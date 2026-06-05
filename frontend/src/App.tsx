@@ -8,7 +8,6 @@ import { ScheduleExceptionsPage } from '@/pages/schedule/ScheduleExceptionsPage'
 import { AnnexesPage } from '@/pages/AnnexesPage';
 import { TeachersPage } from '@/pages/TeachersPage';
 import { GroupsPage } from '@/pages/GroupsPage';
-import { ClosedDaysPage } from '@/pages/ClosedDaysPage';
 import { AnnexSettingsPage } from '@/pages/annex/AnnexSettingsPage';
 import { AnnexStaffPage } from '@/pages/annex/AnnexStaffPage';
 import { AnnexRulesPage } from '@/pages/annex/AnnexRulesPage'
@@ -43,7 +42,6 @@ function App() {
         <Route path="/annexes" element={<AnnexesPage />} />
         <Route path="/teachers" element={<TeachersPage />} />
         <Route path="/groups" element={<GroupsPage />} />
-        <Route path="/closed-days" element={<ClosedDaysPage />} />
         <Route path="/global-rules" element={<GlobalRulesPage />} />
         <Route path="/violations" element={<ViolationsPage />} />
         <Route path="/annexes/:id" element={<AnnexLayout />}>
