@@ -15,6 +15,7 @@ import { AnnexPlanTeacherPage } from '@/pages/annex/AnnexPlanTeacherPage';
 import { AnnexPlanOverviewPage } from '@/pages/annex/AnnexPlanOverviewPage';
 import { AnnexPlanTablePage } from '@/pages/annex/AnnexPlanTablePage';
 import { GlobalRulesPage } from '@/pages/GlobalRulesPage';
+import { NoDraftPage } from '@/pages/NoDraftPage';
 
 function DefaultRedirect() {
   const { data: annexes = [], isLoading } = useGetAnnexesQuery();
@@ -37,6 +38,7 @@ function App() {
         <Route path="/teachers" element={<TeachersPage />} />
         <Route path="/groups" element={<GroupsPage />} />
         <Route path="/global-rules" element={<GlobalRulesPage />} />
+        <Route path="/no-draft" element={<NoDraftPage />} />
         <Route path="/annexes/:id" element={<AnnexLayout />}>
           <Route index element={<Navigate to="plan/table" replace />} />
           <Route path="settings" element={<AnnexSettingsPage />} />

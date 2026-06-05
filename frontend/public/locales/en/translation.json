@@ -14,6 +14,7 @@
       "teacherSchedule": "Plan for teacher",
       "scheduleExceptions": "Schedule Changes",
       "annexes": "Annexes",
+      "noDraft": "Create new annex",
       "draftAnnexSettings": "Annex Settings",
       "draftAnnexTeachers": "Teachers",
       "draftAnnexGroups": "Groups",
@@ -43,6 +44,10 @@
     "expand": "Expand sidebar"
   },
   "pages": {
+    "noDraft": {
+      "message": "Go to the annex page and create a new annex.",
+      "link": "Go to annexes"
+    },
     "groupSchedule": {
       "title": "Group Schedule",
       "comingSoon": "Calendar view coming soon."

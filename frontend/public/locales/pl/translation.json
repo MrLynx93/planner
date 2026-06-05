@@ -4,7 +4,7 @@
   },
   "nav": {
     "sections": {
-      "schedule": "Aktualny plan",
+      "schedule": "Plan na dziś",
       "draftAnnex": "Planuj nowy aneks",
       "currentAnnex": "Aktualny aneks",
       "management": "Zarządzanie"
@@ -14,6 +14,7 @@
       "teacherSchedule": "Plan dla nauczyciela",
       "scheduleExceptions": "Zmiany w planie",
       "annexes": "Aneksy",
+      "noDraft": "Utwórz nowy aneks",
       "draftAnnexSettings": "Ustawienia aneksu",
       "draftAnnexTeachers": "Nauczyciele",
       "draftAnnexGroups": "Grupy",
@@ -43,6 +44,10 @@
     "expand": "Rozwiń pasek boczny"
   },
   "pages": {
+    "noDraft": {
+      "message": "Przejdź do strony aneksów i utwórz nowy aneks.",
+      "link": "Przejdź do aneksów"
+    },
     "groupSchedule": {
       "title": "Plan grup",
       "comingSoon": "Widok kalendarza wkrótce."

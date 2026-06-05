@@ -152,11 +152,14 @@ export function findAnnexForDate(
 }
 
 export function blockDateStr(
-  block: { dayOfWeek: DayOfWeek; date?: string },
+  block: { dayOfWeek: DayOfWeek; date?: string | null },
   weekStart: Date
 ): string {
   if (block.date) return block.date;
+  const offset = DAY_TO_OFFSET[block.dayOfWeek];
+  if (offset === undefined) return '';
   const d = new Date(weekStart);
-  d.setDate(d.getDate() + DAY_TO_OFFSET[block.dayOfWeek]);
+  d.setDate(d.getDate() + offset);
+  if (isNaN(d.getTime())) return '';
   return d.toISOString().slice(0, 10);
 }

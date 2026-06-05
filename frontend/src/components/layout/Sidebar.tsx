@@ -4,10 +4,8 @@ import { useTranslation } from 'react-i18next';
 import {
   CalendarDays,
   Users,
-
   Building2,
   Scale,
-
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -15,33 +13,24 @@ import {
   Languages,
   Settings,
   Globe,
-  Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
-import { useNavigationMode, type NavigationMode } from '@/context/NavigationModeContext';
 
 interface NavItem {
   labelKey: string;
   to: string;
   icon: React.ElementType;
+  end?: boolean;
 }
 
 const scheduleItems: NavItem[] = [
-  {
-    labelKey: 'nav.items.groupSchedule',
-    to: '/schedule/groups',
-    icon: CalendarDays,
-  },
-  {
-    labelKey: 'nav.items.teacherSchedule',
-    to: '/schedule/teachers',
-    icon: CalendarDays,
-  },
+  { labelKey: 'nav.items.groupSchedule', to: '/schedule/groups', icon: CalendarDays },
+  { labelKey: 'nav.items.teacherSchedule', to: '/schedule/teachers', icon: CalendarDays },
 ];
 
 const managementItems: NavItem[] = [
-  { labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 },
+  { labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2, end: true },
   { labelKey: 'nav.items.teachers', to: '/teachers', icon: Users },
   { labelKey: 'nav.items.groups', to: '/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.globalRules', to: '/global-rules', icon: Globe },
@@ -84,6 +73,7 @@ function SidebarSection({
           <NavLink
             key={item.to}
             to={item.to}
+            end={item.end}
             title={
               sidebarCollapsed
                 ? t(item.labelKey as Parameters<typeof t>[0])
@@ -113,35 +103,31 @@ function SidebarSection({
 export function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
   const { t, i18n } = useTranslation();
-  const { mode, setMode } = useNavigationMode();
 
-  const modeTabs: { id: NavigationMode; labelKey: string; icon: React.ElementType }[] = [
-    { id: 'current-work', labelKey: 'topbar.currentWork', icon: CalendarDays },
-    { id: 'management', labelKey: 'topbar.management', icon: Settings2 },
-  ];
   const { data: annexes = [] } = useGetAnnexesQuery();
   const draft = annexes.find((a) => a.state === 'DRAFT');
   const current = annexes.find((a) => a.state === 'CURRENT');
   const base = draft ? `/annexes/${draft.id}` : '/annexes';
   const currentBase = current ? `/annexes/${current.id}` : '/annexes';
+
   const draftAnnexItems: NavItem[] = draft
     ? [
-        { labelKey: 'nav.items.draftAnnexPlanTable', to: `${base}/plan/table`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexPlanTable', to: `${base}/plan/table`, icon: CalendarDays },
         { labelKey: 'nav.items.draftAnnexPlanGroups', to: `${base}/plan/groups`, icon: CalendarDays },
         { labelKey: 'nav.items.draftAnnexPlanTeachers', to: `${base}/plan/teachers`, icon: CalendarDays },
-        { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${base}/plan/overview`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${base}/plan/overview`, icon: CalendarDays },
         { labelKey: 'nav.items.draftAnnexSettings', to: `${base}/settings`, icon: Settings },
         { labelKey: 'nav.items.draftAnnexStaff', to: `${base}/staff`, icon: Users },
         { labelKey: 'nav.items.draftAnnexRules', to: `${base}/rules`, icon: Scale },
       ]
-    : [{ labelKey: 'nav.items.annexes', to: '/annexes', icon: Building2 }];
+    : [{ labelKey: 'nav.items.noDraft', to: '/no-draft', icon: Building2 }];
 
   const currentAnnexItems: NavItem[] = current
     ? [
-        { labelKey: 'nav.items.draftAnnexPlanTable', to: `${currentBase}/plan/table`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexPlanTable', to: `${currentBase}/plan/table`, icon: CalendarDays },
         { labelKey: 'nav.items.draftAnnexPlanGroups', to: `${currentBase}/plan/groups`, icon: CalendarDays },
         { labelKey: 'nav.items.draftAnnexPlanTeachers', to: `${currentBase}/plan/teachers`, icon: CalendarDays },
-        { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${currentBase}/plan/overview`, icon: CalendarDays},
+        { labelKey: 'nav.items.draftAnnexPlanOverview', to: `${currentBase}/plan/overview`, icon: CalendarDays },
         { labelKey: 'nav.items.draftAnnexSettings', to: `${currentBase}/settings`, icon: Settings },
         { labelKey: 'nav.items.draftAnnexStaff', to: `${currentBase}/staff`, icon: Users },
         { labelKey: 'nav.items.draftAnnexRules', to: `${currentBase}/rules`, icon: Scale },
@@ -187,79 +173,33 @@ export function Sidebar() {
         </button>
       </div>
 
-      {/* Mode toggle */}
-      <div className={cn('border-b border-border p-2', collapsed && 'px-1')}>
-        {collapsed ? (
-          <div className="flex flex-col gap-1">
-            {modeTabs.map(({ id, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setMode(id)}
-                title={t(`topbar.${id === 'current-work' ? 'currentWork' : 'management'}` as Parameters<typeof t>[0])}
-                className={cn(
-                  'flex w-full items-center justify-center rounded-md p-2 transition-colors',
-                  mode === id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-foreground'
-                )}
-              >
-                <Icon className="h-4 w-4" />
-              </button>
-            ))}
-          </div>
-        ) : (
-          <div className="flex rounded-lg bg-muted p-0.5 gap-0.5">
-            {modeTabs.map(({ id, labelKey, icon: Icon }) => (
-              <button
-                key={id}
-                onClick={() => setMode(id)}
-                className={cn(
-                  'flex flex-1 items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-xs font-medium transition-all',
-                  mode === id
-                    ? 'bg-background text-foreground shadow-sm'
-                    : 'text-muted-foreground hover:text-foreground'
-                )}
-              >
-                <Icon className="h-3.5 w-3.5 shrink-0" />
-                {t(labelKey as Parameters<typeof t>[0])}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
       {/* Nav */}
       <nav className="flex flex-1 flex-col gap-4 overflow-y-auto p-2 py-3">
-        {mode === 'current-work' && (
-          <>
-            {current && (
-              <SidebarSection
-                title={t('nav.sections.currentAnnex')}
-                items={currentAnnexItems}
-                sidebarCollapsed={collapsed}
-              />
-            )}
-            <SidebarSection
-              title={t('nav.sections.schedule')}
-              items={scheduleItems}
-              sidebarCollapsed={collapsed}
-            />
-          </>
+        <SidebarSection
+          title={t('nav.sections.draftAnnex')}
+          items={draftAnnexItems}
+          sidebarCollapsed={collapsed}
+        />
+        {current && (
+          <SidebarSection
+            title={t('nav.sections.currentAnnex')}
+            items={currentAnnexItems}
+            sidebarCollapsed={collapsed}
+            defaultOpen={true}
+          />
         )}
-        {mode === 'management' && (
-          <>
-            <SidebarSection
-              title={t('nav.sections.draftAnnex')}
-              items={draftAnnexItems}
-              sidebarCollapsed={collapsed}
-            />
-            <SidebarSection
-              title={t('nav.sections.management')}
-              items={managementItems}
-              sidebarCollapsed={collapsed}
-            />
-          </>
-        )}
+        <SidebarSection
+          title={t('nav.sections.schedule')}
+          items={scheduleItems}
+          sidebarCollapsed={collapsed}
+          defaultOpen={true}
+        />
+        <SidebarSection
+          title={t('nav.sections.management')}
+          items={managementItems}
+          sidebarCollapsed={collapsed}
+          defaultOpen={true}
+        />
       </nav>
 
       {/* Language switcher */}
