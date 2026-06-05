@@ -14,9 +14,7 @@ import {
   LayoutGrid,
   Languages,
   Settings,
-  CalendarX2,
   Globe,
-  AlertTriangle,
   Settings2,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -40,12 +38,6 @@ const scheduleItems: NavItem[] = [
     to: '/schedule/teachers',
     icon: CalendarDays,
   },
-  {
-    labelKey: 'nav.items.scheduleExceptions',
-    to: '/schedule/exceptions',
-    icon: CalendarX2,
-  },
-  { labelKey: 'nav.items.violations', to: '/violations', icon: AlertTriangle },
 ];
 
 const managementItems: NavItem[] = [
