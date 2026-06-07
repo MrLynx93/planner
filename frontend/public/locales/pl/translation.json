@@ -15,6 +15,7 @@
       "scheduleExceptions": "Zmiany w planie",
       "annexes": "Aneksy",
       "noDraft": "Utwórz nowy aneks",
+      "advanced": "Zaawansowane",
       "draftAnnexSettings": "Ustawienia aneksu",
       "draftAnnexTeachers": "Nauczyciele",
       "draftAnnexGroups": "Grupy",
@@ -44,6 +45,32 @@
     "expand": "Rozwiń pasek boczny"
   },
   "pages": {
+    "advanced": {
+      "title": "Zaawansowane",
+      "export": {
+        "title": "Eksport bazy danych",
+        "description": "Pobierz wszystkie dane jako plik zip, który można później zaimportować.",
+        "button": "Eksportuj"
+      },
+      "import": {
+        "title": "Import bazy danych",
+        "description": "Przywróć dane z wcześniej wyeksportowanego pliku zip. Wszystkie aktualne dane zostaną zastąpione.",
+        "button": "Importuj"
+      },
+      "clear": {
+        "title": "Wyczyść bazę danych",
+        "description": "Trwale usuń wszystkie dane. Tej operacji nie można cofnąć.",
+        "button": "Wyczyść wszystkie dane"
+      },
+      "confirmImport": {
+        "title": "Zastąpić wszystkie dane?",
+        "message": "Spowoduje to trwałe usunięcie wszystkich aktualnych danych i zastąpienie ich zawartością importowanego pliku. Tej operacji nie można cofnąć."
+      },
+      "confirmClear": {
+        "title": "Usunąć wszystkie dane?",
+        "message": "Spowoduje to trwałe usunięcie wszystkich aneksów, nauczycieli, grup, bloków czasowych i każdego innego rekordu w bazie danych. Tej operacji nie można cofnąć."
+      }
+    },
     "noDraft": {
       "message": "Przejdź do strony aneksów i utwórz nowy aneks.",
       "link": "Przejdź do aneksów"
@@ -298,6 +325,7 @@
     "delete": "Usuń",
     "save": "Zapisz",
     "cancel": "Anuluj",
+    "confirm": "Potwierdź",
     "name": "Nazwa",
     "firstName": "Imię",
     "lastName": "Nazwisko",

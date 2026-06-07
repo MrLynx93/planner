@@ -13,6 +13,7 @@ import {
   Languages,
   Settings,
   Globe,
+  SlidersHorizontal,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useGetAnnexesQuery } from '@/store/annexesApi';
@@ -34,6 +35,7 @@ const managementItems: NavItem[] = [
   { labelKey: 'nav.items.teachers', to: '/teachers', icon: Users },
   { labelKey: 'nav.items.groups', to: '/groups', icon: LayoutGrid },
   { labelKey: 'nav.items.globalRules', to: '/global-rules', icon: Globe },
+  { labelKey: 'nav.items.advanced', to: '/advanced', icon: SlidersHorizontal },
 ];
 
 function SidebarSection({

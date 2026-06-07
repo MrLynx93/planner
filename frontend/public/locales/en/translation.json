@@ -15,6 +15,7 @@
       "scheduleExceptions": "Schedule Changes",
       "annexes": "Annexes",
       "noDraft": "Create new annex",
+      "advanced": "Advanced",
       "draftAnnexSettings": "Annex Settings",
       "draftAnnexTeachers": "Teachers",
       "draftAnnexGroups": "Groups",
@@ -44,6 +45,32 @@
     "expand": "Expand sidebar"
   },
   "pages": {
+    "advanced": {
+      "title": "Advanced",
+      "export": {
+        "title": "Export database",
+        "description": "Download all data as a zip file that can be imported later.",
+        "button": "Export"
+      },
+      "import": {
+        "title": "Import database",
+        "description": "Restore data from a previously exported zip file. All current data will be replaced.",
+        "button": "Import"
+      },
+      "clear": {
+        "title": "Clear database",
+        "description": "Permanently delete all data. This cannot be undone.",
+        "button": "Clear all data"
+      },
+      "confirmImport": {
+        "title": "Replace all data?",
+        "message": "This will permanently erase all current data and replace it with the contents of the imported file. This action cannot be undone."
+      },
+      "confirmClear": {
+        "title": "Delete all data?",
+        "message": "This will permanently delete all annexes, teachers, groups, time blocks and every other record in the database. This action cannot be undone."
+      }
+    },
     "noDraft": {
       "message": "Go to the annex page and create a new annex.",
       "link": "Go to annexes"
@@ -299,6 +326,7 @@
     "delete": "Delete",
     "save": "Save",
     "cancel": "Cancel",
+    "confirm": "Confirm",
     "name": "Name",
     "firstName": "First name",
     "lastName": "Last name",

@@ -52,10 +52,10 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: schedule_start_time
-                  type: TIME
+                  type: VARCHAR(8)
               - column:
                   name: schedule_end_time
-                  type: TIME
+                  type: VARCHAR(8)
 
         # ── teacher ───────────────────────────────────────────────────────────
         - createTable:
@@ -195,10 +195,10 @@ databaseChangeLog:
                     references: groups(id)
               - column:
                   name: schedule_start_time
-                  type: TIME
+                  type: VARCHAR(8)
               - column:
                   name: schedule_end_time
-                  type: TIME
+                  type: VARCHAR(8)
 
         # ── rule ──────────────────────────────────────────────────────────────
         - createTable:
@@ -295,12 +295,12 @@ databaseChangeLog:
                   type: VARCHAR(20)
               - column:
                   name: start_time
-                  type: TIME
+                  type: VARCHAR(8)
                   constraints:
                     nullable: false
               - column:
                   name: end_time
-                  type: TIME
+                  type: VARCHAR(8)
                   constraints:
                     nullable: false
 
