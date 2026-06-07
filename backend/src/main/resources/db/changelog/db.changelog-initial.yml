@@ -1,0 +1,418 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: initial-schema
+      author: mateusz
+      changes:
+
+        # ── annex ─────────────────────────────────────────────────────────────
+        - createTable:
+            tableName: annex
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: start_date
+                  type: DATE
+              - column:
+                  name: end_date
+                  type: DATE
+              - column:
+                  name: state
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+                  defaultValue: DRAFT
+
+        # ── groups ────────────────────────────────────────────────────────────
+        - createTable:
+            tableName: groups
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: schedule_start_time
+                  type: TIME
+              - column:
+                  name: schedule_end_time
+                  type: TIME
+
+        # ── teacher ───────────────────────────────────────────────────────────
+        - createTable:
+            tableName: teacher
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+        # ── child ─────────────────────────────────────────────────────────────
+        - createTable:
+            tableName: child
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_name
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+
+        # ── annex_child_group ─────────────────────────────────────────────────
+        - createTable:
+            tableName: annex_child_group
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_acg_annex
+                    references: annex(id)
+              - column:
+                  name: child_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_acg_child
+                    references: child(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_acg_group
+                    references: groups(id)
+        - sql:
+            sql: CREATE UNIQUE INDEX IF NOT EXISTS uq_annex_child_group_annex_child ON annex_child_group(annex_id, child_id)
+
+        # ── annex_teacher ─────────────────────────────────────────────────────
+        - createTable:
+            tableName: annex_teacher
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexteacher_annex
+                    references: annex(id)
+              - column:
+                  name: teacher_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexteacher_teacher
+                    references: teacher(id)
+              - column:
+                  name: default_group_id
+                  type: INT
+                  constraints:
+                    foreignKeyName: fk_annexteacher_default_group
+                    references: groups(id)
+
+        # ── annex_group ───────────────────────────────────────────────────────
+        - createTable:
+            tableName: annex_group
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexgroup_annex
+                    references: annex(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexgroup_group
+                    references: groups(id)
+              - column:
+                  name: schedule_start_time
+                  type: TIME
+              - column:
+                  name: schedule_end_time
+                  type: TIME
+
+        # ── rule ──────────────────────────────────────────────────────────────
+        - createTable:
+            tableName: rule
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    foreignKeyName: fk_rule_group
+                    references: groups(id)
+              - column:
+                  name: teacher_id
+                  type: INT
+                  constraints:
+                    foreignKeyName: fk_rule_teacher
+                    references: teacher(id)
+              - column:
+                  name: int_value
+                  type: INT
+                  constraints:
+                    nullable: false
+
+        # ── annex_rule ────────────────────────────────────────────────────────
+        - createTable:
+            tableName: annex_rule
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexrule_annex
+                    references: annex(id)
+              - column:
+                  name: rule_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annexrule_rule
+                    references: rule(id)
+
+        # ── time_block ────────────────────────────────────────────────────────
+        - createTable:
+            tableName: time_block
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: type
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: teacher_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_timeblock_teacher
+                    references: teacher(id)
+              - column:
+                  name: group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_timeblock_group
+                    references: groups(id)
+              - column:
+                  name: day_of_week
+                  type: VARCHAR(20)
+              - column:
+                  name: start_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: end_time
+                  type: TIME
+                  constraints:
+                    nullable: false
+
+        # ── annex_time_block ──────────────────────────────────────────────────
+        - createTable:
+            tableName: annex_time_block
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annextimeblock_annex
+                    references: annex(id)
+              - column:
+                  name: time_block_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_annextimeblock_timeblock
+                    references: time_block(id)
+
+        # ── time_block_modification_group ─────────────────────────────────────
+        - createTable:
+            tableName: time_block_modification_group
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tbmodgroup_annex
+                    references: annex(id)
+              - column:
+                  name: reason
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: note
+                  type: VARCHAR(1000)
+              - column:
+                  name: title
+                  type: VARCHAR(255)
+
+        # ── time_block_modification ───────────────────────────────────────────
+        - createTable:
+            tableName: time_block_modification
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: modification_group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tbmod_modgroup
+                    references: time_block_modification_group(id)
+              - column:
+                  name: type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: time_block_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_tbmod_timeblock
+                    references: time_block(id)
+              - column:
+                  name: date
+                  type: DATE
+                  constraints:
+                    nullable: false
+
+        # ── closed_day ────────────────────────────────────────────────────────
+        - createTable:
+            tableName: closed_day
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: date
+                  type: DATE
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: reason
+                  type: VARCHAR(500)

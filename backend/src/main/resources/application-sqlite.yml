@@ -7,6 +7,4 @@ spring:
   jpa:
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:
-      ddl-auto: update
-  liquibase:
-    enabled: false
+      ddl-auto: none

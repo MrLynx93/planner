@@ -53,10 +53,30 @@ public class LiquibaseConfig {
         return em;
     }
 
-    @Bean
+    @Bean(name = "entityManagerFactory")
     @Profile("postgres")
     @DependsOn("liquibasePostgres")
     public LocalContainerEntityManagerFactoryBean entityManagerFactoryPostgres(DataSource dataSource) {
+        LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
+        em.setDataSource(dataSource);
+        em.setPackagesToScan("com.planner.entity");
+        em.setJpaVendorAdapter(new HibernateJpaVendorAdapter());
+        return em;
+    }
+
+    @Bean
+    @Profile("sqlite")
+    public SpringLiquibase liquibaseSqlite(DataSource dataSource) {
+        SpringLiquibase liquibase = new SpringLiquibase();
+        liquibase.setDataSource(dataSource);
+        liquibase.setChangeLog("classpath:db/changelog/db.changelog-master.yml");
+        return liquibase;
+    }
+
+    @Bean(name = "entityManagerFactory")
+    @Profile("sqlite")
+    @DependsOn("liquibaseSqlite")
+    public LocalContainerEntityManagerFactoryBean entityManagerFactorySqlite(DataSource dataSource) {
         LocalContainerEntityManagerFactoryBean em = new LocalContainerEntityManagerFactoryBean();
         em.setDataSource(dataSource);
         em.setPackagesToScan("com.planner.entity");
