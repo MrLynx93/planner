@@ -1,5 +1,6 @@
 package com.planner.entity;
 
+import com.planner.config.LocalTimeConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -33,9 +34,11 @@ public class TimeBlock {
     @Column(name = "day_of_week")
     private DayOfWeek dayOfWeek;
 
+    @Convert(converter = LocalTimeConverter.class)
     @Column(name = "start_time", nullable = false)
     private LocalTime startTime;
 
+    @Convert(converter = LocalTimeConverter.class)
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 }
