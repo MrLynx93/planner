@@ -47,7 +47,7 @@ function weeklyHoursText(blocks: ScheduleBlock[], groupId: number, teacherId: nu
 }
 
 const THIN: Partial<ExcelJS.Border> = { style: 'thin', color: { argb: 'FF9CA3AF' } };
-const NONE: Partial<ExcelJS.Border> = { style: 'none' };
+const NONE: Partial<ExcelJS.Border> = {};
 const MEDIUM: Partial<ExcelJS.Border> = { style: 'medium', color: { argb: 'FF6B7280' } };
 
 function groupBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {

@@ -11,7 +11,8 @@ export const WEEK_DAYS: DayOfWeek[] = [
 ];
 
 /** Parses "HH:mm:ss" or "HH:mm" into total minutes */
-export function timeToMinutes(time: string): number {
+export function timeToMinutes(time: string | null | undefined): number {
+  if (!time) return 0;
   const [h, m] = time.split(':').map(Number);
   return h * 60 + m;
 }

@@ -639,7 +639,7 @@ function OvertimeForm({ teachers, allBlocks, onSubmit }: OvertimeFormProps) {
   const handleSubmit = () => {
     if (!teacherId || !groupId) return;
     const teacher = teachers.find((tc) => tc.teacherId === teacherId)!;
-    const group = groups.find((g) => g.id === groupId)!;
+
     const mods: CreateModificationItemRequest[] = [
       {
         type: 'ADD',

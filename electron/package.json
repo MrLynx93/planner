@@ -4,9 +4,33 @@
   "description": "Preschool Teacher Scheduling Application - Desktop",
   "main": "main.js",
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "dist": "electron-builder build --mac"
   },
-  "dependencies": {
-    "electron": "^28.0.0"
+  "build": {
+    "appId": "com.planner.app",
+    "productName": "Planner",
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        { "target": "dmg", "arch": ["arm64"] }
+      ]
+    },
+    "dmg": {
+      "title": "Planner"
+    },
+    "files": [
+      "main.js",
+      "package.json"
+    ],
+    "extraResources": [
+      { "from": "planner-backend.jar",   "to": "planner-backend.jar" },
+      { "from": "frontend-dist",         "to": "frontend" },
+      { "from": "jre/mac-${arch}",       "to": "jre" }
+    ]
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.0.0"
   }
 }

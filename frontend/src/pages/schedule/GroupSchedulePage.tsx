@@ -208,11 +208,6 @@ export function GroupSchedulePage() {
     }
   }, [groups, selectedGroupId]);
 
-  const handleAnnexChange = (id: number | null) => {
-    setSelectedAnnexId(id);
-    setSelectedGroupId(null);
-  };
-
   const currentAnnex = annexes.find((a) => a.id === selectedAnnexId) ?? null;
   const filteredBlocks = blocks.filter((b) => b.groupId === selectedGroupId);
 
@@ -229,9 +224,7 @@ export function GroupSchedulePage() {
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <ScheduleHeader
-        annexes={annexes}
-        selectedAnnexId={selectedAnnexId}
-        onAnnexChange={handleAnnexChange}
+        currentAnnexName={currentAnnex?.name ?? null}
         filterItems={groups.map((g) => ({ id: g.groupId, label: g.groupName }))}
         selectedFilterId={selectedGroupId}
         onFilterChange={setSelectedGroupId}

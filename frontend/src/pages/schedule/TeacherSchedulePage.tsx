@@ -206,11 +206,6 @@ export function TeacherSchedulePage() {
     }
   }, [teachers, selectedTeacherId]);
 
-  const handleAnnexChange = (id: number | null) => {
-    setSelectedAnnexId(id);
-    setSelectedTeacherId(null);
-  };
-
   const currentAnnex = annexes.find((a) => a.id === selectedAnnexId) ?? null;
   const filteredBlocks = blocks.filter(
     (b) => b.teacherId === selectedTeacherId
@@ -229,9 +224,7 @@ export function TeacherSchedulePage() {
   return (
     <div className="flex flex-col flex-1 min-h-0">
       <ScheduleHeader
-        annexes={annexes}
-        selectedAnnexId={selectedAnnexId}
-        onAnnexChange={handleAnnexChange}
+        currentAnnexName={currentAnnex?.name ?? null}
         filterItems={teachers.map((teacher) => ({
           id: teacher.teacherId,
           label: `${teacher.firstName} ${teacher.lastName}`,

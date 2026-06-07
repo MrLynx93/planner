@@ -24,6 +24,7 @@ function DefaultRedirect() {
   if (draft) return <Navigate to={`/annexes/${draft.id}/plan/table`} replace />;
   const current = annexes.find((a) => a.state === 'CURRENT');
   if (current) return <Navigate to={`/annexes/${current.id}/plan/table`} replace />;
+  if (annexes.length === 0) return <Navigate to="/annexes" replace />;
   return <Navigate to="/schedule/groups" replace />;
 }
 

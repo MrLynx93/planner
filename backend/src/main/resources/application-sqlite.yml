@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    url: jdbc:sqlite:./planner.db
+    driver-class-name: org.sqlite.JDBC
+    hikari:
+      maximum-pool-size: 1
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+  liquibase:
+    enabled: false

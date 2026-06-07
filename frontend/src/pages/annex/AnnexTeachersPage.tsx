@@ -42,6 +42,8 @@ export function AnnexTeachersPage() {
         teacherId,
         firstName: '',
         lastName: '',
+        defaultGroupId: null,
+        defaultGroupName: null,
       },
     });
   }
