@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Planner Build DMG" type="ShConfigurationType" factoryName="Shell Script">
-    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/build-electron-mac.sh" />
-    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/electron/electron-build-mac.sh" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/electron" />
     <method v="2" />
   </configuration>
 </component>

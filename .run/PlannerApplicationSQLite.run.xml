@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PlannerApplicationSQLite" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="com.planner.PlannerApplicationSQLite" />
+    <module name="planner-backend" />
+    <option name="PROGRAM_PARAMETERS" value="-Xmx4g" />
+    <option name="WORKING_DIRECTORY" value="$MODULE_WORKING_DIR$" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="com.planner.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

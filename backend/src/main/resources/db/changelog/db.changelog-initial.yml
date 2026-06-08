@@ -3,6 +3,11 @@ databaseChangeLog:
   - changeSet:
       id: initial-schema
       author: mateusz
+      preConditions:
+        - onFail: MARK_RAN
+        - not:
+            tableExists:
+              tableName: annex
       changes:
 
         # ── annex ─────────────────────────────────────────────────────────────

@@ -1,0 +1,22 @@
+{
+  "appId": "com.planner.app",
+  "productName": "Planner",
+  "mac": {
+    "category": "public.app-category.productivity",
+    "target": [
+      { "target": "dmg" }
+    ]
+  },
+  "dmg": {
+    "title": "Planner"
+  },
+  "files": [
+    "main.js",
+    "package.json"
+  ],
+  "extraResources": [
+    { "from": "build/planner-backend.jar",       "to": "planner-backend.jar" },
+    { "from": "build/frontend-dist",             "to": "frontend" },
+    { "from": "build/jre/mac-${arch}-slim",      "to": "jre" }
+  ]
+}

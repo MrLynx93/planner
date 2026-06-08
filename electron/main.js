@@ -52,7 +52,7 @@ function getDistPath() {
 
 function getJavaExecutable() {
   if (!app.isPackaged) return 'java';
-  return path.join(process.resourcesPath, 'jre', 'Contents', 'Home', 'bin', 'java');
+  return path.join(process.resourcesPath, 'jre', 'bin', 'java');
 }
 
 function startBackend() {

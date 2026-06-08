@@ -5,7 +5,8 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dist": "electron-builder build --mac"
+    "dist": "electron-builder build --mac --arm64 --x64",
+    "dist-slim": "electron-builder build --mac --x64 --config electron-build-slim.json"
   },
   "build": {
     "appId": "com.planner.app",
@@ -13,7 +14,7 @@
     "mac": {
       "category": "public.app-category.productivity",
       "target": [
-        { "target": "dmg", "arch": ["arm64"] }
+        { "target": "dmg" }
       ]
     },
     "dmg": {
@@ -24,9 +25,9 @@
       "package.json"
     ],
     "extraResources": [
-      { "from": "planner-backend.jar",   "to": "planner-backend.jar" },
-      { "from": "frontend-dist",         "to": "frontend" },
-      { "from": "jre/mac-${arch}",       "to": "jre" }
+      { "from": "build/planner-backend.jar",   "to": "planner-backend.jar" },
+      { "from": "build/frontend-dist",         "to": "frontend" },
+      { "from": "build/jre/mac-${arch}",       "to": "jre" }
     ]
   },
   "devDependencies": {
