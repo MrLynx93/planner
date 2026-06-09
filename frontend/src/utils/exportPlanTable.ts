@@ -10,6 +10,8 @@ export interface ExportLabels {
   hours: string;
   overhours: string;
   days: Record<DayOfWeek, string>;
+  groupHoursPerDay: (hours: string) => string;
+  groupHoursPerWeek: (hours: string) => string;
 }
 
 // Convert CSS #rrggbb to ExcelJS ARGB (fully opaque)
@@ -143,7 +145,7 @@ export async function exportPlanTableToExcel(
   });
 
   sheet.columns = [
-    { width: 14 },
+    { width: 18 },
     { width: 11 },
     ...WEEK_DAYS.map(() => ({ width: 18 })),
     { width: 8 },
@@ -177,8 +179,23 @@ export async function exportPlanTableToExcel(
     const overhours = overhoursValue(allBlocks, group, teacher, rules);
     const teacherName = `${teacher.firstName.charAt(0)}.${teacher.lastName}`;
 
+    const groupDailyMins =
+      timeToMinutes(group.effectiveScheduleEndTime) - timeToMinutes(group.effectiveScheduleStartTime);
+    const groupDailyRaw = groupDailyMins / 60;
+    const groupDailyH = Number.isInteger(groupDailyRaw) ? String(groupDailyRaw) : groupDailyRaw.toFixed(1);
+    const groupWeeklyRaw = groupDailyRaw * 5;
+    const groupWeeklyH = Number.isInteger(groupWeeklyRaw) ? String(groupWeeklyRaw) : groupWeeklyRaw.toFixed(1);
+    const groupCellText = isFirstInGroup
+      ? [
+          group.groupName,
+          `${shortTime(group.effectiveScheduleStartTime)}-${shortTime(group.effectiveScheduleEndTime)}`,
+          labels.groupHoursPerDay(groupDailyH),
+          labels.groupHoursPerWeek(groupWeeklyH),
+        ].join('\n')
+      : '';
+
     const dataRow = sheet.addRow([
-      isFirstInGroup ? group.groupName : '',
+      groupCellText,
       teacherName,
       ...dayTexts,
       hoursText,
@@ -196,7 +213,7 @@ export async function exportPlanTableToExcel(
         // Group column
         cell.font = { bold: true, size: 10, color: { argb: 'FF374151' } };
         cell.fill = solidFill('#F3F4F6');
-        cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+        cell.alignment = { vertical: 'top', horizontal: 'center', wrapText: true };
         cell.border = groupBorder(isFirstInGroup, isLastInGroup);
       } else if (col === 2) {
         // Teacher column — colored by teacher
@@ -242,7 +259,7 @@ export async function exportPlanTableToExcel(
     mergedCell.border = { top: MEDIUM, bottom: MEDIUM, left: MEDIUM, right: MEDIUM };
     mergedCell.fill = solidFill('#F3F4F6');
     mergedCell.font = { bold: true, size: 10, color: { argb: 'FF374151' } };
-    mergedCell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+    mergedCell.alignment = { vertical: 'top', horizontal: 'center', wrapText: true };
   }
 
   // ── Download ─────────────────────────────────────────────────────────────

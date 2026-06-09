@@ -227,7 +227,10 @@
     "minHours": "Min. godz.",
     "tooltipAssignedHere": "Nauczyciel przypisany do tej grupy",
     "tooltipOverhoursInGroup": "Nadgodziny w tej grupie — przypisany do grupy {{groupName}}",
-    "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy"
+    "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy",
+    "groupOpeningHours": "Godziny otwarcia",
+    "groupHoursPerDay": "{{hours}}h/dzień",
+    "groupHoursPerWeek": "{{hours}}h/tydzień"
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",

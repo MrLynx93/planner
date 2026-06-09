@@ -78,6 +78,16 @@ function weeklyHours(blocks: ScheduleBlock[], groupId: number, teacherId: number
   return (mins / 60).toFixed(1);
 }
 
+function groupDailyHours(group: AnnexGroupDto): number {
+  const mins =
+    timeToMinutes(group.effectiveScheduleEndTime) - timeToMinutes(group.effectiveScheduleStartTime);
+  return mins / 60;
+}
+
+function formatHours(h: number): string {
+  return Number.isInteger(h) ? String(h) : h.toFixed(1);
+}
+
 
 function effectiveMinHours(rules: RuleWithSourceDto[], teacherId: number): number | null {
   const relevant = rules.filter((r) => r.ruleType === 'TEACHER_WEEKLY_HOURS_MIN');
@@ -344,6 +354,8 @@ export function AnnexPlanTablePage() {
       days: Object.fromEntries(
         WEEK_DAYS.map((d) => [d, t(`draftPlan.days.${d}` as Parameters<typeof t>[0])])
       ) as ExportLabels['days'],
+      groupHoursPerDay: (hours) => t('draftPlan.groupHoursPerDay', { hours }),
+      groupHoursPerWeek: (hours) => t('draftPlan.groupHoursPerWeek', { hours }),
     };
     exportPlanTableToExcel(annex.name, rows, allBlocks, rules, labels);
   };
@@ -400,9 +412,18 @@ export function AnnexPlanTablePage() {
                 {isFirstInGroup && (
                   <td
                     rowSpan={groupSize}
-                    className="border border-border px-3 py-2 font-medium align-middle bg-muted/40"
+                    className="border border-border px-3 py-2 align-top bg-muted/40"
                   >
-                    {group.groupName}
+                    <div className="font-medium text-sm">{group.groupName}</div>
+                    <div className="text-xs text-muted-foreground mt-1">
+                      {group.effectiveScheduleStartTime.substring(0, 5)}–{group.effectiveScheduleEndTime.substring(0, 5)}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono mt-0.5">
+                      {t('draftPlan.groupHoursPerDay', { hours: formatHours(groupDailyHours(group)) })}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono">
+                      {t('draftPlan.groupHoursPerWeek', { hours: formatHours(groupDailyHours(group) * 5) })}
+                    </div>
                   </td>
                 )}
                 <td

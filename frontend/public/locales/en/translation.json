@@ -227,7 +227,10 @@
     "minHours": "Min hours",
     "tooltipAssignedHere": "Assigned to this group",
     "tooltipOverhoursInGroup": "Overhours in this group — assigned to {{groupName}}",
-    "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group"
+    "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group",
+    "groupOpeningHours": "Opening hours",
+    "groupHoursPerDay": "{{hours}}h/day",
+    "groupHoursPerWeek": "{{hours}}h/week"
   },
   "schedule": {
     "selectGroup": "Select group",
