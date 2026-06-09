@@ -28,17 +28,74 @@ function shortTime(time: string): string {
   return `${parseInt(h)}:${m}`;
 }
 
-function dayBlocksText(
+function computeOpeningIds(allBlocks: ScheduleBlock[]): Set<number> {
+  const ids = new Set<number>();
+  for (const day of WEEK_DAYS) {
+    const dayBlocks = allBlocks.filter((b) => b.dayOfWeek === day);
+    if (!dayBlocks.length) continue;
+    const minStart = Math.min(...dayBlocks.map((b) => timeToMinutes(b.startTime)));
+    dayBlocks.filter((b) => timeToMinutes(b.startTime) === minStart).forEach((b) => ids.add(b.id));
+  }
+  return ids;
+}
+
+function computeClosingIds(allBlocks: ScheduleBlock[]): Set<number> {
+  const ids = new Set<number>();
+  for (const day of WEEK_DAYS) {
+    const dayBlocks = allBlocks.filter((b) => b.dayOfWeek === day);
+    if (!dayBlocks.length) continue;
+    const maxEnd = Math.max(...dayBlocks.map((b) => timeToMinutes(b.endTime)));
+    dayBlocks.filter((b) => timeToMinutes(b.endTime) === maxEnd).forEach((b) => ids.add(b.id));
+  }
+  return ids;
+}
+
+type DayCellValue = string | ExcelJS.CellRichTextValue;
+
+function countLines(value: DayCellValue): number {
+  if (typeof value === 'string') return value ? value.split('\n').length : 1;
+  const newlines = value.richText.reduce((n, run) => n + (run.text.match(/\n/g)?.length ?? 0), 0);
+  return newlines + 1;
+}
+
+function dayBlocksCellValue(
   blocks: ScheduleBlock[],
   groupId: number,
   teacherId: number,
-  day: DayOfWeek
-): string {
-  return blocks
+  day: DayOfWeek,
+  openingIds: Set<number>,
+  closingIds: Set<number>
+): DayCellValue {
+  const relevant = blocks
     .filter((b) => b.groupId === groupId && b.teacherId === teacherId && b.dayOfWeek === day)
-    .sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime))
-    .map((b) => `${shortTime(b.startTime)}-${shortTime(b.endTime)}`)
-    .join('\n');
+    .sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+
+  if (!relevant.length) return '';
+
+  const hasMarked = relevant.some((b) => openingIds.has(b.id) || closingIds.has(b.id));
+  if (!hasMarked) {
+    return relevant.map((b) => `${shortTime(b.startTime)}-${shortTime(b.endTime)}`).join('\n');
+  }
+
+  const DARK = 'FF1F2937';
+  const plain = (): Partial<ExcelJS.Font> => ({ size: 10, color: { argb: DARK } });
+  const bold = (): Partial<ExcelJS.Font> => ({ size: 10, color: { argb: DARK }, bold: true });
+
+  const richText: ExcelJS.RichText[] = [];
+  relevant.forEach((b, i) => {
+    const isOpening = openingIds.has(b.id);
+    const isClosing = closingIds.has(b.id);
+    if (i > 0) richText.push({ text: '\n', font: plain() });
+    if (!isOpening && !isClosing) {
+      richText.push({ text: `${shortTime(b.startTime)}-${shortTime(b.endTime)}`, font: plain() });
+    } else {
+      richText.push({ text: shortTime(b.startTime), font: isOpening ? bold() : plain() });
+      richText.push({ text: '-', font: plain() });
+      richText.push({ text: shortTime(b.endTime), font: isClosing ? bold() : plain() });
+    }
+  });
+
+  return { richText };
 }
 
 function weeklyHoursText(blocks: ScheduleBlock[], groupId: number, teacherId: number): string {
@@ -165,13 +222,16 @@ export async function exportPlanTableToExcel(
   });
 
   // ── Data rows ────────────────────────────────────────────────────────────
+  const openingIds = computeOpeningIds(allBlocks);
+  const closingIds = computeClosingIds(allBlocks);
+
   let sheetRowIndex = 2;
   const pendingMerges: Array<{ startRow: number; size: number }> = [];
 
   for (const { group, teacher, isFirstInGroup, isLastInGroup, groupSize } of rows) {
     if (!teacher) continue;
-    const dayTexts = WEEK_DAYS.map((day) =>
-      dayBlocksText(allBlocks, group.groupId, teacher.teacherId, day)
+    const dayValues = WEEK_DAYS.map((day) =>
+      dayBlocksCellValue(allBlocks, group.groupId, teacher.teacherId, day, openingIds, closingIds)
     );
     const hoursText = weeklyHoursText(allBlocks, group.groupId, teacher.teacherId);
     const overhours = overhoursValue(allBlocks, group, teacher, rules);
@@ -200,12 +260,12 @@ export async function exportPlanTableToExcel(
     const dataRow = sheet.addRow([
       groupCellText,
       teacherName,
-      ...dayTexts,
+      ...dayValues,
       hoursText,
       overhours.text,
     ]);
 
-    const maxLines = Math.max(1, ...dayTexts.map((t) => (t ? t.split('\n').length : 1)));
+    const maxLines = Math.max(1, ...dayValues.map(countLines));
     dataRow.height = Math.max(20, maxLines * 16);
 
     dataRow.eachCell({ includeEmpty: true }, (cell, col) => {
