@@ -331,3 +331,143 @@ export async function exportPlanTableToExcel(
   anchor.click();
   URL.revokeObjectURL(url);
 }
+
+export function printPlanTable(
+  annexName: string,
+  rows: ExportRow[],
+  allBlocks: ScheduleBlock[],
+  rules: RuleWithSourceDto[],
+  labels: ExportLabels
+): void {
+  const openingIds = computeOpeningIds(allBlocks);
+  const closingIds = computeClosingIds(allBlocks);
+
+  function dayBlocksHtml(groupId: number, teacherId: number, day: DayOfWeek): string {
+    const relevant = allBlocks
+      .filter((b) => b.groupId === groupId && b.teacherId === teacherId && b.dayOfWeek === day)
+      .sort((a, b) => timeToMinutes(a.startTime) - timeToMinutes(b.startTime));
+    if (!relevant.length) return '';
+    return relevant
+      .map((b) => {
+        const isOpening = openingIds.has(b.id);
+        const isClosing = closingIds.has(b.id);
+        const s = shortTime(b.startTime);
+        const e = shortTime(b.endTime);
+        if (!isOpening && !isClosing) return `${s}-${e}`;
+        return `${isOpening ? `<strong>${s}</strong>` : s}-${isClosing ? `<strong>${e}</strong>` : e}`;
+      })
+      .join('<br>');
+  }
+
+  const GROUP_BG_COLORS = [
+    '#fefce8', '#f0fdf4', '#eff6ff', '#fdf2f8',
+    '#faf5ff', '#fff7ed', '#f0f9ff', '#f0fdfa',
+  ];
+
+  let bodyRows = '';
+  let groupIndex = -1;
+  for (const { group, teacher, isFirstInGroup, groupSize } of rows) {
+    if (!teacher) continue;
+    if (isFirstInGroup) groupIndex++;
+    const bg = GROUP_BG_COLORS[groupIndex % GROUP_BG_COLORS.length];
+    const bgStyle = `background-color:${bg}`;
+
+    const dailyMins =
+      timeToMinutes(group.effectiveScheduleEndTime) - timeToMinutes(group.effectiveScheduleStartTime);
+    const dailyRaw = dailyMins / 60;
+    const dailyH = Number.isInteger(dailyRaw) ? String(dailyRaw) : dailyRaw.toFixed(1);
+    const weeklyRaw = dailyRaw * 5;
+    const weeklyH = Number.isInteger(weeklyRaw) ? String(weeklyRaw) : weeklyRaw.toFixed(1);
+    const tagLine =
+      group.tags && group.tags.length > 0
+        ? group.tags.map((tag) => `<span class="tag">${labels.groupTag(tag)}</span>`).join('')
+        : '';
+
+    const totalMins = allBlocks
+      .filter((b) => b.groupId === group.groupId && b.teacherId === teacher.teacherId)
+      .reduce((sum, b) => sum + timeToMinutes(b.endTime) - timeToMinutes(b.startTime), 0);
+    const hoursText = `${(totalMins / 60).toFixed(1)}h`;
+
+    const ov = overhoursValue(allBlocks, group, teacher, rules);
+    const teacherName = `${teacher.firstName.charAt(0)}.${teacher.lastName}`;
+    const isDefault = teacher.defaultGroupId === group.groupId;
+
+    bodyRows += `<tr${isFirstInGroup ? ' class="group-start"' : ''}>`;
+
+    if (isFirstInGroup) {
+      bodyRows += `<td rowspan="${groupSize}" class="group-cell col-sep" style="${bgStyle}">
+        <div class="group-name">${group.groupName}</div>
+        ${tagLine ? `<div class="tags">${tagLine}</div>` : ''}
+        <div class="mono muted">${shortTime(group.effectiveScheduleStartTime)}&ndash;${shortTime(group.effectiveScheduleEndTime)}</div>
+        <div class="mono muted">${labels.groupHoursPerDay(dailyH)}</div>
+        <div class="mono muted">${labels.groupHoursPerWeek(weeklyH)}</div>
+      </td>`;
+    }
+
+    bodyRows += `<td class="${isDefault ? 'bold' : 'muted'} col-sep" style="${bgStyle}">${teacherName}</td>`;
+    for (const day of WEEK_DAYS) {
+      const isFriday = day === 'FRIDAY';
+      bodyRows += `<td class="${isFriday ? 'col-sep' : ''}" style="${bgStyle}">${dayBlocksHtml(group.groupId, teacher.teacherId, day)}</td>`;
+    }
+    bodyRows += `<td class="num ${isDefault ? 'bold' : 'muted'}" style="${bgStyle}">${hoursText}</td>`;
+    bodyRows += `<td class="num ${isDefault ? 'bold' : ''} ${ov.isNegative ? 'red' : ''}" style="${bgStyle}">${ov.text}</td>`;
+
+    bodyRows += '</tr>';
+  }
+
+  const headerCells = [
+    `<th class="col-sep">${labels.group}</th>`,
+    `<th class="col-sep">${labels.teacher}</th>`,
+    ...WEEK_DAYS.map((d) => `<th${d === 'FRIDAY' ? ' class="col-sep"' : ''}>${labels.days[d]}</th>`),
+    `<th>${labels.hours}</th>`,
+    `<th>${labels.overhours}</th>`,
+  ].join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>${annexName}</title>
+<style>
+@page { size: A4 landscape; margin: 1cm; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+body { font-family: Arial, sans-serif; font-size: 9pt; color: #1f2937; }
+h1 { font-size: 12pt; text-align: center; margin-bottom: 8px; font-weight: 700; }
+table { border-collapse: collapse; width: 100%; table-layout: fixed; border: 2px solid #374151; }
+th, td { border: 1px solid #d1d5db; border-top: 1px solid #9ca3af; padding: 3px 5px; vertical-align: middle; font-size: 8pt; }
+th { background: #e5e7eb; border-top: 1px solid #9ca3af; font-weight: 600; text-align: center; text-transform: capitalize; word-break: break-word; }
+td { word-break: break-word; }
+tr.group-start > td { border-top: 2px solid #374151; }
+th:first-child, td.group-cell { width: 14%; }
+th:nth-child(2), tr > td:first-child:not(.group-cell) { width: 12%; }
+th:nth-last-child(2) { width: 9%; }
+th:last-child { width: 9%; }
+.group-cell { text-align: center; vertical-align: top; }
+.col-sep { border-right: 2px solid #374151; }
+.group-name { font-weight: 700; margin-bottom: 2px; }
+.tags { margin: 2px 0; }
+.tag { display: inline-block; background: #dbeafe; color: #1d4ed8; border-radius: 3px; padding: 0 3px; font-size: 7pt; margin: 1px; }
+.mono { font-family: monospace; font-size: 7.5pt; }
+.muted { color: #374151; }
+.bold { font-weight: 700; }
+.num { text-align: right; font-family: monospace; white-space: nowrap; }
+.red { color: #dc2626; }
+</style>
+</head>
+<body>
+<h1>${annexName}</h1>
+<table>
+<thead><tr>${headerCells}</tr></thead>
+<tbody>${bodyRows}</tbody>
+</table>
+</body>
+</html>`;
+
+  const win = window.open('', '_blank');
+  if (win) {
+    win.document.write(html);
+    win.document.close();
+    win.focus();
+    win.print();
+  }
+}

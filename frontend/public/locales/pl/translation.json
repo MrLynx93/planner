@@ -202,6 +202,7 @@
     "dragDisabledInWeekMode": "Przełącz na widok dnia, aby dodawać bloki",
     "hours": "Godz.",
     "exportExcel": "Eksportuj do Excel",
+    "print": "Drukuj",
     "editBlock": "Edytuj blok",
     "startTime": "Godzina rozpoczęcia",
     "endTime": "Godzina zakończenia",
@@ -234,7 +235,9 @@
     "groupHoursPerWeek": "{{hours}}h/tydzień",
     "openCloseTitle": "Otwarcie i zamknięcie",
     "opening": "Otwarcie",
-    "closing": "Zamknięcie"
+    "closing": "Zamknięcie",
+    "printHours": "Liczba godzin ogółem",
+    "printOverhours": "Liczba nadgodzin"
   },
   "groupTags": {
     "AGE_3": "3-latki",

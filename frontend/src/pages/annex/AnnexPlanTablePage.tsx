@@ -1,11 +1,11 @@
 import { useState, useRef, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download, Printer } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, GroupTag, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
-import { exportPlanTableToExcel, type ExportLabels } from '@/utils/exportPlanTable';
+import { exportPlanTableToExcel, printPlanTable, type ExportLabels } from '@/utils/exportPlanTable';
 import { HorizontalTimeCell } from '@/components/schedule/HorizontalTimeCell';
 import { cn } from '@/lib/utils';
 import {
@@ -436,6 +436,22 @@ export function AnnexPlanTablePage() {
     exportPlanTableToExcel(annex.name, rows, allBlocks, rules, labels);
   };
 
+  const handlePrint = () => {
+    const labels: ExportLabels = {
+      group: t('draftPlan.group'),
+      teacher: t('draftPlan.teacher'),
+      hours: t('draftPlan.printHours'),
+      overhours: t('draftPlan.printOverhours'),
+      days: Object.fromEntries(
+        WEEK_DAYS.map((d) => [d, t(`draftPlan.daysFull.${d}` as Parameters<typeof t>[0])])
+      ) as ExportLabels['days'],
+      groupHoursPerDay: (hours) => t('draftPlan.groupHoursPerDay', { hours }),
+      groupHoursPerWeek: (hours) => t('draftPlan.groupHoursPerWeek', { hours }),
+      groupTag: (tag) => t(`groupTags.${tag}` as Parameters<typeof t>[0]),
+    };
+    printPlanTable(annex.name, rows, allBlocks, rules, labels);
+  };
+
   const handleDeleteFromModal = () => {
     if (!editModal) return;
     deleteTimeBlock({ annexId, annexTimeBlockId: editModal.block.id });
@@ -448,7 +464,14 @@ export function AnnexPlanTablePage() {
       <div className="flex flex-1 min-h-0">
       {/* Table area */}
       <div className="flex-1 overflow-auto p-6 min-w-0">
-        <div className="flex justify-end mb-3">
+        <div className="flex justify-end gap-2 mb-3">
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+          >
+            <Printer className="h-4 w-4" />
+            {t('draftPlan.print', 'Print')}
+          </button>
           <button
             onClick={handleExport}
             className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"

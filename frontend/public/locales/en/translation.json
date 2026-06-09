@@ -202,6 +202,7 @@
     "dragDisabledInWeekMode": "Switch to Day mode to add blocks",
     "hours": "Hours",
     "exportExcel": "Export to Excel",
+    "print": "Print",
     "editBlock": "Edit time block",
     "startTime": "Start time",
     "endTime": "End time",
@@ -234,7 +235,9 @@
     "groupHoursPerWeek": "{{hours}}h/week",
     "openCloseTitle": "Opening & Closing",
     "opening": "Opening",
-    "closing": "Closing"
+    "closing": "Closing",
+    "printHours": "Total hours",
+    "printOverhours": "Overtime hours"
   },
   "groupTags": {
     "AGE_3": "3 yrs",
