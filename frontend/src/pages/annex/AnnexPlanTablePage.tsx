@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
@@ -164,6 +164,58 @@ function HoursSummaryTable({
   );
 }
 
+function OpenCloseSummary({
+  allBlocks,
+  teachers,
+}: {
+  allBlocks: ScheduleBlock[];
+  teachers: AnnexTeacherDto[];
+}) {
+  const { t } = useTranslation();
+  const teacherName = (id: number) => {
+    const teacher = teachers.find((t) => t.teacherId === id);
+    return teacher ? `${teacher.firstName.charAt(0)}.${teacher.lastName}` : String(id);
+  };
+
+  const rows = WEEK_DAYS.map((day) => {
+    const dayBlocks = allBlocks.filter((b) => b.dayOfWeek === day);
+    if (!dayBlocks.length) return null;
+    const minStart = Math.min(...dayBlocks.map((b) => timeToMinutes(b.startTime)));
+    const maxEnd = Math.max(...dayBlocks.map((b) => timeToMinutes(b.endTime)));
+    const openingTeachers = [...new Set(dayBlocks.filter((b) => timeToMinutes(b.startTime) === minStart).map((b) => b.teacherId))];
+    const closingTeachers = [...new Set(dayBlocks.filter((b) => timeToMinutes(b.endTime) === maxEnd).map((b) => b.teacherId))];
+    return { day, openingTeachers, closingTeachers };
+  }).filter(Boolean) as { day: DayOfWeek; openingTeachers: number[]; closingTeachers: number[] }[];
+
+  if (!rows.length) {
+    return <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>;
+  }
+
+  return (
+    <table className="text-sm w-full">
+      <tbody>
+        {rows.map(({ day, openingTeachers, closingTeachers }) => (
+          <tr key={day} className="border-b border-border last:border-0">
+            <td className="py-1.5 pr-4 font-medium w-24 align-top">
+              {t(`draftPlan.daysFull.${day}` as Parameters<typeof t>[0])}
+            </td>
+            <td className="py-1.5 space-y-0.5">
+              <div className="flex gap-1.5 items-baseline">
+                <span className="text-xs text-muted-foreground w-16 shrink-0">{t('draftPlan.opening')}:</span>
+                <span className="text-xs font-medium text-green-700">{openingTeachers.map(teacherName).join(', ')}</span>
+              </div>
+              <div className="flex gap-1.5 items-baseline">
+                <span className="text-xs text-muted-foreground w-16 shrink-0">{t('draftPlan.closing')}:</span>
+                <span className="text-xs font-medium text-amber-700">{closingTeachers.map(teacherName).join(', ')}</span>
+              </div>
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 function isCellHighlighted(
   v: TemplateViolationDto | null,
   row: { groupId: number; teacherId: number | null },
@@ -299,6 +351,29 @@ export function AnnexPlanTablePage() {
   const [hoveredSummaryTeacherId, setHoveredSummaryTeacherId] = useState<number | null>(null);
   const [showViolations, setShowViolations] = useState(true);
   const [showSummary, setShowSummary] = useState(true);
+  const [showOpenClose, setShowOpenClose] = useState(true);
+
+  const openingBlockIds = useMemo<Set<number>>(() => {
+    const ids = new Set<number>();
+    for (const day of WEEK_DAYS) {
+      const dayBlocks = allBlocks.filter((b) => b.dayOfWeek === day);
+      if (!dayBlocks.length) continue;
+      const minStart = Math.min(...dayBlocks.map((b) => timeToMinutes(b.startTime)));
+      dayBlocks.filter((b) => timeToMinutes(b.startTime) === minStart).forEach((b) => ids.add(b.id));
+    }
+    return ids;
+  }, [allBlocks]);
+
+  const closingBlockIds = useMemo<Set<number>>(() => {
+    const ids = new Set<number>();
+    for (const day of WEEK_DAYS) {
+      const dayBlocks = allBlocks.filter((b) => b.dayOfWeek === day);
+      if (!dayBlocks.length) continue;
+      const maxEnd = Math.max(...dayBlocks.map((b) => timeToMinutes(b.endTime)));
+      dayBlocks.filter((b) => timeToMinutes(b.endTime) === maxEnd).forEach((b) => ids.add(b.id));
+    }
+    return ids;
+  }, [allBlocks]);
 
   const rows = buildRows(groups, teachers, allBlocks);
 
@@ -494,6 +569,18 @@ export function AnnexPlanTablePage() {
                           }
                           onDeleteBlock={(id) => deleteTimeBlock({ annexId, annexTimeBlockId: id })}
                           onEditBlock={handleEditBlock}
+                          onBlockMouseMove={(e, block) => {
+                            const isOpening = openingBlockIds.has(block.id);
+                            const isClosing = closingBlockIds.has(block.id);
+                            if (!isOpening && !isClosing) return;
+                            const content = isOpening && isClosing
+                              ? `${t('draftPlan.opening')} & ${t('draftPlan.closing')}`
+                              : isOpening
+                                ? t('draftPlan.opening')
+                                : t('draftPlan.closing');
+                            setTooltip({ x: e.clientX, y: e.clientY, content });
+                          }}
+                          onBlockMouseLeave={() => setTooltip(null)}
                         />
                       )}
                     </td>
@@ -637,6 +724,17 @@ export function AnnexPlanTablePage() {
           >
             {t('draftPlan.hoursSummary')}
           </button>
+          <button
+            onClick={() => setShowOpenClose((v) => !v)}
+            className={cn(
+              'px-3 py-2 text-xs font-medium border-b-2 transition-colors',
+              showOpenClose
+                ? 'border-primary text-primary'
+                : 'border-transparent text-muted-foreground hover:text-foreground'
+            )}
+          >
+            {t('draftPlan.openCloseTitle')}
+          </button>
           <div className="flex-1" />
           <button
             onClick={() => setBottomPanelOpen((o) => !o)}
@@ -646,10 +744,10 @@ export function AnnexPlanTablePage() {
           </button>
         </div>
 
-        {bottomPanelOpen && (showViolations || showSummary) && (
+        {bottomPanelOpen && (showViolations || showSummary || showOpenClose) && (
           <div className="flex flex-1 min-h-0">
             {showViolations && (
-              <div className={cn('overflow-auto flex-1 px-4 py-3', showSummary && 'border-r border-border')}>
+              <div className={cn('overflow-auto flex-1 px-4 py-3', (showSummary || showOpenClose) && 'border-r border-border')}>
                 {templateViolations.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t('violations.noViolations')}</p>
                 ) : (
@@ -669,8 +767,13 @@ export function AnnexPlanTablePage() {
               </div>
             )}
             {showSummary && (
-              <div className="overflow-auto flex-1 px-4 py-3">
+              <div className={cn('overflow-auto flex-1 px-4 py-3', showOpenClose && 'border-r border-border')}>
                 <HoursSummaryTable teachers={teachers} allBlocks={allBlocks} rules={rules} onTeacherMouseEnter={setHoveredSummaryTeacherId} onTeacherMouseLeave={() => setHoveredSummaryTeacherId(null)} />
+              </div>
+            )}
+            {showOpenClose && (
+              <div className="overflow-auto flex-1 px-4 py-3">
+                <OpenCloseSummary allBlocks={allBlocks} teachers={teachers} />
               </div>
             )}
           </div>

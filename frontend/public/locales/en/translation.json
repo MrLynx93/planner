@@ -231,7 +231,10 @@
     "tooltipOverhoursNoGroup": "Overhours in this group — not assigned to any group",
     "groupOpeningHours": "Opening hours",
     "groupHoursPerDay": "{{hours}}h/day",
-    "groupHoursPerWeek": "{{hours}}h/week"
+    "groupHoursPerWeek": "{{hours}}h/week",
+    "openCloseTitle": "Opening & Closing",
+    "opening": "Opening",
+    "closing": "Closing"
   },
   "groupTags": {
     "AGE_3": "3 yrs",

@@ -22,6 +22,8 @@ interface HorizontalTimeCellProps {
   onResizeBlock?: (blockId: number, newStart: string, newEnd: string) => void;
   onDeleteBlock?: (blockId: number) => void;
   onEditBlock?: (block: ScheduleBlock) => void;
+  onBlockMouseMove?: (e: React.MouseEvent, block: ScheduleBlock) => void;
+  onBlockMouseLeave?: () => void;
 }
 
 export function HorizontalTimeCell({
@@ -32,6 +34,8 @@ export function HorizontalTimeCell({
   onResizeBlock,
   onDeleteBlock,
   onEditBlock,
+  onBlockMouseMove,
+  onBlockMouseLeave,
 }: HorizontalTimeCellProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const resizeRef = useRef<ResizeState | null>(null);
@@ -122,6 +126,8 @@ export function HorizontalTimeCell({
               zIndex: preview ? 20 : 10,
               cursor: editable ? 'pointer' : 'default',
             }}
+            onMouseMove={(e) => onBlockMouseMove?.(e, block)}
+            onMouseLeave={() => onBlockMouseLeave?.()}
             title={`${formatTime(block.startTime)}–${formatTime(block.endTime)}`}
             onClick={(e) => {
               e.stopPropagation();

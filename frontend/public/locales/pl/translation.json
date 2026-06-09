@@ -231,7 +231,10 @@
     "tooltipOverhoursNoGroup": "Nadgodziny w tej grupie — nie przypisany do żadnej grupy",
     "groupOpeningHours": "Godziny otwarcia",
     "groupHoursPerDay": "{{hours}}h/dzień",
-    "groupHoursPerWeek": "{{hours}}h/tydzień"
+    "groupHoursPerWeek": "{{hours}}h/tydzień",
+    "openCloseTitle": "Otwarcie i zamknięcie",
+    "opening": "Otwarcie",
+    "closing": "Zamknięcie"
   },
   "groupTags": {
     "AGE_3": "3-latki",
