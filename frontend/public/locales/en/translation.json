@@ -325,7 +325,8 @@
       "TEACHER_WEEKLY_HOURS_TOO_LOW": "{{name}} has {{actual}}h/week, minimum is {{rule}}h.",
       "TEACHER_DAILY_HOURS_TOO_HIGH": "{{name}} on {{dayOfWeek}}: {{actual}}h, max {{rule}}h.",
       "GROUP_TEACHER_COUNT_TOO_LOW": "Group {{name}} on {{dayOfWeek}} has {{actual}} teacher(s) from {{startTime}} to {{endTime}}. Should have {{rule}}.",
-      "GROUP_TEACHER_COUNT_TOO_HIGH": "Group {{name}} on {{dayOfWeek}} has {{actual}} teacher(s) from {{startTime}} to {{endTime}}. Should have at most {{rule}}."
+      "GROUP_TEACHER_COUNT_TOO_HIGH": "Group {{name}} on {{dayOfWeek}} has {{actual}} teacher(s) from {{startTime}} to {{endTime}}. Should have at most {{rule}}.",
+      "BLOCK_OUTSIDE_GROUP_HOURS": "{{name}} ({{groupName}}), {{dayOfWeek}}: block {{startTime}}–{{endTime}} is outside group working hours"
     },
     "months": {
       "1": "January", "2": "February", "3": "March", "4": "April",

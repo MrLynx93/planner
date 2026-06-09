@@ -326,6 +326,33 @@ public class ViolationService {
             }
         }
 
+        // Check blocks outside group working hours
+        Map<Integer, AnnexGroup> groupMap = annexGroups.stream()
+                .collect(Collectors.toMap(ag -> ag.getGroup().getId(), ag -> ag));
+
+        for (AnnexTimeBlock atb : templateBlocks) {
+            TimeBlock block = atb.getTimeBlock();
+            AnnexGroup ag = groupMap.get(block.getGroup().getId());
+            if (ag == null) continue;
+
+            LocalTime scheduleStart = effectiveStart(ag);
+            LocalTime scheduleEnd = effectiveEnd(ag);
+
+            if (block.getStartTime().isBefore(scheduleStart) || block.getEndTime().isAfter(scheduleEnd)) {
+                Teacher teacher = block.getTeacher();
+                violations.add(new TemplateViolationDto(
+                        ViolationType.BLOCK_OUTSIDE_GROUP_HOURS, "ERROR",
+                        teacher.getId(),
+                        teacher.getFirstName() + " " + teacher.getLastName(),
+                        block.getGroup().getId(),
+                        block.getGroup().getName(),
+                        block.getDayOfWeek().name(),
+                        block.getStartTime(),
+                        block.getEndTime(),
+                        null, null));
+            }
+        }
+
         return violations;
     }
 

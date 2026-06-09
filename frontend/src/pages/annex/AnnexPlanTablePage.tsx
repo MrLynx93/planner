@@ -3,7 +3,7 @@ import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download, Printer } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, GroupTag, ScheduleBlock } from '@/components/schedule/types';
-import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
+import { WEEK_DAYS, timeToMinutes, minutesToTime } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
 import { exportPlanTableToExcel, printPlanTable, type ExportLabels } from '@/utils/exportPlanTable';
 import { HorizontalTimeCell } from '@/components/schedule/HorizontalTimeCell';
@@ -216,6 +216,19 @@ function OpenCloseSummary({
   );
 }
 
+function getGroupTimeHighlight(
+  v: TemplateViolationDto | null,
+  group: AnnexGroupDto
+): { highlightStart: boolean; highlightEnd: boolean } {
+  if (!v || v.violationType !== 'BLOCK_OUTSIDE_GROUP_HOURS' || v.groupId !== group.groupId || !v.startTime || !v.endTime) {
+    return { highlightStart: false, highlightEnd: false };
+  }
+  return {
+    highlightStart: timeToMinutes(v.startTime) < timeToMinutes(group.effectiveScheduleStartTime),
+    highlightEnd: timeToMinutes(v.endTime) > timeToMinutes(group.effectiveScheduleEndTime),
+  };
+}
+
 function isCellHighlighted(
   v: TemplateViolationDto | null,
   row: { groupId: number; teacherId: number | null },
@@ -231,6 +244,11 @@ function isCellHighlighted(
     case 'GROUP_TEACHER_COUNT_TOO_LOW':
     case 'GROUP_TEACHER_COUNT_TOO_HIGH':
       if (v.groupId !== row.groupId || day === null) return false;
+      return v.dayOfWeek === day;
+    case 'BLOCK_OUTSIDE_GROUP_HOURS':
+      if (day === null) return false;
+      if (v.groupId !== row.groupId) return false;
+      if (row.teacherId === null || v.teacherId !== row.teacherId) return false;
       return v.dayOfWeek === day;
   }
   return false;
@@ -253,6 +271,7 @@ function TemplateViolationRow({
     `violations.templateMessages.${v.violationType}` as Parameters<typeof t>[0],
     {
       name: v.teacherName ?? v.groupName ?? '',
+      groupName: v.groupName ?? '',
       actual: v.actualValue,
       rule: v.ruleValue,
       dayOfWeek: dayLabel,
@@ -363,6 +382,25 @@ export function AnnexPlanTablePage() {
     }
     return ids;
   }, [allBlocks]);
+
+  const groupDayWindows = useMemo(() => {
+    const map = new Map<string, { start: string; end: string }>();
+    for (const group of groups) {
+      for (const day of WEEK_DAYS) {
+        const dayBlocks = allBlocks.filter((b) => b.groupId === group.groupId && b.dayOfWeek === day);
+        const startMins = dayBlocks.reduce(
+          (min, b) => Math.min(min, timeToMinutes(b.startTime)),
+          timeToMinutes(group.effectiveScheduleStartTime)
+        );
+        const endMins = dayBlocks.reduce(
+          (max, b) => Math.max(max, timeToMinutes(b.endTime)),
+          timeToMinutes(group.effectiveScheduleEndTime)
+        );
+        map.set(`${group.groupId}_${day}`, { start: minutesToTime(startMins), end: minutesToTime(endMins) });
+      }
+    }
+    return map;
+  }, [groups, allBlocks]);
 
   const closingBlockIds = useMemo<Set<number>>(() => {
     const ids = new Set<number>();
@@ -530,8 +568,21 @@ export function AnnexPlanTablePage() {
                         </span>
                       ))}
                     </div>
-                    <div className="text-xs text-muted-foreground font-mono mt-1">
-                      {group.effectiveScheduleStartTime.substring(0, 5)}–{group.effectiveScheduleEndTime.substring(0, 5)}
+                    <div className="text-xs font-mono mt-1">
+                      {(() => {
+                        const { highlightStart, highlightEnd } = getGroupTimeHighlight(hoveredViolation, group);
+                        return (
+                          <>
+                            <span className={highlightStart ? 'text-destructive font-semibold' : 'text-muted-foreground'}>
+                              {group.effectiveScheduleStartTime.substring(0, 5)}
+                            </span>
+                            <span className="text-muted-foreground">–</span>
+                            <span className={highlightEnd ? 'text-destructive font-semibold' : 'text-muted-foreground'}>
+                              {group.effectiveScheduleEndTime.substring(0, 5)}
+                            </span>
+                          </>
+                        );
+                      })()}
                     </div>
                     <div className="text-xs text-muted-foreground font-mono mt-0.5">
                       {t('draftPlan.groupHoursPerDay', { hours: formatHours(groupDailyHours(group)) })}
@@ -590,8 +641,8 @@ export function AnnexPlanTablePage() {
                               b.teacherId === teacher.teacherId &&
                               b.dayOfWeek === day
                           )}
-                          scheduleStart={group.effectiveScheduleStartTime}
-                          scheduleEnd={group.effectiveScheduleEndTime}
+                          scheduleStart={groupDayWindows.get(`${group.groupId}_${day}`)?.start ?? group.effectiveScheduleStartTime}
+                          scheduleEnd={groupDayWindows.get(`${group.groupId}_${day}`)?.end ?? group.effectiveScheduleEndTime}
                           editable={editable}
                           onResizeBlock={(id, start, end) =>
                             updateTimeBlock({ annexId, annexTimeBlockId: id, startTime: start, endTime: end })
@@ -782,7 +833,13 @@ export function AnnexPlanTablePage() {
                 ) : (
                   <table className="text-sm">
                     <tbody>
-                      {templateViolations.map((v, i) => (
+                      {[...templateViolations]
+                        .sort((a, b) =>
+                          a.violationType === 'BLOCK_OUTSIDE_GROUP_HOURS' && b.violationType !== 'BLOCK_OUTSIDE_GROUP_HOURS' ? -1
+                          : b.violationType === 'BLOCK_OUTSIDE_GROUP_HOURS' && a.violationType !== 'BLOCK_OUTSIDE_GROUP_HOURS' ? 1
+                          : 0
+                        )
+                        .map((v, i) => (
                         <TemplateViolationRow
                           key={i}
                           v={v}
