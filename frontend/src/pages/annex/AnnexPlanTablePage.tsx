@@ -424,10 +424,13 @@ export function AnnexPlanTablePage() {
     const labels: ExportLabels = {
       group: t('draftPlan.group'),
       teacher: t('draftPlan.teacher'),
-      hours: t('draftPlan.hours'),
-      overhours: t('draftPlan.overhours'),
+      hours: t('draftPlan.printHours'),
+      overhours: t('draftPlan.printOverhours'),
       days: Object.fromEntries(
-        WEEK_DAYS.map((d) => [d, t(`draftPlan.days.${d}` as Parameters<typeof t>[0])])
+        WEEK_DAYS.map((d) => {
+          const name = t(`draftPlan.daysFull.${d}` as Parameters<typeof t>[0]);
+          return [d, name.charAt(0).toUpperCase() + name.slice(1)];
+        })
       ) as ExportLabels['days'],
       groupHoursPerDay: (hours) => t('draftPlan.groupHoursPerDay', { hours }),
       groupHoursPerWeek: (hours) => t('draftPlan.groupHoursPerWeek', { hours }),
@@ -443,7 +446,10 @@ export function AnnexPlanTablePage() {
       hours: t('draftPlan.printHours'),
       overhours: t('draftPlan.printOverhours'),
       days: Object.fromEntries(
-        WEEK_DAYS.map((d) => [d, t(`draftPlan.daysFull.${d}` as Parameters<typeof t>[0])])
+        WEEK_DAYS.map((d) => {
+          const name = t(`draftPlan.daysFull.${d}` as Parameters<typeof t>[0]);
+          return [d, name.charAt(0).toUpperCase() + name.slice(1)];
+        })
       ) as ExportLabels['days'],
       groupHoursPerDay: (hours) => t('draftPlan.groupHoursPerDay', { hours }),
       groupHoursPerWeek: (hours) => t('draftPlan.groupHoursPerWeek', { hours }),

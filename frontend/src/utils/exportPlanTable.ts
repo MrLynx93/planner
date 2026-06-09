@@ -106,7 +106,6 @@ function weeklyHoursText(blocks: ScheduleBlock[], groupId: number, teacherId: nu
 }
 
 const THIN: Partial<ExcelJS.Border> = { style: 'thin', color: { argb: 'FF9CA3AF' } };
-const NONE: Partial<ExcelJS.Border> = {};
 const MEDIUM: Partial<ExcelJS.Border> = { style: 'medium', color: { argb: 'FF6B7280' } };
 
 function groupBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
@@ -115,23 +114,23 @@ function groupBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
 
 function dayBorder(top: boolean, bottom: boolean, firstDay = false, lastDay = false): Partial<ExcelJS.Borders> {
   return {
-    top: top ? MEDIUM : NONE,
-    bottom: bottom ? MEDIUM : NONE,
+    top: top ? MEDIUM : THIN,
+    bottom: bottom ? MEDIUM : THIN,
     left: firstDay ? MEDIUM : THIN,
     right: lastDay ? MEDIUM : THIN,
   };
 }
 
 function teacherBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
-  return { top: top ? MEDIUM : NONE, bottom: bottom ? MEDIUM : NONE, left: THIN, right: MEDIUM };
+  return { top: top ? MEDIUM : THIN, bottom: bottom ? MEDIUM : THIN, left: THIN, right: MEDIUM };
 }
 
 function hoursBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
-  return { top: top ? MEDIUM : NONE, bottom: bottom ? MEDIUM : NONE, left: MEDIUM, right: THIN };
+  return { top: top ? MEDIUM : THIN, bottom: bottom ? MEDIUM : THIN, left: MEDIUM, right: THIN };
 }
 
 function overhoursBorder(top: boolean, bottom: boolean): Partial<ExcelJS.Borders> {
-  return { top: top ? MEDIUM : NONE, bottom: bottom ? MEDIUM : NONE, left: THIN, right: MEDIUM };
+  return { top: top ? MEDIUM : THIN, bottom: bottom ? MEDIUM : THIN, left: THIN, right: MEDIUM };
 }
 
 function effectiveMinHours(rules: RuleWithSourceDto[], teacherId: number): number | null {
@@ -213,29 +212,39 @@ export async function exportPlanTableToExcel(
   const headerRow = sheet.addRow([
     labels.group, labels.teacher, ...WEEK_DAYS.map((d) => labels.days[d]), labels.hours, labels.overhours,
   ]);
-  headerRow.height = 20;
+  headerRow.height = 36;
   headerRow.eachCell((cell) => {
     cell.font = { bold: true, size: 10, color: { argb: 'FF1F2937' } };
     cell.fill = solidFill('#E5E7EB');
     cell.border = { top: MEDIUM, bottom: MEDIUM, left: MEDIUM, right: MEDIUM };
-    cell.alignment = { vertical: 'middle', horizontal: 'center' };
+    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
   });
 
   // ── Data rows ────────────────────────────────────────────────────────────
   const openingIds = computeOpeningIds(allBlocks);
   const closingIds = computeClosingIds(allBlocks);
 
+  const GROUP_BG_COLORS_XL = [
+    '#fefce8', '#f0fdf4', '#eff6ff', '#fdf2f8',
+    '#faf5ff', '#fff7ed', '#f0f9ff', '#f0fdfa',
+  ];
+  let groupIndex = -1;
+
   let sheetRowIndex = 2;
-  const pendingMerges: Array<{ startRow: number; size: number }> = [];
+  const pendingMerges: Array<{ startRow: number; size: number; bgColor: string }> = [];
 
   for (const { group, teacher, isFirstInGroup, isLastInGroup, groupSize } of rows) {
     if (!teacher) continue;
+    if (isFirstInGroup) groupIndex++;
+    const bgColor = GROUP_BG_COLORS_XL[groupIndex % GROUP_BG_COLORS_XL.length];
+    const isDefault = teacher.defaultGroupId === group.groupId;
     const dayValues = WEEK_DAYS.map((day) =>
       dayBlocksCellValue(allBlocks, group.groupId, teacher.teacherId, day, openingIds, closingIds)
     );
     const hoursText = weeklyHoursText(allBlocks, group.groupId, teacher.teacherId);
     const overhours = overhoursValue(allBlocks, group, teacher, rules);
     const teacherName = `${teacher.firstName.charAt(0)}.${teacher.lastName}`;
+    const MUTED = 'FF374151';
 
     const groupDailyMins =
       timeToMinutes(group.effectiveScheduleEndTime) - timeToMinutes(group.effectiveScheduleStartTime);
@@ -271,16 +280,16 @@ export async function exportPlanTableToExcel(
     dataRow.eachCell({ includeEmpty: true }, (cell, col) => {
       cell.font = { size: 10, color: { argb: 'FF1F2937' } };
       cell.alignment = { vertical: 'middle', wrapText: true };
+      cell.fill = solidFill(bgColor);
 
       if (col === 1) {
         // Group column
         cell.font = { bold: true, size: 10, color: { argb: 'FF374151' } };
-        cell.fill = solidFill('#F3F4F6');
         cell.alignment = { vertical: 'top', horizontal: 'center', wrapText: true };
         cell.border = groupBorder(isFirstInGroup, isLastInGroup);
       } else if (col === 2) {
         // Teacher column
-        cell.font = { bold: true, size: 10, color: { argb: 'FF1F2937' } };
+        cell.font = { bold: isDefault, size: 10, color: { argb: isDefault ? 'FF1F2937' : MUTED } };
         cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: false };
         cell.border = teacherBorder(isFirstInGroup, isLastInGroup);
       } else if (col <= 2 + WEEK_DAYS.length) {
@@ -289,20 +298,20 @@ export async function exportPlanTableToExcel(
         cell.border = dayBorder(isFirstInGroup, isLastInGroup, col === 3, col === 2 + WEEK_DAYS.length);
       } else if (col === 2 + WEEK_DAYS.length + 1) {
         // Hours column
-        cell.font = { bold: true, size: 10, color: { argb: 'FF1F2937' } };
+        cell.font = { bold: isDefault, size: 10, color: { argb: isDefault ? 'FF1F2937' : MUTED } };
         cell.alignment = { vertical: 'middle', horizontal: 'right' };
         cell.border = hoursBorder(isFirstInGroup, isLastInGroup);
       } else {
         // Overhours column
         const isNeg = overhours.isNegative;
-        cell.font = { bold: teacher.defaultGroupId === group.groupId, size: 10, color: { argb: isNeg ? 'FFDC2626' : 'FF1F2937' } };
+        cell.font = { bold: isDefault, size: 10, color: { argb: isNeg ? 'FFDC2626' : 'FF1F2937' } };
         cell.alignment = { vertical: 'middle', horizontal: 'right' };
         cell.border = overhoursBorder(isFirstInGroup, isLastInGroup);
       }
     });
 
     if (isFirstInGroup && groupSize > 1) {
-      pendingMerges.push({ startRow: sheetRowIndex, size: groupSize });
+      pendingMerges.push({ startRow: sheetRowIndex, size: groupSize, bgColor });
     }
 
     sheetRowIndex++;
@@ -310,11 +319,11 @@ export async function exportPlanTableToExcel(
 
   // Apply merges after all rows are added — merging early causes ExcelJS to create
   // phantom rows internally, which makes addRow() skip indices and leave blank rows.
-  for (const { startRow, size } of pendingMerges) {
+  for (const { startRow, size, bgColor } of pendingMerges) {
     sheet.mergeCells(startRow, 1, startRow + size - 1, 1);
     const mergedCell = sheet.getCell(startRow, 1);
     mergedCell.border = { top: MEDIUM, bottom: MEDIUM, left: MEDIUM, right: MEDIUM };
-    mergedCell.fill = solidFill('#F3F4F6');
+    mergedCell.fill = solidFill(bgColor);
     mergedCell.font = { bold: true, size: 10, color: { argb: 'FF374151' } };
     mergedCell.alignment = { vertical: 'top', horizontal: 'center', wrapText: true };
   }
@@ -435,7 +444,7 @@ body { font-family: Arial, sans-serif; font-size: 9pt; color: #1f2937; }
 h1 { font-size: 12pt; text-align: center; margin-bottom: 8px; font-weight: 700; }
 table { border-collapse: collapse; width: 100%; table-layout: fixed; border: 2px solid #374151; }
 th, td { border: 1px solid #d1d5db; border-top: 1px solid #9ca3af; padding: 3px 5px; vertical-align: middle; font-size: 8pt; }
-th { background: #e5e7eb; border-top: 1px solid #9ca3af; font-weight: 600; text-align: center; text-transform: capitalize; word-break: break-word; }
+th { background: #e5e7eb; border-top: 1px solid #9ca3af; font-weight: 600; text-align: center; word-break: break-word; }
 td { word-break: break-word; }
 tr.group-start > td { border-top: 2px solid #374151; }
 th:first-child, td.group-cell { width: 14%; }
@@ -463,11 +472,20 @@ th:last-child { width: 9%; }
 </body>
 </html>`;
 
-  const win = window.open('', '_blank');
-  if (win) {
-    win.document.write(html);
-    win.document.close();
-    win.focus();
-    win.print();
-  }
+  const iframe = document.createElement('iframe');
+  iframe.style.cssText = 'position:fixed;width:0;height:0;border:none;visibility:hidden;';
+  document.body.appendChild(iframe);
+  const doc = iframe.contentWindow?.document;
+  if (!doc) { document.body.removeChild(iframe); return; }
+  doc.open();
+  doc.write(html);
+  doc.close();
+  const originalTitle = document.title;
+  document.title = annexName;
+  iframe.contentWindow!.focus();
+  iframe.contentWindow!.print();
+  iframe.contentWindow!.addEventListener('afterprint', () => {
+    document.title = originalTitle;
+    document.body.removeChild(iframe);
+  });
 }
