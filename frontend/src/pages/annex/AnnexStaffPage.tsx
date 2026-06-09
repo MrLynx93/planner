@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { X, GripVertical, Pencil, Check } from 'lucide-react';
-import type { AnnexDto, AnnexTeacherDto, AnnexGroupDto } from '@/components/schedule/types';
+import type { AnnexDto, AnnexTeacherDto, AnnexGroupDto, GroupTag } from '@/components/schedule/types';
 import type { TeacherDto, GroupDto } from '@/types';
 import {
   useGetAnnexTeachersQuery,
@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 
 const KEY_AVAILABLE = 'available-teacher-id';
 const KEY_ANNEX = 'annex-teacher-id';
+const KEY_TAG = 'group-tag';
 
 const timeInputClass =
   'rounded-md border border-border bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-28';
@@ -50,7 +51,10 @@ export function AnnexStaffPage() {
   const [updateGroup] = useUpdateAnnexGroupMutation();
   const [removeGroup] = useRemoveAnnexGroupMutation();
 
+  const ALL_TAGS: GroupTag[] = ['AGE_3', 'AGE_4', 'AGE_5', 'AGE_6'];
+
   const [dragOverColumn, setDragOverColumn] = useState<number | null>(null);
+  const [dragOverTagGroupId, setDragOverTagGroupId] = useState<number | null>(null);
   const [draggingAnnexTeacher, setDraggingAnnexTeacher] = useState(false);
   const [dropOverPanel, setDropOverPanel] = useState(false);
   const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
@@ -76,8 +80,23 @@ export function AnnexStaffPage() {
       annexGroupId: ag.id,
       scheduleStartTime: fromTimeInput(editStart),
       scheduleEndTime: fromTimeInput(editEnd),
+      tags: ag.tags ?? [],
     });
     setEditingGroupId(null);
+  }
+
+  async function handleTagToggle(ag: AnnexGroupDto, tag: GroupTag) {
+    const current = ag.tags ?? [];
+    const next = current.includes(tag)
+      ? current.filter((t) => t !== tag)
+      : [...current, tag];
+    await updateGroup({
+      annexId,
+      annexGroupId: ag.id,
+      scheduleStartTime: ag.scheduleStartTime,
+      scheduleEndTime: ag.scheduleEndTime,
+      tags: next,
+    });
   }
 
   async function handleGroupToggle(g: GroupDto, include: boolean) {
@@ -93,6 +112,7 @@ export function AnnexStaffPage() {
           scheduleEndTime: null,
           effectiveScheduleStartTime: '',
           effectiveScheduleEndTime: '',
+          tags: [],
         },
       });
     } else {
@@ -193,6 +213,7 @@ export function AnnexStaffPage() {
                   <th className="w-px px-3 py-2 text-left font-medium whitespace-nowrap">{t('pages.annexStaff.includeInAnnex')}</th>
                   <th className="w-px px-3 py-2 text-left font-medium whitespace-nowrap">{t('pages.annexStaff.groups')}</th>
                   <th className="w-px px-3 py-2 text-left font-medium whitespace-nowrap">{t('pages.annexStaff.schedule')}</th>
+                  <th className="px-3 py-2 text-left font-medium min-w-[180px]">{t('pages.annexStaff.tags')}</th>
                   <th className="px-3 py-2 text-left font-medium">{t('pages.annexStaff.teachers')}</th>
                 </tr>
               </thead>
@@ -284,6 +305,50 @@ export function AnnexStaffPage() {
                         )}
                       </td>
 
+                      {/* Tags */}
+                      <td className="px-3 py-3 min-w-[180px]">
+                        {isIncluded && ag && (
+                          <div
+                            className={cn(
+                              'flex flex-wrap gap-1.5 min-h-[36px] rounded p-1 transition-colors',
+                              dragOverTagGroupId === ag.id && !isReadOnly
+                                ? 'bg-primary/10 outline outline-2 outline-dashed outline-primary'
+                                : ''
+                            )}
+                            onDragOver={(e) => {
+                              if (!e.dataTransfer.types.includes(KEY_TAG) || isReadOnly) return;
+                              e.preventDefault();
+                              setDragOverTagGroupId(ag.id);
+                            }}
+                            onDragLeave={() => setDragOverTagGroupId(null)}
+                            onDrop={(e) => {
+                              e.preventDefault();
+                              setDragOverTagGroupId(null);
+                              const tag = e.dataTransfer.getData(KEY_TAG) as GroupTag;
+                              if (!tag || (ag.tags ?? []).includes(tag)) return;
+                              handleTagToggle(ag, tag);
+                            }}
+                          >
+                            {(ag.tags ?? []).map((tag) => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium bg-primary/10 text-primary"
+                              >
+                                {t(`groupTags.${tag}` as Parameters<typeof t>[0])}
+                                {!isReadOnly && (
+                                  <button
+                                    className="hover:text-destructive transition-colors"
+                                    onClick={() => handleTagToggle(ag, tag)}
+                                  >
+                                    <X size={10} />
+                                  </button>
+                                )}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+
                       {/* Teacher drop zone */}
                       <td className="px-3 py-3">
                         {isIncluded && (
@@ -312,6 +377,7 @@ export function AnnexStaffPage() {
                   <tr className="transition-colors hover:bg-muted/20 text-muted-foreground">
                     <td className="px-3 py-3 text-center">—</td>
                     <td className="px-3 py-3 italic text-sm">{t('pages.annexStaff.unassigned')}</td>
+                    <td className="px-3 py-3" />
                     <td className="px-3 py-3" />
                     <td className="px-3 py-3">
                       <div className="flex flex-wrap gap-1.5 min-h-[36px] rounded p-1">
@@ -349,6 +415,26 @@ export function AnnexStaffPage() {
         }}
       >
         <div className="p-4 flex flex-col gap-3">
+          <h2 className="text-sm font-semibold">{t('pages.annexStaff.tags')}</h2>
+          <div className="flex flex-col gap-1">
+            {ALL_TAGS.map((tag) => (
+              <div
+                key={tag}
+                draggable={!isReadOnly}
+                onDragStart={(e) => e.dataTransfer.setData(KEY_TAG, tag)}
+                className={cn(
+                  'flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-border text-sm select-none',
+                  !isReadOnly
+                    ? 'cursor-grab active:cursor-grabbing hover:bg-accent'
+                    : 'opacity-50 cursor-default'
+                )}
+              >
+                {!isReadOnly && <GripVertical size={12} className="text-muted-foreground shrink-0" />}
+                <span>{t(`groupTags.${tag}` as Parameters<typeof t>[0])}</span>
+              </div>
+            ))}
+          </div>
+          <div className="border-t border-border" />
           <h2 className="text-sm font-semibold">{t('pages.annexStaff.availableTeachers')}</h2>
           {availableTeachers.length === 0 ? (
             <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>

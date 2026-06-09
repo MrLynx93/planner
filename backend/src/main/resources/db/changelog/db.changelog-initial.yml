@@ -421,3 +421,31 @@ databaseChangeLog:
               - column:
                   name: reason
                   type: VARCHAR(500)
+
+  - changeSet:
+      id: add-annex-group-tags
+      author: mateusz
+      changes:
+        - createTable:
+            tableName: annex_group_tag
+            columns:
+              - column:
+                  name: id
+                  type: INT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: annex_group_id
+                  type: INT
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_agtag_annexgroup
+                    references: annex_group(id)
+                    deleteCascade: true
+              - column:
+                  name: tag
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false

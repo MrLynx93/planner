@@ -2,7 +2,7 @@ import { useState, useRef } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download } from 'lucide-react';
-import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
+import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, GroupTag, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
 import { exportPlanTableToExcel, type ExportLabels } from '@/utils/exportPlanTable';
@@ -356,6 +356,7 @@ export function AnnexPlanTablePage() {
       ) as ExportLabels['days'],
       groupHoursPerDay: (hours) => t('draftPlan.groupHoursPerDay', { hours }),
       groupHoursPerWeek: (hours) => t('draftPlan.groupHoursPerWeek', { hours }),
+      groupTag: (tag) => t(`groupTags.${tag}` as Parameters<typeof t>[0]),
     };
     exportPlanTableToExcel(annex.name, rows, allBlocks, rules, labels);
   };
@@ -414,8 +415,18 @@ export function AnnexPlanTablePage() {
                     rowSpan={groupSize}
                     className="border border-border px-3 py-2 align-top bg-muted/40"
                   >
-                    <div className="font-medium text-sm">{group.groupName}</div>
-                    <div className="text-xs text-muted-foreground mt-1">
+                    <div className="flex items-center gap-1 flex-wrap">
+                      <span className="font-medium text-sm">{group.groupName}</span>
+                      {group.tags && group.tags.map((tag: GroupTag) => (
+                        <span
+                          key={tag}
+                          className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary"
+                        >
+                          {t(`groupTags.${tag}` as Parameters<typeof t>[0])}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="text-xs text-muted-foreground font-mono mt-1">
                       {group.effectiveScheduleStartTime.substring(0, 5)}–{group.effectiveScheduleEndTime.substring(0, 5)}
                     </div>
                     <div className="text-xs text-muted-foreground font-mono mt-0.5">

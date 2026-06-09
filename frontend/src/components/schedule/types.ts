@@ -1,3 +1,5 @@
+export type GroupTag = 'AGE_3' | 'AGE_4' | 'AGE_5' | 'AGE_6';
+
 export type DayOfWeek =
   | 'MONDAY'
   | 'TUESDAY'
@@ -26,6 +28,7 @@ export interface AnnexGroupDto {
   scheduleEndTime: string | null;
   effectiveScheduleStartTime: string; // resolved: AnnexGroup → Group → system default
   effectiveScheduleEndTime: string;
+  tags: GroupTag[];
 }
 
 export interface AnnexTeacherDto {

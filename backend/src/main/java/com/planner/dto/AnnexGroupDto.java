@@ -1,6 +1,9 @@
 package com.planner.dto;
 
+import com.planner.entity.GroupTag;
+
 import java.time.LocalTime;
+import java.util.Set;
 
 public record AnnexGroupDto(
         Integer id,
@@ -10,5 +13,6 @@ public record AnnexGroupDto(
         LocalTime scheduleStartTime,
         LocalTime scheduleEndTime,
         LocalTime effectiveScheduleStartTime,
-        LocalTime effectiveScheduleEndTime
+        LocalTime effectiveScheduleEndTime,
+        Set<GroupTag> tags
 ) {}

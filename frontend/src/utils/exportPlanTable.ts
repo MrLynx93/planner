@@ -1,7 +1,6 @@
 import ExcelJS from 'exceljs';
 import type { AnnexGroupDto, AnnexTeacherDto, DayOfWeek, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes } from '@/components/schedule/utils';
-import { getColorForId } from '@/components/schedule/colors';
 import type { RuleWithSourceDto } from '@/types';
 
 export interface ExportLabels {
@@ -12,6 +11,7 @@ export interface ExportLabels {
   days: Record<DayOfWeek, string>;
   groupHoursPerDay: (hours: string) => string;
   groupHoursPerWeek: (hours: string) => string;
+  groupTag: (tag: string) => string;
 }
 
 // Convert CSS #rrggbb to ExcelJS ARGB (fully opaque)
@@ -145,7 +145,7 @@ export async function exportPlanTableToExcel(
   });
 
   sheet.columns = [
-    { width: 18 },
+    { width: 24 },
     { width: 11 },
     ...WEEK_DAYS.map(() => ({ width: 18 })),
     { width: 8 },
@@ -170,8 +170,6 @@ export async function exportPlanTableToExcel(
 
   for (const { group, teacher, isFirstInGroup, isLastInGroup, groupSize } of rows) {
     if (!teacher) continue;
-    const color = getColorForId(teacher.teacherId);
-
     const dayTexts = WEEK_DAYS.map((day) =>
       dayBlocksText(allBlocks, group.groupId, teacher.teacherId, day)
     );
@@ -185,9 +183,14 @@ export async function exportPlanTableToExcel(
     const groupDailyH = Number.isInteger(groupDailyRaw) ? String(groupDailyRaw) : groupDailyRaw.toFixed(1);
     const groupWeeklyRaw = groupDailyRaw * 5;
     const groupWeeklyH = Number.isInteger(groupWeeklyRaw) ? String(groupWeeklyRaw) : groupWeeklyRaw.toFixed(1);
+    const tagLine =
+      group.tags && group.tags.length > 0
+        ? group.tags.map((tag) => labels.groupTag(tag)).join(', ')
+        : null;
     const groupCellText = isFirstInGroup
       ? [
           group.groupName,
+          ...(tagLine ? [tagLine] : []),
           `${shortTime(group.effectiveScheduleStartTime)}-${shortTime(group.effectiveScheduleEndTime)}`,
           labels.groupHoursPerDay(groupDailyH),
           labels.groupHoursPerWeek(groupWeeklyH),
@@ -216,18 +219,12 @@ export async function exportPlanTableToExcel(
         cell.alignment = { vertical: 'top', horizontal: 'center', wrapText: true };
         cell.border = groupBorder(isFirstInGroup, isLastInGroup);
       } else if (col === 2) {
-        // Teacher column — colored by teacher
-        cell.fill = solidFill(color.bg);
-        cell.font = { bold: true, size: 10, color: { argb: toArgb(color.text) } };
+        // Teacher column
+        cell.font = { bold: true, size: 10, color: { argb: 'FF1F2937' } };
         cell.alignment = { vertical: 'middle', horizontal: 'left', wrapText: false };
         cell.border = teacherBorder(isFirstInGroup, isLastInGroup);
       } else if (col <= 2 + WEEK_DAYS.length) {
-        // Day columns — colored when blocks exist
-        const hasBlocks = dayTexts[col - 3] !== '';
-        if (hasBlocks) {
-          cell.fill = solidFill(color.bg);
-          cell.font = { size: 10, color: { argb: toArgb(color.text) } };
-        }
+        // Day columns
         cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
         cell.border = dayBorder(isFirstInGroup, isLastInGroup, col === 3, col === 2 + WEEK_DAYS.length);
       } else if (col === 2 + WEEK_DAYS.length + 1) {

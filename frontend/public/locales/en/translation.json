@@ -165,6 +165,7 @@
       "groups": "Groups",
       "teachers": "Teachers",
       "schedule": "Schedule",
+      "tags": "Age tags",
       "unassigned": "Without group",
       "includeInAnnex": "Include in annex",
       "availableTeachers": "Available teachers",
@@ -231,6 +232,12 @@
     "groupOpeningHours": "Opening hours",
     "groupHoursPerDay": "{{hours}}h/day",
     "groupHoursPerWeek": "{{hours}}h/week"
+  },
+  "groupTags": {
+    "AGE_3": "3 yrs",
+    "AGE_4": "4 yrs",
+    "AGE_5": "5 yrs",
+    "AGE_6": "6 yrs"
   },
   "schedule": {
     "selectGroup": "Select group",

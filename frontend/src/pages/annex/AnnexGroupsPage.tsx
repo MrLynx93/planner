@@ -57,6 +57,7 @@ export function AnnexGroupsPage() {
         scheduleEndTime: null,
         effectiveScheduleStartTime: '',
         effectiveScheduleEndTime: '',
+        tags: [],
       },
     });
   }

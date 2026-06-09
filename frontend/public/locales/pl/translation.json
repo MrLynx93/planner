@@ -165,6 +165,7 @@
       "groups": "Grupy",
       "teachers": "Nauczyciele",
       "schedule": "Harmonogram",
+      "tags": "Wiek",
       "unassigned": "Bez grupy",
       "includeInAnnex": "Uwzględnij w aneksie",
       "availableTeachers": "Dostępni nauczyciele",
@@ -231,6 +232,12 @@
     "groupOpeningHours": "Godziny otwarcia",
     "groupHoursPerDay": "{{hours}}h/dzień",
     "groupHoursPerWeek": "{{hours}}h/tydzień"
+  },
+  "groupTags": {
+    "AGE_3": "3-latki",
+    "AGE_4": "4-latki",
+    "AGE_5": "5-latki",
+    "AGE_6": "6-latki"
   },
   "schedule": {
     "selectGroup": "Wybierz grupę",

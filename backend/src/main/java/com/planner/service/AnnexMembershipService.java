@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +47,10 @@ public class AnnexMembershipService {
                 .orElseThrow(() -> new EntityNotFoundException("AnnexGroup not found: " + annexGroupId));
         ag.setScheduleStartTime(dto.scheduleStartTime());
         ag.setScheduleEndTime(dto.scheduleEndTime());
+        ag.getTags().clear();
+        if (dto.tags() != null) {
+            ag.getTags().addAll(dto.tags());
+        }
         return toGroupDto(annexGroupRepository.save(ag));
     }
 
@@ -108,7 +113,8 @@ public class AnnexMembershipService {
                 ag.getScheduleStartTime(),
                 ag.getScheduleEndTime(),
                 effectiveStart,
-                effectiveEnd
+                effectiveEnd,
+                Set.copyOf(ag.getTags())
         );
     }
 
