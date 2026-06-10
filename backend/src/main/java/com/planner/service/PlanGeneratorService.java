@@ -104,8 +104,11 @@ public class PlanGeneratorService {
 
         CostContext ctx = new CostContext(teacherMinWeekly, teacherMaxDaily, groupMinTeachers, groupMaxTeachers, groupEffStart, groupEffEnd);
 
+        // Compute sequential slots per group (shared by greedy init and post-processing)
+        Map<Integer, List<TeacherSlot>> groupSlots = computeGroupSlots(annexTeachers, groupEffStart, groupEffEnd);
+
         // Greedy initialization
-        List<TimeBlockDraft> currentSchedule = buildGreedySchedule(annexTeachers, groupEffStart, groupEffEnd, teacherMaxDaily);
+        List<TimeBlockDraft> currentSchedule = buildGreedySchedule(groupSlots);
         double currentCost = computeCost(currentSchedule, ctx);
 
         // Simulated Annealing
@@ -125,63 +128,75 @@ public class PlanGeneratorService {
         }
 
         List<TimeBlockDraft> finalSchedule = enforceDefaultGroupBlocks(
-                mergeOverlappingBlocks(currentSchedule), annexTeachers, groupEffStart, groupEffEnd, teacherMaxDaily);
+                mergeOverlappingBlocks(currentSchedule), groupSlots);
         persistSchedule(annex, finalSchedule, annexTeachers, annexGroups);
 
         List<TemplateViolationDto> remaining = violationService.findTemplateViolations(annexId);
         return new GeneratePlanResultDto(finalSchedule.size(), remaining);
     }
 
-    private List<TimeBlockDraft> buildGreedySchedule(
+    private record TeacherSlot(int teacherId, int groupId, LocalTime start, LocalTime end) {}
+
+    private Map<Integer, List<TeacherSlot>> computeGroupSlots(
             List<AnnexTeacher> annexTeachers,
             Map<Integer, LocalTime> groupEffStart,
-            Map<Integer, LocalTime> groupEffEnd,
-            Map<Integer, Integer> teacherMaxDaily) {
+            Map<Integer, LocalTime> groupEffEnd) {
 
-        List<TimeBlockDraft> schedule = new ArrayList<>();
-        for (AnnexTeacher at : annexTeachers) {
-            if (at.getDefaultGroup() == null) continue;
-            int teacherId = at.getTeacher().getId();
-            int groupId = at.getDefaultGroup().getId();
-            LocalTime start = groupEffStart.getOrDefault(groupId, DEFAULT_SCHEDULE_START);
-            LocalTime end = groupEffEnd.getOrDefault(groupId, DEFAULT_SCHEDULE_END);
+        Map<Integer, List<AnnexTeacher>> byGroup = annexTeachers.stream()
+                .filter(at -> at.getDefaultGroup() != null)
+                .collect(Collectors.groupingBy(at -> at.getDefaultGroup().getId()));
 
-            Integer maxD = teacherMaxDaily.get(teacherId);
-            if (maxD != null && Duration.between(start, end).toMinutes() > maxD * 60L) {
-                end = start.plusMinutes(maxD * 60L);
+        Map<Integer, List<TeacherSlot>> result = new HashMap<>();
+        for (Map.Entry<Integer, List<AnnexTeacher>> entry : byGroup.entrySet()) {
+            int groupId = entry.getKey();
+            List<AnnexTeacher> groupTeachers = new ArrayList<>(entry.getValue());
+            groupTeachers.sort(Comparator.comparingInt(at -> at.getTeacher().getId()));
+
+            LocalTime groupStart = groupEffStart.getOrDefault(groupId, DEFAULT_SCHEDULE_START);
+            LocalTime groupEnd = groupEffEnd.getOrDefault(groupId, DEFAULT_SCHEDULE_END);
+            long totalMinutes = Duration.between(groupStart, groupEnd).toMinutes();
+            int n = groupTeachers.size();
+            long slotMinutes = totalMinutes / n;
+
+            List<TeacherSlot> slots = new ArrayList<>();
+            LocalTime slotStart = groupStart;
+            for (int i = 0; i < n; i++) {
+                int teacherId = groupTeachers.get(i).getTeacher().getId();
+                LocalTime slotEnd = (i == n - 1) ? groupEnd : slotStart.plusMinutes(slotMinutes);
+                slots.add(new TeacherSlot(teacherId, groupId, slotStart, slotEnd));
+                slotStart = slotEnd;
             }
+            result.put(groupId, slots);
+        }
+        return result;
+    }
 
-            LocalTime finalEnd = end;
-            WEEKDAYS.forEach(dow -> schedule.add(new TimeBlockDraft(teacherId, groupId, dow, start, finalEnd)));
+    private List<TimeBlockDraft> buildGreedySchedule(Map<Integer, List<TeacherSlot>> groupSlots) {
+        List<TimeBlockDraft> schedule = new ArrayList<>();
+        for (List<TeacherSlot> slots : groupSlots.values()) {
+            for (TeacherSlot slot : slots) {
+                for (DayOfWeek dow : WEEKDAYS) {
+                    schedule.add(new TimeBlockDraft(slot.teacherId(), slot.groupId(), dow, slot.start(), slot.end()));
+                }
+            }
         }
         return mergeOverlappingBlocks(schedule);
     }
 
     private List<TimeBlockDraft> enforceDefaultGroupBlocks(
             List<TimeBlockDraft> schedule,
-            List<AnnexTeacher> annexTeachers,
-            Map<Integer, LocalTime> groupEffStart,
-            Map<Integer, LocalTime> groupEffEnd,
-            Map<Integer, Integer> teacherMaxDaily) {
+            Map<Integer, List<TeacherSlot>> groupSlots) {
 
         List<TimeBlockDraft> result = new ArrayList<>(schedule);
-        for (AnnexTeacher at : annexTeachers) {
-            if (at.getDefaultGroup() == null) continue;
-            int teacherId = at.getTeacher().getId();
-            int groupId = at.getDefaultGroup().getId();
-
-            for (DayOfWeek dow : WEEKDAYS) {
-                boolean hasBlock = result.stream().anyMatch(
-                        b -> b.teacherId() == teacherId && b.groupId() == groupId && b.dayOfWeek() == dow);
-                if (hasBlock) continue;
-
-                LocalTime start = groupEffStart.getOrDefault(groupId, DEFAULT_SCHEDULE_START);
-                LocalTime end = groupEffEnd.getOrDefault(groupId, DEFAULT_SCHEDULE_END);
-                Integer maxD = teacherMaxDaily.get(teacherId);
-                if (maxD != null && Duration.between(start, end).toMinutes() > maxD * 60L) {
-                    end = start.plusMinutes(maxD * 60L);
+        for (List<TeacherSlot> slots : groupSlots.values()) {
+            for (TeacherSlot slot : slots) {
+                for (DayOfWeek dow : WEEKDAYS) {
+                    boolean hasBlock = result.stream().anyMatch(b ->
+                            b.teacherId() == slot.teacherId() && b.groupId() == slot.groupId() && b.dayOfWeek() == dow);
+                    if (!hasBlock) {
+                        result.add(new TimeBlockDraft(slot.teacherId(), slot.groupId(), dow, slot.start(), slot.end()));
+                    }
                 }
-                result.add(new TimeBlockDraft(teacherId, groupId, dow, start, end));
             }
         }
         return mergeOverlappingBlocks(result);
