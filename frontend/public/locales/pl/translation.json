@@ -237,7 +237,13 @@
     "opening": "Otwarcie",
     "closing": "Zamknięcie",
     "printHours": "Liczba godzin ogółem",
-    "printOverhours": "Liczba nadgodzin"
+    "printOverhours": "Liczba nadgodzin",
+    "generate": "Generuj",
+    "generating": "Generowanie…",
+    "generateConfirmTitle": "Generuj plan",
+    "generateConfirmBody": "Spowoduje to usunięcie wszystkich istniejących bloków szablonu i wygenerowanie nowego planu. Kontynuować?",
+    "generateSuccess": "Wygenerowano {{count}} bloków bez naruszeń.",
+    "generatePartial": "Wygenerowano {{count}} bloków, pozostało {{violations}} naruszeń."
   },
   "groupTags": {
     "AGE_3": "3-latki",

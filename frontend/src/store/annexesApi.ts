@@ -5,7 +5,7 @@ import type {
   AnnexTeacherDto,
   ScheduleBlock,
 } from '@/components/schedule/types';
-import type { AnnexRuleDto, AnnexChildGroupDto, RuleWithSourceDto } from '@/types';
+import type { AnnexRuleDto, AnnexChildGroupDto, RuleWithSourceDto, TemplateViolationDto } from '@/types';
 
 type CreateAnnexTimeBlockArg = {
   annexId: number;
@@ -25,6 +25,11 @@ type UpdateAnnexTimeBlockArg = {
   endTime: string;
 };
 type DeleteAnnexTimeBlockArg = { annexId: number; annexTimeBlockId: number };
+
+type GeneratePlanResultDto = {
+  blocksCreated: number;
+  remainingViolations: TemplateViolationDto[];
+};
 
 type AddAnnexTeacherArg = {
   annexId: number;
@@ -197,6 +202,10 @@ export const annexesApi = api.injectEndpoints({
       }),
       invalidatesTags: ['AnnexRule'],
     }),
+    generatePlan: builder.mutation<GeneratePlanResultDto, number>({
+      query: (annexId) => ({ url: `/annexes/${annexId}/generate-plan`, method: 'POST' }),
+      invalidatesTags: ['AnnexTimeBlock', 'Violation'],
+    }),
     activateAnnex: builder.mutation<AnnexDto, number>({
       query: (id) => ({ url: `/annexes/${id}/activate`, method: 'POST' }),
       invalidatesTags: ['Annex'],
@@ -251,6 +260,7 @@ export const {
   useCreateAnnexRuleMutation,
   useUpdateAnnexRuleMutation,
   useDeleteAnnexRuleMutation,
+  useGeneratePlanMutation,
   useActivateAnnexMutation,
   useGetAnnexChildrenQuery,
   useAssignChildToAnnexMutation,

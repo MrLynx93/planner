@@ -56,7 +56,12 @@ export function AnnexStaffPage() {
   const [dragOverColumn, setDragOverColumn] = useState<number | null>(null);
   const [dragOverTagGroupId, setDragOverTagGroupId] = useState<number | null>(null);
   const [draggingAnnexTeacher, setDraggingAnnexTeacher] = useState(false);
+  const [draggingAvailableTeacher, setDraggingAvailableTeacher] = useState(false);
+  const [draggingTag, setDraggingTag] = useState(false);
   const [dropOverPanel, setDropOverPanel] = useState(false);
+
+  const isDraggingTeacher = (draggingAnnexTeacher || draggingAvailableTeacher) && !isReadOnly;
+  const isDraggingTagItem = draggingTag && !isReadOnly;
   const [editingGroupId, setEditingGroupId] = useState<number | null>(null);
   const [editStart, setEditStart] = useState('');
   const [editEnd, setEditEnd] = useState('');
@@ -171,6 +176,7 @@ export function AnnexStaffPage() {
         }}
         onDragEnd={() => {
           setDraggingAnnexTeacher(false);
+          setDragOverColumn(null);
           setDropOverPanel(false);
         }}
         className={cn(
@@ -313,6 +319,8 @@ export function AnnexStaffPage() {
                               'flex flex-wrap gap-1.5 min-h-[36px] rounded p-1 transition-colors',
                               dragOverTagGroupId === ag.id && !isReadOnly
                                 ? 'bg-primary/10 outline outline-2 outline-dashed outline-primary'
+                                : isDraggingTagItem
+                                ? 'outline outline-2 outline-dashed outline-border'
                                 : ''
                             )}
                             onDragOver={(e) => {
@@ -357,6 +365,8 @@ export function AnnexStaffPage() {
                               'flex flex-wrap gap-1.5 min-h-[36px] rounded p-1 transition-colors',
                               isOver && !isReadOnly
                                 ? 'bg-primary/10 outline outline-2 outline-dashed outline-primary'
+                                : isDraggingTeacher
+                                ? 'outline outline-2 outline-dashed outline-border'
                                 : ''
                             )}
                             onDragOver={(e) => {
@@ -421,7 +431,8 @@ export function AnnexStaffPage() {
               <div
                 key={tag}
                 draggable={!isReadOnly}
-                onDragStart={(e) => e.dataTransfer.setData(KEY_TAG, tag)}
+                onDragStart={(e) => { e.dataTransfer.setData(KEY_TAG, tag); setDraggingTag(true); }}
+                onDragEnd={() => { setDraggingTag(false); setDragOverTagGroupId(null); }}
                 className={cn(
                   'flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-border text-sm select-none',
                   !isReadOnly
@@ -444,7 +455,8 @@ export function AnnexStaffPage() {
                 <div
                   key={teacher.id}
                   draggable={!isReadOnly}
-                  onDragStart={(e) => e.dataTransfer.setData(KEY_AVAILABLE, String(teacher.id))}
+                  onDragStart={(e) => { e.dataTransfer.setData(KEY_AVAILABLE, String(teacher.id)); setDraggingAvailableTeacher(true); }}
+                  onDragEnd={() => { setDraggingAvailableTeacher(false); setDragOverColumn(null); }}
                   className={cn(
                     'flex items-center gap-1.5 px-2.5 py-1.5 rounded border border-border text-sm select-none',
                     !isReadOnly

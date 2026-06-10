@@ -53,6 +53,16 @@ public class AnnexTimeBlockService {
         AnnexTimeBlock atb = annexTimeBlockRepository.findById(annexTimeBlockId)
                 .filter(a -> a.getAnnex().getId().equals(annexId))
                 .orElseThrow(() -> new EntityNotFoundException("AnnexTimeBlock not found: " + annexTimeBlockId));
+        deleteAnnexTimeBlock(atb);
+    }
+
+    @Transactional
+    public void deleteAllForAnnex(Integer annexId) {
+        List<AnnexTimeBlock> blocks = annexTimeBlockRepository.findByAnnexId(annexId);
+        blocks.forEach(this::deleteAnnexTimeBlock);
+    }
+
+    private void deleteAnnexTimeBlock(AnnexTimeBlock atb) {
         TimeBlock timeBlock = atb.getTimeBlock();
         annexTimeBlockRepository.delete(atb);
         timeBlockModificationRepository.deleteAll(

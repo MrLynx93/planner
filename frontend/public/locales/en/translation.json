@@ -237,7 +237,13 @@
     "opening": "Opening",
     "closing": "Closing",
     "printHours": "Total hours",
-    "printOverhours": "Overtime hours"
+    "printOverhours": "Overtime hours",
+    "generate": "Generate",
+    "generating": "Generating…",
+    "generateConfirmTitle": "Generate schedule",
+    "generateConfirmBody": "This will delete all existing template blocks and generate a new schedule. Continue?",
+    "generateSuccess": "{{count}} blocks generated with no violations.",
+    "generatePartial": "{{count}} blocks generated with {{violations}} remaining violations."
   },
   "groupTags": {
     "AGE_3": "3 yrs",

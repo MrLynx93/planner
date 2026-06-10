@@ -1,7 +1,7 @@
 import { useState, useRef, useMemo } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download, Printer } from 'lucide-react';
+import { ChevronRight, ChevronLeft, ChevronDown, ChevronUp, Download, Printer, Wand2 } from 'lucide-react';
 import type { AnnexDto, AnnexGroupDto, AnnexTeacherDto, DayOfWeek, GroupTag, ScheduleBlock } from '@/components/schedule/types';
 import { WEEK_DAYS, timeToMinutes, minutesToTime } from '@/components/schedule/utils';
 import { getColorForId } from '@/components/schedule/colors';
@@ -16,6 +16,7 @@ import {
   useCreateAnnexTimeBlockMutation,
   useUpdateAnnexTimeBlockMutation,
   useDeleteAnnexTimeBlockMutation,
+  useGeneratePlanMutation,
 } from '@/store/annexesApi';
 import type { RuleWithSourceDto, TemplateViolationDto } from '@/types';
 import { useGetTemplateViolationsQuery } from '@/store/violationsApi';
@@ -51,10 +52,12 @@ function buildRows(
       .map((tid) => {
         const blocks = groupBlocks.filter((b) => b.teacherId === tid);
         const earliestStart = Math.min(...blocks.map((b) => timeToMinutes(b.startTime)));
-        return { teacher: teachers.find((t) => t.teacherId === tid) ?? null, earliestStart };
+        const teacher = teachers.find((t) => t.teacherId === tid) ?? null;
+        const isAssigned = teacher?.defaultGroupId === group.groupId ? 0 : 1;
+        return { teacher, earliestStart, isAssigned };
       })
       .filter((x) => x.teacher !== null)
-      .sort((a, b) => a.earliestStart - b.earliestStart)
+      .sort((a, b) => a.isAssigned - b.isAssigned || a.earliestStart - b.earliestStart)
       .map((x) => x.teacher as AnnexTeacherDto);
 
     if (sortedTeachers.length === 0) {
@@ -311,6 +314,7 @@ export function AnnexPlanTablePage() {
   const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
   const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
   const [deleteTimeBlock] = useDeleteAnnexTimeBlockMutation();
+  const [generatePlan, { isLoading: isGenerating }] = useGeneratePlanMutation();
 
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -365,6 +369,8 @@ export function AnnexPlanTablePage() {
 
   const [dragOverCell, setDragOverCell] = useState<{ groupId: number; day: DayOfWeek } | null>(null);
   const [editModal, setEditModal] = useState<EditModal | null>(null);
+  const [showGenerateConfirm, setShowGenerateConfirm] = useState(false);
+  const [generateResult, setGenerateResult] = useState<{ blocksCreated: number; violationCount: number } | null>(null);
   const [tooltip, setTooltip] = useState<{ x: number; y: number; content: string } | null>(null);
   const [hoveredViolation, setHoveredViolation] = useState<TemplateViolationDto | null>(null);
   const [hoveredSummaryTeacherId, setHoveredSummaryTeacherId] = useState<number | null>(null);
@@ -502,6 +508,12 @@ export function AnnexPlanTablePage() {
     setEditModal(null);
   };
 
+  const handleGenerate = async () => {
+    setShowGenerateConfirm(false);
+    const result = await generatePlan(annexId).unwrap();
+    setGenerateResult({ blocksCreated: result.blocksCreated, violationCount: result.remainingViolations.length });
+  };
+
   return (
     <div ref={containerRef} className="h-full flex flex-col min-h-0">
       {/* Top: table + right panel */}
@@ -509,6 +521,16 @@ export function AnnexPlanTablePage() {
       {/* Table area */}
       <div className="flex-1 overflow-auto p-6 min-w-0">
         <div className="flex justify-end gap-2 mb-3">
+          {annex.state === 'DRAFT' && (
+            <button
+              onClick={() => { setGenerateResult(null); setShowGenerateConfirm(true); }}
+              disabled={isGenerating}
+              className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Wand2 className="h-4 w-4" />
+              {isGenerating ? t('draftPlan.generating', 'Generating…') : t('draftPlan.generate', 'Generate')}
+            </button>
+          )}
           <button
             onClick={handlePrint}
             className="flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
@@ -916,6 +938,46 @@ export function AnnexPlanTablePage() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+
+      {showGenerateConfirm && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/30"
+          onClick={() => setShowGenerateConfirm(false)}
+        >
+          <div
+            className="bg-background rounded-lg shadow-lg border border-border p-5 w-80 flex flex-col gap-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="text-sm font-semibold">{t('draftPlan.generateConfirmTitle', 'Generate schedule')}</h3>
+            <p className="text-sm text-muted-foreground">{t('draftPlan.generateConfirmBody', 'This will delete all existing template blocks and generate a new schedule. Continue?')}</p>
+            <div className="flex gap-2">
+              <button
+                onClick={handleGenerate}
+                className="flex-1 rounded bg-primary text-primary-foreground px-3 py-1.5 text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                {t('draftPlan.generate', 'Generate')}
+              </button>
+              <button
+                onClick={() => setShowGenerateConfirm(false)}
+                className="rounded border border-border px-3 py-1.5 text-sm font-medium hover:bg-accent transition-colors"
+              >
+                {t('common.cancel')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {generateResult && (
+        <div className="fixed bottom-6 right-6 z-50 flex items-center gap-3 bg-background border border-border rounded-lg shadow-lg px-4 py-3 text-sm max-w-sm">
+          <span>
+            {generateResult.violationCount === 0
+              ? t('draftPlan.generateSuccess', { count: generateResult.blocksCreated, defaultValue: `${generateResult.blocksCreated} blocks generated.` })
+              : t('draftPlan.generatePartial', { count: generateResult.blocksCreated, violations: generateResult.violationCount, defaultValue: `${generateResult.blocksCreated} blocks generated with ${generateResult.violationCount} remaining violations.` })}
+          </span>
+          <button onClick={() => setGenerateResult(null)} className="ml-auto text-muted-foreground hover:text-foreground transition-colors">✕</button>
         </div>
       )}
 

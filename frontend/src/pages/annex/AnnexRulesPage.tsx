@@ -66,7 +66,6 @@ export function AnnexRulesPage() {
 
   async function handleSave() {
     if (!intValue) return;
-    if (needsTeacher && !teacherId) return;
     const dto: AnnexRuleDto = {
       id: null,
       annexId: annex.id!,
@@ -101,8 +100,16 @@ export function AnnexRulesPage() {
 
   function ruleLabel(rule: RuleWithSourceDto): string {
     const parts: string[] = [t(`ruleTypes.${rule.ruleType}`)];
-    if (rule.teacherFirstName) parts.push(`${rule.teacherFirstName} ${rule.teacherLastName}`);
-    if (rule.groupName) parts.push(rule.groupName);
+    if (rule.teacherFirstName) {
+      parts.push(`${rule.teacherFirstName} ${rule.teacherLastName}`);
+    } else if (RULE_NEEDS_TEACHER.includes(rule.ruleType)) {
+      parts.push(t('pages.globalRules.allTeachers'));
+    }
+    if (rule.groupName) {
+      parts.push(rule.groupName);
+    } else if (RULE_NEEDS_GROUP.includes(rule.ruleType)) {
+      parts.push(t('pages.globalRules.allGroups'));
+    }
     return parts.join(' — ');
   }
 
@@ -256,7 +263,7 @@ export function AnnexRulesPage() {
                     value={teacherId ?? ''}
                     onChange={(e) => setTeacherId(e.target.value ? Number(e.target.value) : null)}
                   >
-                    <option value="">{t('pages.rules.teacher')}</option>
+                    <option value="">{t('pages.globalRules.allTeachers')}</option>
                     {teachers.map((teacher) => (
                       <option key={teacher.teacherId} value={teacher.teacherId}>
                         {teacher.firstName} {teacher.lastName}
