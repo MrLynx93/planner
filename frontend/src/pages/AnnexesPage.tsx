@@ -84,6 +84,7 @@ export function AnnexesPage() {
               className={`${inputClass} w-full max-w-xs`}
               value={form.name}
               onChange={(e) => setForm({ name: e.target.value })}
+              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
               autoFocus
             />
           </div>

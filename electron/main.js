@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu } = require('electron');
 const { spawn } = require('child_process');
 const http = require('http');
 const fs = require('fs');
@@ -52,7 +52,8 @@ function getDistPath() {
 
 function getJavaExecutable() {
   if (!app.isPackaged) return 'java';
-  return path.join(process.resourcesPath, 'jre', 'bin', 'java');
+  const ext = process.platform === 'win32' ? '.exe' : '';
+  return path.join(process.resourcesPath, 'jre', 'bin', `java${ext}`);
 }
 
 function startBackend() {
@@ -79,7 +80,10 @@ function startBackend() {
   log('Starting backend:', java, args.join(' '));
   log('JAR exists:', fs.existsSync(jarPath));
 
-  backendProcess = spawn(java, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+  backendProcess = spawn(java, args, {
+    stdio: ['ignore', 'pipe', 'pipe'],
+    windowsHide: true,
+  });
 
   backendProcess.stdout.on('data', (d) => log('[backend]', d.toString().trim()));
   backendProcess.stderr.on('data', (d) => log('[backend]', d.toString().trim()));
@@ -138,7 +142,7 @@ function startFrontendServer() {
   server.listen(FRONTEND_PORT);
 }
 
-function waitForBackend(callback, retries = 60) {
+function waitForBackend(callback, retries = 120) {
   const req = http.get(`http://localhost:${BACKEND_PORT}/actuator/health`, (res) => {
     if (res.statusCode === 200) {
       callback();
@@ -212,6 +216,7 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+  Menu.setApplicationMenu(null);
   log('App ready. isPackaged:', app.isPackaged);
   log('resourcesPath:', process.resourcesPath);
   startFrontendServer();

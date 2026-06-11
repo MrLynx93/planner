@@ -902,6 +902,7 @@ export function AnnexPlanTablePage() {
                 type="time"
                 value={editModal.startTime}
                 onChange={(e) => setEditModal({ ...editModal, startTime: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
                 className="border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
@@ -911,6 +912,7 @@ export function AnnexPlanTablePage() {
                 type="time"
                 value={editModal.endTime}
                 onChange={(e) => setEditModal({ ...editModal, endTime: e.target.value })}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit()}
                 className="border border-border rounded px-2 py-1.5 text-sm bg-background focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>

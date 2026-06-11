@@ -116,6 +116,7 @@ export function AnnexGroupsPage() {
                         className={timeInputClass}
                         value={editStart}
                         onChange={(e) => setEditStart(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(ag)}
                       />
                       <span className="text-muted-foreground text-xs">–</span>
                       <input
@@ -123,6 +124,7 @@ export function AnnexGroupsPage() {
                         className={timeInputClass}
                         value={editEnd}
                         onChange={(e) => setEditEnd(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(ag)}
                       />
                       <button
                         className="text-primary hover:text-primary/80 transition-colors rounded p-0.5"

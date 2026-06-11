@@ -39,6 +39,7 @@ export function AnnexSettingsPage() {
             className={`${inputClass} w-full`}
             value={name}
             onChange={(e) => setName(e.target.value)}
+            onKeyDown={(e) => !isReadOnly && e.key === 'Enter' && handleSave()}
             disabled={isReadOnly}
           />
         </div>

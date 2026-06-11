@@ -6,7 +6,8 @@
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder build --mac --arm64 --x64",
-    "dist-slim": "electron-builder build --mac --x64 --config electron-build-slim.json"
+    "dist-slim": "electron-builder build --mac --x64 --config electron-build-slim.json",
+    "dist-slim-win": "electron-builder build --win --x64 --config electron-build-slim-win.json"
   },
   "build": {
     "appId": "com.planner.app",

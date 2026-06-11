@@ -157,6 +157,7 @@ export function AnnexRulesPage() {
                           className="rounded-md border border-border bg-background px-2.5 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24 h-7"
                           value={editValue}
                           onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleUpdate(rule.annexRuleId!)}
                           autoFocus
                         />
                       ) : (
@@ -301,6 +302,7 @@ export function AnnexRulesPage() {
                   className={inputClass}
                   value={intValue}
                   onChange={(e) => setIntValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSave()}
                 />
               </div>
             </div>

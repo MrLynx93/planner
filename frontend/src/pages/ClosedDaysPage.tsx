@@ -56,6 +56,7 @@ export function ClosedDaysPage() {
               className={inputClass}
               value={date}
               onChange={(e) => setDate(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSave()}
               autoFocus
             />
             <input
