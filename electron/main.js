@@ -190,6 +190,14 @@ ipcMain.handle('print-to-pdf', async (_event, html, defaultFileName) => {
     win.loadURL(`data:text/html;base64,${Buffer.from(html).toString('base64')}`);
   });
 
+  if (process.platform === 'win32') {
+    await new Promise((resolve) => {
+      win.webContents.print({ silent: false, printBackground: true, landscape: true }, () => resolve());
+    });
+    win.close();
+    return;
+  }
+
   const pdfBuffer = await win.webContents.printToPDF({ landscape: true, pageSize: 'A4', printBackground: true });
   win.close();
 
