@@ -1,4 +1,4 @@
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const { spawn } = require('child_process');
 const http = require('http');
 const fs = require('fs');
@@ -177,6 +177,26 @@ const LOADING_PAGE = `data:text/html;base64,${Buffer.from(`<!DOCTYPE html>
 <body><div class="spinner"></div><p>Uruchamianie…</p></body>
 </html>`).toString('base64')}`;
 
+ipcMain.handle('print-to-pdf', async (_event, html, defaultFileName) => {
+  const win = new BrowserWindow({ show: false, webPreferences: { nodeIntegration: false } });
+
+  await new Promise((resolve, reject) => {
+    win.webContents.once('did-finish-load', resolve);
+    win.webContents.once('did-fail-load', (_e, code, desc) => reject(new Error(`${code}: ${desc}`)));
+    win.loadURL(`data:text/html;base64,${Buffer.from(html).toString('base64')}`);
+  });
+
+  const pdfBuffer = await win.webContents.printToPDF({ landscape: true, pageSize: 'A4', printBackground: true });
+  win.close();
+
+  const { filePath } = await dialog.showSaveDialog({
+    defaultPath: `${defaultFileName ?? 'plan'}.pdf`,
+    filters: [{ name: 'PDF', extensions: ['pdf'] }],
+  });
+
+  if (filePath) fs.writeFileSync(filePath, pdfBuffer);
+});
+
 function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1440,
@@ -184,6 +204,7 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
+      preload: path.join(__dirname, 'preload.js'),
     },
   });
 

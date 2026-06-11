@@ -470,6 +470,15 @@ th:last-child { width: 9%; }
 </body>
 </html>`;
 
+  const electronAPI = (window as unknown as Record<string, unknown>).electronAPI as
+    | { printToPDF: (html: string, fileName: string) => Promise<void> }
+    | undefined;
+
+  if (electronAPI) {
+    electronAPI.printToPDF(html, annexName);
+    return;
+  }
+
   const iframe = document.createElement('iframe');
   iframe.style.cssText = 'position:fixed;width:0;height:0;border:none;visibility:hidden;';
   document.body.appendChild(iframe);
