@@ -104,15 +104,14 @@ public class PlanGeneratorService {
 
         CostContext ctx = new CostContext(teacherMinWeekly, teacherMaxDaily, groupMinTeachers, groupMaxTeachers, groupEffStart, groupEffEnd);
 
+        Random random = new Random();
+
         // Compute sequential slots per group (shared by greedy init and post-processing)
-        Map<Integer, List<TeacherSlot>> groupSlots = computeGroupSlots(annexTeachers, groupEffStart, groupEffEnd);
+        Map<Integer, List<TeacherSlot>> groupSlots = computeGroupSlots(annexTeachers, groupEffStart, groupEffEnd, random);
 
         // Greedy initialization
         List<TimeBlockDraft> currentSchedule = buildGreedySchedule(groupSlots);
         double currentCost = computeCost(currentSchedule, ctx);
-
-        // Simulated Annealing
-        Random random = new Random();
         double temperature = SA_INITIAL_TEMP;
 
         for (int step = 0; step < SA_MAX_STEPS && currentCost > 0 && temperature > SA_MIN_TEMP; step++) {
@@ -135,12 +134,13 @@ public class PlanGeneratorService {
         return new GeneratePlanResultDto(finalSchedule.size(), remaining);
     }
 
-    private record TeacherSlot(int teacherId, int groupId, LocalTime start, LocalTime end) {}
+    private record TeacherSlot(int teacherId, int groupId, DayOfWeek dayOfWeek, LocalTime start, LocalTime end) {}
 
     private Map<Integer, List<TeacherSlot>> computeGroupSlots(
             List<AnnexTeacher> annexTeachers,
             Map<Integer, LocalTime> groupEffStart,
-            Map<Integer, LocalTime> groupEffEnd) {
+            Map<Integer, LocalTime> groupEffEnd,
+            Random random) {
 
         Map<Integer, List<AnnexTeacher>> byGroup = annexTeachers.stream()
                 .filter(at -> at.getDefaultGroup() != null)
@@ -149,22 +149,25 @@ public class PlanGeneratorService {
         Map<Integer, List<TeacherSlot>> result = new HashMap<>();
         for (Map.Entry<Integer, List<AnnexTeacher>> entry : byGroup.entrySet()) {
             int groupId = entry.getKey();
-            List<AnnexTeacher> groupTeachers = new ArrayList<>(entry.getValue());
-            groupTeachers.sort(Comparator.comparingInt(at -> at.getTeacher().getId()));
-
+            List<AnnexTeacher> baseTeachers = new ArrayList<>(entry.getValue());
             LocalTime groupStart = groupEffStart.getOrDefault(groupId, DEFAULT_SCHEDULE_START);
             LocalTime groupEnd = groupEffEnd.getOrDefault(groupId, DEFAULT_SCHEDULE_END);
             long totalMinutes = Duration.between(groupStart, groupEnd).toMinutes();
-            int n = groupTeachers.size();
+            int n = baseTeachers.size();
             long slotMinutes = totalMinutes / n;
 
             List<TeacherSlot> slots = new ArrayList<>();
-            LocalTime slotStart = groupStart;
-            for (int i = 0; i < n; i++) {
-                int teacherId = groupTeachers.get(i).getTeacher().getId();
-                LocalTime slotEnd = (i == n - 1) ? groupEnd : slotStart.plusMinutes(slotMinutes);
-                slots.add(new TeacherSlot(teacherId, groupId, slotStart, slotEnd));
-                slotStart = slotEnd;
+            for (DayOfWeek dow : WEEKDAYS) {
+                List<AnnexTeacher> dayTeachers = new ArrayList<>(baseTeachers);
+                Collections.shuffle(dayTeachers, random);
+
+                LocalTime slotStart = groupStart;
+                for (int i = 0; i < n; i++) {
+                    int teacherId = dayTeachers.get(i).getTeacher().getId();
+                    LocalTime slotEnd = (i == n - 1) ? groupEnd : slotStart.plusMinutes(slotMinutes);
+                    slots.add(new TeacherSlot(teacherId, groupId, dow, slotStart, slotEnd));
+                    slotStart = slotEnd;
+                }
             }
             result.put(groupId, slots);
         }
@@ -175,9 +178,7 @@ public class PlanGeneratorService {
         List<TimeBlockDraft> schedule = new ArrayList<>();
         for (List<TeacherSlot> slots : groupSlots.values()) {
             for (TeacherSlot slot : slots) {
-                for (DayOfWeek dow : WEEKDAYS) {
-                    schedule.add(new TimeBlockDraft(slot.teacherId(), slot.groupId(), dow, slot.start(), slot.end()));
-                }
+                schedule.add(new TimeBlockDraft(slot.teacherId(), slot.groupId(), slot.dayOfWeek(), slot.start(), slot.end()));
             }
         }
         return mergeOverlappingBlocks(schedule);
@@ -190,12 +191,10 @@ public class PlanGeneratorService {
         List<TimeBlockDraft> result = new ArrayList<>(schedule);
         for (List<TeacherSlot> slots : groupSlots.values()) {
             for (TeacherSlot slot : slots) {
-                for (DayOfWeek dow : WEEKDAYS) {
-                    boolean hasBlock = result.stream().anyMatch(b ->
-                            b.teacherId() == slot.teacherId() && b.groupId() == slot.groupId() && b.dayOfWeek() == dow);
-                    if (!hasBlock) {
-                        result.add(new TimeBlockDraft(slot.teacherId(), slot.groupId(), dow, slot.start(), slot.end()));
-                    }
+                boolean hasBlock = result.stream().anyMatch(b ->
+                        b.teacherId() == slot.teacherId() && b.groupId() == slot.groupId() && b.dayOfWeek() == slot.dayOfWeek());
+                if (!hasBlock) {
+                    result.add(new TimeBlockDraft(slot.teacherId(), slot.groupId(), slot.dayOfWeek(), slot.start(), slot.end()));
                 }
             }
         }
@@ -233,6 +232,7 @@ public class PlanGeneratorService {
     private double computeCost(List<TimeBlockDraft> schedule, CostContext ctx) {
         double cost = 0;
 
+        // Teacher hour rules — lower priority (soft constraints)
         for (Map.Entry<Integer, Integer> e : ctx.teacherMinWeekly().entrySet()) {
             int teacherId = e.getKey();
             int minHours = e.getValue();
@@ -241,7 +241,7 @@ public class PlanGeneratorService {
                     .mapToInt(b -> (int) Duration.between(b.startTime(), b.endTime()).toMinutes())
                     .sum();
             if (actualMinutes / 60 < minHours) {
-                cost += (minHours - actualMinutes / 60.0) * 100.0;
+                cost += (minHours - actualMinutes / 60.0) * 10.0;
             }
         }
 
@@ -254,11 +254,12 @@ public class PlanGeneratorService {
                         .mapToInt(b -> (int) Duration.between(b.startTime(), b.endTime()).toMinutes())
                         .sum();
                 if (dayMinutes / 60 > maxHours) {
-                    cost += (dayMinutes / 60.0 - maxHours) * 50.0;
+                    cost += (dayMinutes / 60.0 - maxHours) * 10.0;
                 }
             }
         }
 
+        // Group staffing rules — higher priority (near-hard constraints)
         for (int groupId : ctx.groupEffStart().keySet()) {
             LocalTime groupStart = ctx.groupEffStart().get(groupId);
             LocalTime groupEnd = ctx.groupEffEnd().get(groupId);
@@ -272,7 +273,7 @@ public class PlanGeneratorService {
                         .collect(Collectors.toList());
 
                 if (dayBlocks.isEmpty()) {
-                    if (minTeachers != null) cost += minTeachers * 200.0;
+                    if (minTeachers != null) cost += minTeachers * 1000.0;
                     continue;
                 }
 
@@ -297,10 +298,10 @@ public class PlanGeneratorService {
                             .count();
 
                     if (minTeachers != null && teacherCount < minTeachers) {
-                        cost += (minTeachers - teacherCount) * 200.0;
+                        cost += (minTeachers - teacherCount) * 1000.0;
                     }
                     if (maxTeachers != null && teacherCount > maxTeachers) {
-                        cost += (teacherCount - maxTeachers) * 200.0;
+                        cost += (teacherCount - maxTeachers) * 1000.0;
                     }
                 }
             }
@@ -310,7 +311,7 @@ public class PlanGeneratorService {
             LocalTime groupStart = ctx.groupEffStart().getOrDefault(b.groupId(), DEFAULT_SCHEDULE_START);
             LocalTime groupEnd = ctx.groupEffEnd().getOrDefault(b.groupId(), DEFAULT_SCHEDULE_END);
             if (b.startTime().isBefore(groupStart) || b.endTime().isAfter(groupEnd)) {
-                cost += 200.0;
+                cost += 1000.0;
             }
         }
 

@@ -21,15 +21,6 @@ import {
 import type { RuleWithSourceDto, TemplateViolationDto } from '@/types';
 import { useGetTemplateViolationsQuery } from '@/store/violationsApi';
 
-const DAY_LABELS: Record<DayOfWeek, string> = {
-  MONDAY: 'Mon',
-  TUESDAY: 'Tue',
-  WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu',
-  FRIDAY: 'Fri',
-  SATURDAY: 'Sat',
-  SUNDAY: 'Sun',
-};
 
 interface Row {
   group: AnnexGroupDto;
@@ -557,7 +548,7 @@ export function AnnexPlanTablePage() {
               </th>
               {WEEK_DAYS.map((day) => (
                 <th key={day} className="border border-border px-3 py-2 font-semibold text-center">
-                  {DAY_LABELS[day]}
+                  {t(`draftPlan.daysFull.${day}` as Parameters<typeof t>[0])}
                 </th>
               ))}
               <th className="border border-border px-3 py-2 font-semibold text-right whitespace-nowrap w-16">
@@ -579,16 +570,20 @@ export function AnnexPlanTablePage() {
                     rowSpan={groupSize}
                     className="border border-border px-3 py-2 align-top bg-muted/40"
                   >
-                    <div className="flex items-center gap-1 flex-wrap">
+                    <div className="flex flex-col gap-1">
                       <span className="font-medium text-sm">{group.groupName}</span>
-                      {group.tags && group.tags.map((tag: GroupTag) => (
-                        <span
-                          key={tag}
-                          className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary"
-                        >
-                          {t(`groupTags.${tag}` as Parameters<typeof t>[0])}
-                        </span>
-                      ))}
+                      {group.tags && group.tags.length > 0 && (
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {group.tags.map((tag: GroupTag) => (
+                            <span
+                              key={tag}
+                              className="inline-flex items-center rounded-full px-1.5 py-0.5 text-[10px] font-medium bg-primary/10 text-primary"
+                            >
+                              {t(`groupTags.${tag}` as Parameters<typeof t>[0])}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <div className="text-xs font-mono mt-1">
                       {(() => {
@@ -800,28 +795,30 @@ export function AnnexPlanTablePage() {
           />
         )}
         {/* Header with tabs */}
-        <div className="flex items-center border-b border-border px-1 py-0 shrink-0">
+        <div className="flex items-center border-b border-border px-3 py-1.5 gap-2 shrink-0">
           <button
             onClick={() => setShowViolations((v) => !v)}
             className={cn(
-              'px-3 py-2 text-xs font-medium border-b-2 transition-colors',
+              'px-2.5 py-1 text-xs font-medium rounded-full border transition-colors',
               showViolations
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
             )}
           >
             {t('violations.title')}
             {templateViolations.length > 0 && (
-              <span className="ml-1.5 text-destructive">({templateViolations.length})</span>
+              <span className={cn('ml-1.5', showViolations ? 'text-primary-foreground/80' : 'text-destructive')}>
+                ({templateViolations.length})
+              </span>
             )}
           </button>
           <button
             onClick={() => setShowSummary((v) => !v)}
             className={cn(
-              'px-3 py-2 text-xs font-medium border-b-2 transition-colors',
+              'px-2.5 py-1 text-xs font-medium rounded-full border transition-colors',
               showSummary
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
             )}
           >
             {t('draftPlan.hoursSummary')}
@@ -829,10 +826,10 @@ export function AnnexPlanTablePage() {
           <button
             onClick={() => setShowOpenClose((v) => !v)}
             className={cn(
-              'px-3 py-2 text-xs font-medium border-b-2 transition-colors',
+              'px-2.5 py-1 text-xs font-medium rounded-full border transition-colors',
               showOpenClose
-                ? 'border-primary text-primary'
-                : 'border-transparent text-muted-foreground hover:text-foreground'
+                ? 'bg-primary text-primary-foreground border-primary'
+                : 'bg-background text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground'
             )}
           >
             {t('draftPlan.openCloseTitle')}

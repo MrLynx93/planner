@@ -389,7 +389,7 @@ export function printPlanTable(
     const weeklyH = Number.isInteger(weeklyRaw) ? String(weeklyRaw) : weeklyRaw.toFixed(1);
     const tagLine =
       group.tags && group.tags.length > 0
-        ? group.tags.map((tag) => `<span class="tag">${labels.groupTag(tag)}</span>`).join('')
+        ? group.tags.map((tag) => labels.groupTag(tag)).join(', ')
         : '';
 
     const totalMins = allBlocks
@@ -406,7 +406,7 @@ export function printPlanTable(
     if (isFirstInGroup) {
       bodyRows += `<td rowspan="${groupSize}" class="group-cell col-sep" style="${bgStyle}">
         <div class="group-name">${group.groupName}</div>
-        ${tagLine ? `<div class="tags">${tagLine}</div>` : ''}
+        ${tagLine ? `<div class="mono muted">${tagLine}</div>` : ''}
         <div class="mono muted">${shortTime(group.effectiveScheduleStartTime)}&ndash;${shortTime(group.effectiveScheduleEndTime)}</div>
         <div class="mono muted">${labels.groupHoursPerDay(dailyH)}</div>
         <div class="mono muted">${labels.groupHoursPerWeek(weeklyH)}</div>
@@ -454,8 +454,6 @@ th:last-child { width: 9%; }
 .group-cell { text-align: center; vertical-align: top; }
 .col-sep { border-right: 2px solid #374151; }
 .group-name { font-weight: 700; margin-bottom: 2px; }
-.tags { margin: 2px 0; }
-.tag { display: inline-block; background: #dbeafe; color: #1d4ed8; border-radius: 3px; padding: 0 3px; font-size: 7pt; margin: 1px; }
 .mono { font-family: monospace; font-size: 7.5pt; }
 .muted { color: #374151; }
 .bold { font-weight: 700; }
