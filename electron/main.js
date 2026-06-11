@@ -65,7 +65,8 @@ function startBackend() {
     : path.join(__dirname, 'planner-backend.jar');
 
   const args = app.isPackaged
-    ? ['-XX:TieredStopAtLevel=1', '-Xms32m', '-Xmx256m', '-XX:+UseSerialGC',
+    ? ['-XX:TieredStopAtLevel=1', '-Xms64m', '-Xmx512m', '-XX:+UseSerialGC',
+       '-Djava.awt.headless=true', '-Dspring.jmx.enabled=false',
        '-jar', jarPath, '--spring.profiles.active=sqlite']
     : ['-jar', jarPath, '--spring.profiles.active=h2'];
 

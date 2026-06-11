@@ -1,6 +1,9 @@
 spring:
   main:
     lazy-initialization: true
+    banner-mode: off
+  jmx:
+    enabled: false
   liquibase:
     show-summary: never
   datasource:
@@ -12,3 +15,18 @@ spring:
     database-platform: org.hibernate.community.dialect.SQLiteDialect
     hibernate:
       ddl-auto: none
+
+management:
+  health:
+    defaults:
+      enabled: false
+    db:
+      enabled: true
+
+logging:
+  level:
+    root: WARN
+    com.planner: INFO
+    liquibase: WARN
+    org.hibernate: WARN
+    org.springframework: WARN
