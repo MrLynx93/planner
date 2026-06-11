@@ -1,4 +1,6 @@
 spring:
+  main:
+    lazy-initialization: true
   liquibase:
     show-summary: never
   datasource:

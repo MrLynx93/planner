@@ -24,7 +24,7 @@ app.whenReady().then(() => {
   log('App starting. Log file:', logPath);
 });
 
-const BACKEND_PORT = 8080;
+const BACKEND_PORT = app.isPackaged ? 48080 : 8080;
 const FRONTEND_PORT = 3000;
 
 const MIME_TYPES = {
@@ -64,12 +64,14 @@ function startBackend() {
     : path.join(__dirname, 'planner-backend.jar');
 
   const args = app.isPackaged
-    ? ['-jar', jarPath, '--spring.profiles.active=sqlite']
+    ? ['-XX:TieredStopAtLevel=1', '-Xms32m', '-Xmx256m', '-XX:+UseSerialGC',
+       '-jar', jarPath, '--spring.profiles.active=sqlite']
     : ['-jar', jarPath, '--spring.profiles.active=h2'];
 
   if (app.isPackaged) {
     const dbPath = path.join(app.getPath('userData'), 'planner.db').replace(/\\/g, '/');
     args.push(`--spring.datasource.url=jdbc:sqlite:${dbPath}`);
+    args.push(`--server.port=${BACKEND_PORT}`);
   } else if (process.env.CLEAN === 'true') {
     args.push('--spring.datasource.url=jdbc:h2:mem:planner;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE');
   }
@@ -157,17 +159,35 @@ function retry(callback, retries) {
   setTimeout(() => waitForBackend(callback, retries - 1), 1000);
 }
 
+const LOADING_PAGE = `data:text/html;base64,${Buffer.from(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  body { margin: 0; display: flex; flex-direction: column; align-items: center;
+         justify-content: center; height: 100vh; background: #f8fafc;
+         font-family: -apple-system, sans-serif; color: #64748b; }
+  .spinner { width: 40px; height: 40px; border: 3px solid #e2e8f0;
+             border-top-color: #6366f1; border-radius: 50%;
+             animation: spin 0.8s linear infinite; margin-bottom: 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  p { font-size: 14px; }
+</style>
+</head>
+<body><div class="spinner"></div><p>Uruchamianie…</p></body>
+</html>`).toString('base64')}`;
+
 function createWindow() {
   mainWindow = new BrowserWindow({
-    width: 1280,
-    height: 800,
+    width: 1440,
+    height: 900,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
-  mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`);
+  mainWindow.loadURL(LOADING_PAGE);
 }
 
 app.whenReady().then(() => {
@@ -175,7 +195,8 @@ app.whenReady().then(() => {
   log('resourcesPath:', process.resourcesPath);
   startFrontendServer();
   startBackend();
-  waitForBackend(createWindow);
+  createWindow();
+  waitForBackend(() => mainWindow.loadURL(`http://localhost:${FRONTEND_PORT}`));
 });
 
 app.on('window-all-closed', () => {
