@@ -1,6 +1,7 @@
 {
   "appId": "com.planner.app",
   "productName": "Planner",
+  "compression": "maximum",
   "mac": {
     "category": "public.app-category.productivity",
     "target": [

@@ -1,4 +1,6 @@
 spring:
+  liquibase:
+    show-summary: never
   datasource:
     url: jdbc:sqlite:./planner.db
     driver-class-name: org.sqlite.JDBC

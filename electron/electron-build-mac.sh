@@ -33,7 +33,7 @@ create_slim_jre() {
   echo "    Running jlink..."
   "$jdk_home/bin/jlink" \
     --module-path "$jdk_home/jmods" \
-    --add-modules java.base,java.compiler,java.desktop,java.instrument,java.logging,java.management,java.naming,java.rmi,java.security.jgss,java.sql,java.xml,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.management,jdk.naming.dns,jdk.unsupported,jdk.xml.dom \
+    --add-modules java.base,java.compiler,java.instrument,java.logging,java.management,java.naming,java.rmi,java.security.jgss,java.sql,java.xml,jdk.crypto.cryptoki,jdk.crypto.ec,jdk.management,jdk.naming.dns,jdk.unsupported,jdk.xml.dom \
     --strip-debug \
     --no-header-files \
     --no-man-pages \
@@ -64,7 +64,7 @@ npm run build
 
 echo "==> Building backend JAR..."
 cd "$ROOT_DIR/backend"
-mvn package -DskipTests -q
+mvn package -DskipTests -q -P electron
 
 echo "==> Copying resources to build/..."
 mkdir -p "$BUILD_DIR"
