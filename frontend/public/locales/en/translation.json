@@ -124,7 +124,12 @@
       "group": "Group",
       "source": "Source",
       "sourceGlobal": "Global",
-      "sourceAnnex": "Annex"
+      "sourceAnnex": "Annex",
+      "sourceSetGlobally": "Set globally",
+      "sourceSetOnAnnex": "For all",
+      "notDefined": "Not defined",
+      "define": "Define",
+      "entity": "Teacher / Group"
     },
     "annex": {
       "currentWarning": "This is the active annex. Changes take effect immediately."

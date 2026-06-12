@@ -13,13 +13,17 @@ import {
   useDeleteAnnexRuleMutation,
 } from '@/store/annexesApi';
 
-const selectClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full';
-const inputClass =
-  'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full';
-
-function ruleKey(r: RuleWithSourceDto) {
-  return `${r.ruleType}|${r.teacherId ?? ''}|${r.groupId ?? ''}`;
+interface VirtualRow {
+  key: string;
+  ruleType: RuleType;
+  teacherId: number | null;
+  groupId: number | null;
+  /** null = "all teachers" or "all groups" default row */
+  entityLabel: string | null;
+  /** Annex-level rule for this exact entity, if defined */
+  annexRule: RuleWithSourceDto | undefined;
+  /** Rule this entity inherits if no annex-specific rule exists */
+  inheritedRule: RuleWithSourceDto | undefined;
 }
 
 export function AnnexRulesPage() {
@@ -34,55 +38,84 @@ export function AnnexRulesPage() {
   const [updateRule] = useUpdateAnnexRuleMutation();
   const [deleteRule] = useDeleteAnnexRuleMutation();
 
-  const [ruleType, setRuleType] = useState<RuleType>('TEACHER_WEEKLY_HOURS_MIN');
-  const [teacherId, setTeacherId] = useState<number | null>(null);
-  const [groupId, setGroupId] = useState<number | null>(null);
-  const [intValue, setIntValue] = useState('');
-
   const [editId, setEditId] = useState<number | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [defineKey, setDefineKey] = useState<string | null>(null);
+  const [defineValue, setDefineValue] = useState('');
 
-  const needsTeacher = RULE_NEEDS_TEACHER.includes(ruleType);
-  const needsGroup = RULE_NEEDS_GROUP.includes(ruleType);
-
-  const globalRules = rules.filter((r) => r.annexRuleId === null);
-  const annexRules = rules.filter((r) => r.annexRuleId !== null);
-  const annexRuleKeys = new Set(annexRules.map(ruleKey));
-  const globalRuleByKey = new Map(globalRules.map((r) => [ruleKey(r), r]));
-
-  const sorted = [...rules].sort((a, b) => {
-    const aGlobal = a.annexRuleId === null ? 0 : 1;
-    const bGlobal = b.annexRuleId === null ? 0 : 1;
-    if (aGlobal !== bGlobal) return aGlobal - bGlobal;
-    return ruleKey(a).localeCompare(ruleKey(b));
-  });
-
-  function resetForm() {
-    setRuleType('TEACHER_WEEKLY_HOURS_MIN');
-    setTeacherId(null);
-    setGroupId(null);
-    setIntValue('');
+  // Index existing rules
+  const annexRuleByKey = new Map<string, RuleWithSourceDto>();
+  const globalRuleByKey = new Map<string, RuleWithSourceDto>();
+  for (const r of rules) {
+    const k = `${r.ruleType}|${r.teacherId ?? ''}|${r.groupId ?? ''}`;
+    if (r.annexRuleId !== null) annexRuleByKey.set(k, r);
+    else globalRuleByKey.set(k, r);
   }
 
-  async function handleSave() {
-    if (!intValue) return;
-    const dto: AnnexRuleDto = {
-      id: null,
-      annexId: annex.id!,
-      ruleId: null,
-      ruleType,
-      teacherId: needsTeacher ? teacherId : null,
-      teacherFirstName: null,
-      teacherLastName: null,
-      groupId: needsGroup ? groupId : null,
-      groupName: null,
-      intValue: Number(intValue),
-    };
-    await createRule({ annexId: annex.id!, dto });
-    resetForm();
+  // Build virtual rows grouped by rule type
+  const rowsByType = new Map<RuleType, VirtualRow[]>();
+  for (const rt of ALL_RULE_TYPES) {
+    const allKey = `${rt}||`;
+    const allAnnex = annexRuleByKey.get(allKey);
+    const allGlobal = globalRuleByKey.get(allKey);
+    const rows: VirtualRow[] = [];
+
+    if (RULE_NEEDS_TEACHER.includes(rt)) {
+      rows.push({
+        key: allKey,
+        ruleType: rt,
+        teacherId: null,
+        groupId: null,
+        entityLabel: null,
+        annexRule: allAnnex,
+        inheritedRule: allGlobal,
+      });
+      for (const teacher of teachers) {
+        const specificKey = `${rt}|${teacher.teacherId}|`;
+        rows.push({
+          key: specificKey,
+          ruleType: rt,
+          teacherId: teacher.teacherId,
+          groupId: null,
+          entityLabel: `${teacher.firstName} ${teacher.lastName}`,
+          annexRule: annexRuleByKey.get(specificKey),
+          inheritedRule:
+            allAnnex ??
+            globalRuleByKey.get(specificKey) ??
+            allGlobal,
+        });
+      }
+    } else if (RULE_NEEDS_GROUP.includes(rt)) {
+      rows.push({
+        key: allKey,
+        ruleType: rt,
+        teacherId: null,
+        groupId: null,
+        entityLabel: null,
+        annexRule: allAnnex,
+        inheritedRule: allGlobal,
+      });
+      for (const group of groups) {
+        const specificKey = `${rt}||${group.groupId}`;
+        rows.push({
+          key: specificKey,
+          ruleType: rt,
+          teacherId: null,
+          groupId: group.groupId,
+          entityLabel: group.groupName,
+          annexRule: annexRuleByKey.get(specificKey),
+          inheritedRule:
+            allAnnex ??
+            globalRuleByKey.get(specificKey) ??
+            allGlobal,
+        });
+      }
+    }
+    rowsByType.set(rt, rows);
   }
 
   function openEdit(annexRuleId: number, value: number) {
+    setDefineKey(null);
     setEditId(annexRuleId);
     setEditValue(String(value));
   }
@@ -94,236 +127,213 @@ export function AnnexRulesPage() {
   }
 
   async function handleDelete(annexRuleId: number) {
-    if (!window.confirm(t('common.confirmDelete'))) return;
     await deleteRule({ annexId: annex.id!, annexRuleId });
   }
 
-  function ruleLabel(rule: RuleWithSourceDto): string {
-    const parts: string[] = [t(`ruleTypes.${rule.ruleType}`)];
-    if (rule.teacherFirstName) {
-      parts.push(`${rule.teacherFirstName} ${rule.teacherLastName}`);
-    } else if (RULE_NEEDS_TEACHER.includes(rule.ruleType)) {
-      parts.push(t('pages.globalRules.allTeachers'));
-    }
-    if (rule.groupName) {
-      parts.push(rule.groupName);
-    } else if (RULE_NEEDS_GROUP.includes(rule.ruleType)) {
-      parts.push(t('pages.globalRules.allGroups'));
-    }
-    return parts.join(' — ');
+  function openDefine(row: VirtualRow) {
+    setEditId(null);
+    setDefineKey(row.key);
+    setDefineValue(row.inheritedRule ? String(row.inheritedRule.intValue) : '');
+  }
+
+  async function handleDefine(row: VirtualRow) {
+    if (!defineValue) return;
+    const dto: AnnexRuleDto = {
+      id: null,
+      annexId: annex.id!,
+      ruleId: null,
+      ruleType: row.ruleType,
+      teacherId: row.teacherId,
+      teacherFirstName: null,
+      teacherLastName: null,
+      groupId: row.groupId,
+      groupName: null,
+      intValue: Number(defineValue),
+    };
+    await createRule({ annexId: annex.id!, dto });
+    setDefineKey(null);
+  }
+
+  function allEntityLabel(rt: RuleType) {
+    return RULE_NEEDS_TEACHER.includes(rt)
+      ? t('pages.globalRules.allTeachers')
+      : t('pages.globalRules.allGroups');
   }
 
   return (
-    <div className="flex flex-col gap-4 p-6 w-full">
+    <div className="flex flex-col gap-4 p-6 w-full max-w-4xl">
       <h1 className="text-xl font-semibold">{t('pages.draftAnnex.rules.title')}</h1>
 
-      <div className="flex gap-6">
-      {/* Table */}
-      <div className="flex flex-col flex-1 min-w-0">
-        <div className="rounded-lg border border-border p-4">
-        {isLoading ? (
-          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
-        ) : rules.length === 0 ? (
-          <p className="text-sm text-muted-foreground">{t('common.noItems')}</p>
-        ) : (
+      {isLoading ? (
+        <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+      ) : (
+        <div className="rounded-lg border border-border overflow-hidden">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-border text-left text-muted-foreground">
-                <th className="pb-2 pr-4 font-medium">{t('pages.rules.ruleType')}</th>
-                <th className="pb-2 pr-4 font-medium">{t('pages.rules.value')}</th>
-                <th className="pb-2 pr-4 font-medium" />
-                <th className="pb-2 font-medium" />
+              <tr className="border-b border-border text-left text-muted-foreground bg-muted/30">
+                <th className="px-4 py-2 font-medium">{t('pages.rules.entity')}</th>
+                <th className="px-4 py-2 font-medium w-28">{t('pages.rules.value')}</th>
+                <th className="px-4 py-2 font-medium w-44" />
+                <th className="px-4 py-2 font-medium w-40" />
               </tr>
             </thead>
             <tbody>
-              {sorted.map((rule) => {
-                const isGlobal = rule.annexRuleId === null;
-                const key = ruleKey(rule);
-                const isOverridden = isGlobal && annexRuleKeys.has(key);
-                const globalValue = !isGlobal ? globalRuleByKey.get(key)?.intValue : undefined;
-                const isEditing = !isGlobal && editId === rule.annexRuleId;
-
+              {ALL_RULE_TYPES.map((rt) => {
+                const rows = rowsByType.get(rt) ?? [];
                 return (
-                  <tr
-                    key={`${rule.annexRuleId ?? 'g'}-${rule.ruleId}`}
-                    className={`border-b border-border last:border-0 h-10 ${isOverridden ? 'opacity-40' : ''}`}
-                  >
-                    <td className="pr-4 align-middle">{ruleLabel(rule)}</td>
-                    <td className="pr-4 align-middle">
-                      {isEditing ? (
-                        <input
-                          type="number"
-                          min="0"
-                          className="rounded-md border border-border bg-background px-2.5 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24 h-7"
-                          value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onKeyDown={(e) => e.key === 'Enter' && handleUpdate(rule.annexRuleId!)}
-                          autoFocus
-                        />
-                      ) : (
-                        <span className={isOverridden ? 'line-through' : ''}>
-                          {rule.intValue}
-                        </span>
-                      )}
-                      {globalValue !== undefined && !isEditing && (
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          (global: {globalValue})
-                        </span>
-                      )}
-                    </td>
-                    <td className="pr-4 align-middle">
-                      {isGlobal ? (
-                        <span className="inline-flex items-center rounded-full bg-blue-100 px-2 py-0.5 text-xs font-medium text-blue-700">
-                          {t('pages.rules.sourceGlobal')}
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
-                          {t('pages.rules.sourceAnnex')}
-                        </span>
-                      )}
-                    </td>
-                    <td className="align-middle">
-                      {!isGlobal && !isReadOnly && (
-                        <div className="flex justify-end gap-2">
-                          {isEditing ? (
-                            <>
-                              <button
-                                className="rounded-md bg-primary text-primary-foreground px-2.5 py-1 text-xs hover:bg-primary/90 transition-colors"
-                                onClick={() => handleUpdate(rule.annexRuleId!)}
-                              >
-                                {t('common.save')}
-                              </button>
-                              <button
-                                className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
-                                onClick={() => setEditId(null)}
-                              >
-                                {t('common.cancel')}
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
-                                onClick={() => openEdit(rule.annexRuleId!, rule.intValue)}
-                              >
-                                {t('common.edit')}
-                              </button>
-                              <button
-                                className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors"
-                                onClick={() => handleDelete(rule.annexRuleId!)}
-                              >
-                                {t('common.delete')}
-                              </button>
-                            </>
-                          )}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
+                  <>
+                    {/* Section header */}
+                    <tr key={`header-${rt}`} className="bg-muted/20 border-t border-border">
+                      <td
+                        colSpan={4}
+                        className="px-4 py-3 text-sm font-semibold text-foreground tracking-wide"
+                      >
+                        {t(`ruleTypes.${rt}`)}
+                      </td>
+                    </tr>
+
+                    {rows.map((row) => {
+                      const isAllRow = row.entityLabel === null;
+                      const isEditing = row.annexRule != null && editId === row.annexRule.annexRuleId;
+                      const isDefining = defineKey === row.key;
+                      const hasAnnex = row.annexRule != null;
+                      const hasInherited = !hasAnnex && row.inheritedRule != null;
+
+                      return (
+                        <tr
+                          key={row.key}
+                          className="border-t border-border/50 hover:bg-muted/10 transition-colors"
+                        >
+                          {/* Entity label */}
+                          <td className={`py-2 align-middle ${isAllRow ? 'px-4 italic text-muted-foreground' : 'pl-8 pr-4'}`}>
+                            {isAllRow ? allEntityLabel(rt) : row.entityLabel}
+                          </td>
+
+                          {/* Value */}
+                          <td className="px-4 py-2 align-middle">
+                            {isEditing ? (
+                              <input
+                                type="number"
+                                min="0"
+                                className="rounded-md border border-border bg-background px-2 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-20 h-7"
+                                value={editValue}
+                                onChange={(e) => setEditValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleUpdate(row.annexRule!.annexRuleId!)}
+                                autoFocus
+                              />
+                            ) : isDefining ? (
+                              <input
+                                type="number"
+                                min="0"
+                                className="rounded-md border border-border bg-background px-2 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-20 h-7"
+                                value={defineValue}
+                                onChange={(e) => setDefineValue(e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleDefine(row)}
+                                autoFocus
+                              />
+                            ) : hasAnnex ? (
+                              <span>{row.annexRule!.intValue}</span>
+                            ) : hasInherited ? (
+                              <span className="text-muted-foreground">{row.inheritedRule!.intValue}</span>
+                            ) : (
+                              <span className="text-muted-foreground/50">—</span>
+                            )}
+                          </td>
+
+                          {/* Badge */}
+                          <td className="px-4 py-2 align-middle">
+                            {!isEditing && !isDefining && (
+                              hasAnnex ? (
+                                <span className="inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700">
+                                  {t('pages.rules.sourceAnnex')}
+                                </span>
+                              ) : hasInherited ? (
+                                <span className="inline-flex items-center rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-500">
+                                  {row.inheritedRule!.annexRuleId === null
+                                    ? t('pages.rules.sourceSetGlobally')
+                                    : t('pages.rules.sourceSetOnAnnex')}
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-xs font-medium text-red-600">
+                                  {t('pages.rules.notDefined')}
+                                </span>
+                              )
+                            )}
+                          </td>
+
+                          {/* Actions */}
+                          <td className="px-4 py-2 align-middle">
+                            {!isReadOnly && (
+                              <div className="flex justify-end gap-2">
+                                {hasAnnex && !isEditing && (
+                                  <>
+                                    <button
+                                      className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                                      onClick={() => openEdit(row.annexRule!.annexRuleId!, row.annexRule!.intValue)}
+                                    >
+                                      {t('common.edit')}
+                                    </button>
+                                    <button
+                                      className="rounded-md border border-destructive/40 px-2.5 py-1 text-xs text-destructive hover:bg-destructive/10 transition-colors min-w-[5.5rem] text-center"
+                                      onClick={() => handleDelete(row.annexRule!.annexRuleId!)}
+                                    >
+                                      {t('common.delete')}
+                                    </button>
+                                  </>
+                                )}
+                                {hasAnnex && isEditing && (
+                                  <>
+                                    <button
+                                      className="rounded-md bg-primary text-primary-foreground px-2.5 py-1 text-xs hover:bg-primary/90 transition-colors"
+                                      onClick={() => handleUpdate(row.annexRule!.annexRuleId!)}
+                                    >
+                                      {t('common.save')}
+                                    </button>
+                                    <button
+                                      className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                                      onClick={() => setEditId(null)}
+                                    >
+                                      {t('common.cancel')}
+                                    </button>
+                                  </>
+                                )}
+                                {!hasAnnex && !isDefining && (
+                                  <button
+                                    className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors min-w-[5.5rem] text-center"
+                                    onClick={() => openDefine(row)}
+                                  >
+                                    {t('pages.rules.define')}
+                                  </button>
+                                )}
+                                {!hasAnnex && isDefining && (
+                                  <>
+                                    <button
+                                      className="rounded-md bg-primary text-primary-foreground px-2.5 py-1 text-xs hover:bg-primary/90 transition-colors"
+                                      onClick={() => handleDefine(row)}
+                                    >
+                                      {t('common.save')}
+                                    </button>
+                                    <button
+                                      className="rounded-md border border-border px-2.5 py-1 text-xs hover:bg-accent transition-colors"
+                                      onClick={() => setDefineKey(null)}
+                                    >
+                                      {t('common.cancel')}
+                                    </button>
+                                  </>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </>
                 );
               })}
             </tbody>
           </table>
-        )}
-        </div>
-      </div>
-
-      {/* Add form — hidden for read-only annexes */}
-      {!isReadOnly && (
-        <div className="flex-1">
-          <div className="rounded-lg border border-border p-4 flex flex-col gap-3">
-            <h2 className="font-medium text-sm">{t('pages.rules.add')}</h2>
-            <div className="flex flex-col gap-3">
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">
-                  {t('pages.rules.ruleType')}
-                </label>
-                <select
-                  className={selectClass}
-                  value={ruleType}
-                  onChange={(e) => {
-                    setRuleType(e.target.value as RuleType);
-                    setTeacherId(null);
-                    setGroupId(null);
-                  }}
-                >
-                  {ALL_RULE_TYPES.map((rt) => (
-                    <option key={rt} value={rt}>
-                      {t(`ruleTypes.${rt}`)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              {needsTeacher && (
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">
-                    {t('pages.rules.teacher')}
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={teacherId ?? ''}
-                    onChange={(e) => setTeacherId(e.target.value ? Number(e.target.value) : null)}
-                  >
-                    <option value="">{t('pages.globalRules.allTeachers')}</option>
-                    {teachers.map((teacher) => (
-                      <option key={teacher.teacherId} value={teacher.teacherId}>
-                        {teacher.firstName} {teacher.lastName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              {needsGroup && (
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">
-                    {t('pages.rules.group')}
-                  </label>
-                  <select
-                    className={selectClass}
-                    value={groupId ?? ''}
-                    onChange={(e) => setGroupId(e.target.value ? Number(e.target.value) : null)}
-                  >
-                    <option value="">{t('pages.globalRules.allGroups')}</option>
-                    {groups.map((g) => (
-                      <option key={g.groupId} value={g.groupId}>
-                        {g.groupName}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-              <div>
-                <label className="block text-xs text-muted-foreground mb-1">
-                  {t('pages.rules.value')}
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  className={inputClass}
-                  value={intValue}
-                  onChange={(e) => setIntValue(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleSave()}
-                />
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                className="rounded-md bg-primary text-primary-foreground px-3 py-1.5 text-sm hover:bg-primary/90 transition-colors"
-                onClick={handleSave}
-              >
-                {t('common.save')}
-              </button>
-              <button
-                className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-                onClick={resetForm}
-              >
-                {t('common.cancel')}
-              </button>
-            </div>
-          </div>
         </div>
       )}
-      </div>
     </div>
   );
 }

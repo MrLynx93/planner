@@ -18,15 +18,6 @@ import { cn } from '@/lib/utils';
 
 type Mode = 'day' | 'week';
 
-const DAY_LABELS: Record<DayOfWeek, string> = {
-  MONDAY: 'Mon',
-  TUESDAY: 'Tue',
-  WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu',
-  FRIDAY: 'Fri',
-  SATURDAY: 'Sat',
-  SUNDAY: 'Sun',
-};
 
 export function AnnexPlanOverviewPage() {
   const { t } = useTranslation();
@@ -137,7 +128,7 @@ export function AnnexPlanOverviewPage() {
                         : 'text-muted-foreground hover:bg-accent'
                     )}
                   >
-                    {DAY_LABELS[day]}
+                    {t(`draftPlan.days.${day}` as Parameters<typeof t>[0])}
                   </button>
                 ))}
               </div>

@@ -1,0 +1,38 @@
+databaseChangeLog:
+
+  - changeSet:
+      id: default-global-rules
+      author: mateusz
+      preConditions:
+        - onFail: MARK_RAN
+        - sqlCheck:
+            expectedResult: 0
+            sql: SELECT COUNT(*) FROM rule
+      changes:
+        - insert:
+            tableName: rule
+            columns:
+              - column:
+                  name: type
+                  value: GROUP_MIN_TEACHERS
+              - column:
+                  name: int_value
+                  valueNumeric: 1
+        - insert:
+            tableName: rule
+            columns:
+              - column:
+                  name: type
+                  value: GROUP_MAX_TEACHERS
+              - column:
+                  name: int_value
+                  valueNumeric: 2
+        - insert:
+            tableName: rule
+            columns:
+              - column:
+                  name: type
+                  value: TEACHER_MAX_HOURS_PER_DAY
+              - column:
+                  name: int_value
+                  valueNumeric: 8

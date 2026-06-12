@@ -124,7 +124,12 @@
       "group": "Grupa",
       "source": "Źródło",
       "sourceGlobal": "Globalna",
-      "sourceAnnex": "Aneks"
+      "sourceAnnex": "Aneks",
+      "sourceSetGlobally": "Ustawione globalnie",
+      "sourceSetOnAnnex": "Dla wszystkich",
+      "notDefined": "Niezdefiniowane",
+      "define": "Zdefiniuj",
+      "entity": "Nauczyciel / Grupa"
     },
     "annex": {
       "currentWarning": "To jest bieżący aneks. Zmiany są natychmiastowo aktywne."
@@ -217,13 +222,13 @@
       "SUNDAY": "Nd"
     },
     "daysFull": {
-      "MONDAY": "poniedziałek",
-      "TUESDAY": "wtorek",
-      "WEDNESDAY": "środa",
-      "THURSDAY": "czwartek",
-      "FRIDAY": "piątek",
-      "SATURDAY": "sobota",
-      "SUNDAY": "niedziela"
+      "MONDAY": "Poniedziałek",
+      "TUESDAY": "Wtorek",
+      "WEDNESDAY": "Środa",
+      "THURSDAY": "Czwartek",
+      "FRIDAY": "Piątek",
+      "SATURDAY": "Sobota",
+      "SUNDAY": "Niedziela"
     },
     "hoursSummary": "Podsumowanie godzin",
     "minHours": "Min. godz.",
@@ -334,9 +339,18 @@
       "BLOCK_OUTSIDE_GROUP_HOURS": "{{name}} ({{groupName}}), {{dayOfWeek}}: blok {{startTime}}–{{endTime}} poza godzinami pracy grupy"
     },
     "months": {
-      "1": "Styczeń", "2": "Luty", "3": "Marzec", "4": "Kwiecień",
-      "5": "Maj", "6": "Czerwiec", "7": "Lipiec", "8": "Sierpień",
-      "9": "Wrzesień", "10": "Październik", "11": "Listopad", "12": "Grudzień"
+      "1": "Styczeń",
+      "2": "Luty",
+      "3": "Marzec",
+      "4": "Kwiecień",
+      "5": "Maj",
+      "6": "Czerwiec",
+      "7": "Lipiec",
+      "8": "Sierpień",
+      "9": "Wrzesień",
+      "10": "Październik",
+      "11": "Listopad",
+      "12": "Grudzień"
     }
   },
   "common": {

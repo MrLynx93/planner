@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Planner Build EXE" type="ShConfigurationType" factoryName="Shell Script">
+    <option name="SCRIPT_PATH" value="$PROJECT_DIR$/electron/electron-build-win.sh" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/electron" />
+    <method v="2" />
+  </configuration>
+</component>

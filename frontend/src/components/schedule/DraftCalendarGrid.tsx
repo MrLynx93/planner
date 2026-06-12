@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
 import type { AnnexGroupDto, DayOfWeek, ScheduleBlock } from './types';
 import {
@@ -78,16 +79,6 @@ export interface DraftCalendarGridProps {
   onDeleteBlock: (blockId: number) => void;
 }
 
-const DAY_LABELS: Record<DayOfWeek, string> = {
-  MONDAY: 'Mon',
-  TUESDAY: 'Tue',
-  WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu',
-  FRIDAY: 'Fri',
-  SATURDAY: 'Sat',
-  SUNDAY: 'Sun',
-};
-
 export function DraftCalendarGrid({
   blocks,
   colorBy = 'teacher',
@@ -99,6 +90,7 @@ export function DraftCalendarGrid({
   onResizeBlock,
   onDeleteBlock,
 }: DraftCalendarGridProps) {
+  const { t } = useTranslation();
   const hours = hoursRange(DISPLAY_START, DISPLAY_END);
   const openingHour = Math.floor(timeToMinutes(DISPLAY_START) / 60);
   const gridHeight = totalGridHeight(DISPLAY_START, DISPLAY_END);
@@ -115,7 +107,7 @@ export function DraftCalendarGrid({
 
   const columns: Column[] =
     xAxis === 'days'
-      ? WEEK_DAYS.map((day) => ({ key: day, label: DAY_LABELS[day], day }))
+      ? WEEK_DAYS.map((day) => ({ key: day, label: t(`draftPlan.days.${day}` as Parameters<typeof t>[0]), day }))
       : groups.map((g) => ({
           key: String(g.groupId),
           label: g.groupName,

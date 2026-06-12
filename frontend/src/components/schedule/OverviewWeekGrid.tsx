@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X } from 'lucide-react';
-import type { AnnexGroupDto, DayOfWeek, ScheduleBlock } from './types';
+import type { AnnexGroupDto, ScheduleBlock } from './types';
 import {
   WEEK_DAYS,
   hoursRange,
@@ -61,16 +62,6 @@ interface ResizeState {
   currentEnd: string;
 }
 
-const DAY_LABELS: Record<DayOfWeek, string> = {
-  MONDAY: 'Mon',
-  TUESDAY: 'Tue',
-  WEDNESDAY: 'Wed',
-  THURSDAY: 'Thu',
-  FRIDAY: 'Fri',
-  SATURDAY: 'Sat',
-  SUNDAY: 'Sun',
-};
-
 export interface OverviewWeekGridProps {
   blocks: ScheduleBlock[];
   groups: AnnexGroupDto[];
@@ -86,6 +77,7 @@ export function OverviewWeekGrid({
   onResizeBlock,
   onDeleteBlock,
 }: OverviewWeekGridProps) {
+  const { t } = useTranslation();
   const hours = hoursRange(DISPLAY_START, DISPLAY_END);
   const openingHour = Math.floor(timeToMinutes(DISPLAY_START) / 60);
   const gridHeight = totalGridHeight(DISPLAY_START, DISPLAY_END);
@@ -190,7 +182,7 @@ export function OverviewWeekGrid({
                     className="flex-1 px-2 py-1 text-center border-l-2 border-gray-400"
                   >
                     <span className="text-xs font-semibold">
-                      {DAY_LABELS[day]}
+                      {t(`draftPlan.days.${day}` as Parameters<typeof t>[0])}
                     </span>
                   </div>
                 ))
@@ -202,7 +194,7 @@ export function OverviewWeekGrid({
                     >
                       {gi === 0 && (
                         <span className="text-xs font-semibold">
-                          {DAY_LABELS[day]}
+                          {t(`draftPlan.days.${day}` as Parameters<typeof t>[0])}
                         </span>
                       )}
                     </div>
