@@ -20,7 +20,6 @@ const STATIC_ROUTES: Record<string, string> = {
   '/children': 'pages.children.title',
   '/rules': 'pages.rules.title',
   '/global-rules': 'pages.globalRules.title',
-  '/closed-days': 'pages.closedDays.title',
 };
 
 const ANNEX_SUB_LABELS: Record<string, string> = {

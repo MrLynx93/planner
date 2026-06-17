@@ -27,12 +27,6 @@ export interface AnnexChildGroupDto {
   groupName: string;
 }
 
-export interface ClosedDayDto {
-  id: number | null;
-  date: string;
-  reason: string;
-}
-
 export type RuleType =
   | 'TEACHER_WEEKLY_HOURS_MIN'
   | 'TEACHER_MAX_HOURS_PER_DAY'

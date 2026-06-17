@@ -15,7 +15,6 @@ export const api = createApi({
     'Teacher',
     'Group',
     'Child',
-    'ClosedDay',
     'AnnexChildGroup',
     'GlobalRule',
     'Violation',

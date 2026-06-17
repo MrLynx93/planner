@@ -25,14 +25,14 @@ public class AdminService {
             "annex", "groups", "teacher", "child",
             "rule", "annex_teacher", "annex_group", "annex_rule",
             "annex_child_group", "time_block", "annex_time_block",
-            "time_block_modification_group", "time_block_modification", "closed_day"
+            "time_block_modification_group", "time_block_modification"
     );
 
     private static final List<String> DELETE_ORDER = List.of(
             "time_block_modification", "annex_time_block",
             "time_block_modification_group", "time_block",
             "annex_child_group", "annex_rule", "annex_group", "annex_teacher",
-            "rule", "annex", "child", "teacher", "groups", "closed_day"
+            "rule", "annex", "child", "teacher", "groups"
     );
 
     private final JdbcTemplate jdbc;

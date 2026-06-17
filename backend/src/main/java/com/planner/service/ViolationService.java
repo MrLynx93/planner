@@ -23,7 +23,6 @@ public class ViolationService {
     private final AnnexGroupRepository annexGroupRepository;
     private final AnnexTimeBlockRepository annexTimeBlockRepository;
     private final TimeBlockModificationRepository modificationRepository;
-    private final ClosedDayRepository closedDayRepository;
     private final RuleResolutionService ruleResolutionService;
 
     private LocalTime effectiveStart(AnnexGroup ag) {
@@ -53,15 +52,10 @@ public class ViolationService {
             monthEnd = annex.getEndDate();
         }
 
-        // Closed days in range
-        Set<LocalDate> closedDays = closedDayRepository.findByDateBetween(monthStart, monthEnd)
-                .stream().map(ClosedDay::getDate).collect(Collectors.toSet());
-
-        // Working days (Mon–Fri, not closed)
+        // Working days (Mon–Fri)
         List<LocalDate> workingDays = monthStart.datesUntil(monthEnd.plusDays(1))
                 .filter(d -> d.getDayOfWeek() != DayOfWeek.SATURDAY
-                        && d.getDayOfWeek() != DayOfWeek.SUNDAY
-                        && !closedDays.contains(d))
+                        && d.getDayOfWeek() != DayOfWeek.SUNDAY)
                 .collect(Collectors.toList());
 
         if (workingDays.isEmpty()) return List.of();

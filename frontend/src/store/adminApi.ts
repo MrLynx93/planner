@@ -3,7 +3,7 @@ import { api } from './api';
 const ALL_TAGS = [
   'Annex', 'AnnexGroup', 'AnnexTeacher', 'AnnexRule', 'AnnexTimeBlock',
   'ModificationGroup', 'Exception', 'EffectiveSchedule', 'Teacher', 'Group',
-  'Child', 'ClosedDay', 'AnnexChildGroup', 'GlobalRule', 'Violation',
+  'Child', 'AnnexChildGroup', 'GlobalRule', 'Violation',
 ] as const;
 
 export const adminApi = api.injectEndpoints({

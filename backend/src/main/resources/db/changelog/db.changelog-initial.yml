@@ -401,26 +401,6 @@ databaseChangeLog:
                   constraints:
                     nullable: false
 
-        # ── closed_day ────────────────────────────────────────────────────────
-        - createTable:
-            tableName: closed_day
-            columns:
-              - column:
-                  name: id
-                  type: INT
-                  autoIncrement: true
-                  constraints:
-                    primaryKey: true
-                    nullable: false
-              - column:
-                  name: date
-                  type: DATE
-                  constraints:
-                    nullable: false
-                    unique: true
-              - column:
-                  name: reason
-                  type: VARCHAR(500)
 
   - changeSet:
       id: add-annex-group-tags
