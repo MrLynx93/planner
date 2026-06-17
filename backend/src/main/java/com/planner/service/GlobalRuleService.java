@@ -74,7 +74,7 @@ public class GlobalRuleService {
     }
 
     @Transactional
-    public GlobalRuleDto update(Integer id, int intValue) {
+    public GlobalRuleDto update(Integer id, double intValue) {
         Rule rule = ruleRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Global rule not found: " + id));
         rule.setIntValue(intValue);

@@ -15,6 +15,6 @@ public record ViolationDto(
         LocalDate date,            // null for monthly violations
         LocalTime startTime,       // null except for GROUP_UNDERSTAFFED interval violations
         LocalTime endTime,         // null except for GROUP_UNDERSTAFFED interval violations
-        Integer ruleValue,
-        Integer actualValue
+        Double ruleValue,
+        Double actualValue
 ) {}

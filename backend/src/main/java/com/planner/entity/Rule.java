@@ -27,5 +27,5 @@ public class Rule {
     private Teacher teacher;
 
     @Column(name = "int_value", nullable = false)
-    private Integer intValue;
+    private Double intValue;
 }

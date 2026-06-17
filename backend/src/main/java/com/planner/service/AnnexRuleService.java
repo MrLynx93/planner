@@ -56,7 +56,7 @@ public class AnnexRuleService {
     }
 
     @Transactional
-    public AnnexRuleDto update(Integer annexId, Integer annexRuleId, int intValue) {
+    public AnnexRuleDto update(Integer annexId, Integer annexRuleId, double intValue) {
         AnnexRule annexRule = annexRuleRepository.findById(annexRuleId)
                 .filter(ar -> ar.getAnnex().getId().equals(annexId))
                 .orElseThrow(() -> new EntityNotFoundException("AnnexRule not found: " + annexRuleId));

@@ -43,10 +43,10 @@ public class PlanGeneratorService {
     private record TimeBlockDraft(int teacherId, int groupId, DayOfWeek dayOfWeek, LocalTime startTime, LocalTime endTime) {}
 
     private record CostContext(
-            Map<Integer, Integer> teacherMinWeekly,
-            Map<Integer, Integer> teacherMaxDaily,
-            Map<Integer, Integer> groupMinTeachers,
-            Map<Integer, Integer> groupMaxTeachers,
+            Map<Integer, Double> teacherMinWeekly,
+            Map<Integer, Double> teacherMaxDaily,
+            Map<Integer, Double> groupMinTeachers,
+            Map<Integer, Double> groupMaxTeachers,
             Map<Integer, LocalTime> groupEffStart,
             Map<Integer, LocalTime> groupEffEnd
     ) {}
@@ -82,22 +82,22 @@ public class PlanGeneratorService {
             groupEffEnd.put(groupId, effectiveEnd(ag));
         }
 
-        Map<Integer, Integer> teacherMinWeekly = new HashMap<>();
-        Map<Integer, Integer> teacherMaxDaily = new HashMap<>();
+        Map<Integer, Double> teacherMinWeekly = new HashMap<>();
+        Map<Integer, Double> teacherMaxDaily = new HashMap<>();
         for (AnnexTeacher at : annexTeachers) {
             int teacherId = at.getTeacher().getId();
-            Integer minW = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
-            Integer maxD = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
+            Double minW = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
+            Double maxD = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
             if (minW != null) teacherMinWeekly.put(teacherId, minW);
             if (maxD != null) teacherMaxDaily.put(teacherId, maxD);
         }
 
-        Map<Integer, Integer> groupMinTeachers = new HashMap<>();
-        Map<Integer, Integer> groupMaxTeachers = new HashMap<>();
+        Map<Integer, Double> groupMinTeachers = new HashMap<>();
+        Map<Integer, Double> groupMaxTeachers = new HashMap<>();
         for (AnnexGroup ag : annexGroups) {
             int groupId = ag.getGroup().getId();
-            Integer minT = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
-            Integer maxT = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
+            Double minT = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
+            Double maxT = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
             if (minT != null) groupMinTeachers.put(groupId, minT);
             if (maxT != null) groupMaxTeachers.put(groupId, maxT);
         }
@@ -233,27 +233,27 @@ public class PlanGeneratorService {
         double cost = 0;
 
         // Teacher hour rules — lower priority (soft constraints)
-        for (Map.Entry<Integer, Integer> e : ctx.teacherMinWeekly().entrySet()) {
+        for (Map.Entry<Integer, Double> e : ctx.teacherMinWeekly().entrySet()) {
             int teacherId = e.getKey();
-            int minHours = e.getValue();
+            double minHours = e.getValue();
             int actualMinutes = schedule.stream()
                     .filter(b -> b.teacherId() == teacherId)
                     .mapToInt(b -> (int) Duration.between(b.startTime(), b.endTime()).toMinutes())
                     .sum();
-            if (actualMinutes / 60 < minHours) {
+            if (actualMinutes / 60.0 < minHours) {
                 cost += (minHours - actualMinutes / 60.0) * 10.0;
             }
         }
 
-        for (Map.Entry<Integer, Integer> e : ctx.teacherMaxDaily().entrySet()) {
+        for (Map.Entry<Integer, Double> e : ctx.teacherMaxDaily().entrySet()) {
             int teacherId = e.getKey();
-            int maxHours = e.getValue();
+            double maxHours = e.getValue();
             for (DayOfWeek dow : WEEKDAYS) {
                 int dayMinutes = schedule.stream()
                         .filter(b -> b.teacherId() == teacherId && b.dayOfWeek() == dow)
                         .mapToInt(b -> (int) Duration.between(b.startTime(), b.endTime()).toMinutes())
                         .sum();
-                if (dayMinutes / 60 > maxHours) {
+                if (dayMinutes / 60.0 > maxHours) {
                     cost += (dayMinutes / 60.0 - maxHours) * 10.0;
                 }
             }
@@ -263,8 +263,8 @@ public class PlanGeneratorService {
         for (int groupId : ctx.groupEffStart().keySet()) {
             LocalTime groupStart = ctx.groupEffStart().get(groupId);
             LocalTime groupEnd = ctx.groupEffEnd().get(groupId);
-            Integer minTeachers = ctx.groupMinTeachers().get(groupId);
-            Integer maxTeachers = ctx.groupMaxTeachers().get(groupId);
+            Double minTeachers = ctx.groupMinTeachers().get(groupId);
+            Double maxTeachers = ctx.groupMaxTeachers().get(groupId);
             if (minTeachers == null && maxTeachers == null) continue;
 
             for (DayOfWeek dow : WEEKDAYS) {
@@ -358,9 +358,9 @@ public class PlanGeneratorService {
                 int newGroupId = others.get(rand.nextInt(others.size()));
                 LocalTime start = groupEffStart.getOrDefault(newGroupId, DEFAULT_SCHEDULE_START);
                 LocalTime end = groupEffEnd.getOrDefault(newGroupId, DEFAULT_SCHEDULE_END);
-                Integer maxD = ctx.teacherMaxDaily().get(b.teacherId());
-                if (maxD != null && Duration.between(start, end).toMinutes() > maxD * 60L) {
-                    end = start.plusMinutes(maxD * 60L);
+                Double maxD = ctx.teacherMaxDaily().get(b.teacherId());
+                if (maxD != null && Duration.between(start, end).toMinutes() > maxD * 60) {
+                    end = start.plusMinutes(Math.round(maxD * 60));
                 }
                 result.set(idx, new TimeBlockDraft(b.teacherId(), newGroupId, b.dayOfWeek(), start, end));
             }
@@ -384,9 +384,9 @@ public class PlanGeneratorService {
         DayOfWeek dow = WEEKDAYS.get(rand.nextInt(WEEKDAYS.size()));
         LocalTime start = groupEffStart.getOrDefault(groupId, DEFAULT_SCHEDULE_START);
         LocalTime end = groupEffEnd.getOrDefault(groupId, DEFAULT_SCHEDULE_END);
-        Integer maxD = ctx.teacherMaxDaily().get(teacherId);
-        if (maxD != null && Duration.between(start, end).toMinutes() > maxD * 60L) {
-            end = start.plusMinutes(maxD * 60L);
+        Double maxD = ctx.teacherMaxDaily().get(teacherId);
+        if (maxD != null && Duration.between(start, end).toMinutes() > maxD * 60) {
+            end = start.plusMinutes(Math.round(maxD * 60));
         }
         List<TimeBlockDraft> result = new ArrayList<>(schedule);
         result.add(new TimeBlockDraft(teacherId, groupId, dow, start, end));

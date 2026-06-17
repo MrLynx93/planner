@@ -12,5 +12,5 @@ public record AnnexRuleDto(
         Integer teacherId,
         String teacherFirstName,
         String teacherLastName,
-        Integer intValue
+        Double intValue
 ) {}

@@ -16,6 +16,12 @@ const selectClass =
 const inputClass =
   'rounded-md border border-border bg-background px-2.5 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-full';
 
+// Teacher-count rules (GROUP_MIN/MAX_TEACHERS) only make sense as whole numbers;
+// hour-based rules (TEACHER_WEEKLY_HOURS_MIN, TEACHER_MAX_HOURS_PER_DAY) allow partial hours.
+function ruleStep(ruleType: RuleType): string {
+  return RULE_NEEDS_GROUP.includes(ruleType) ? '1' : '0.25';
+}
+
 export function GlobalRulesPage() {
   const { t } = useTranslation();
 
@@ -122,6 +128,7 @@ export function GlobalRulesPage() {
                       <input
                         type="number"
                         min="0"
+                        step={ruleStep(rule.ruleType)}
                         className="rounded-md border border-border bg-background px-2.5 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-24 h-7"
                         value={editValue}
                         onChange={(e) => setEditValue(e.target.value)}
@@ -245,6 +252,7 @@ export function GlobalRulesPage() {
               <input
                 type="number"
                 min="0"
+                step={ruleStep(ruleType)}
                 className={inputClass}
                 value={intValue}
                 onChange={(e) => setIntValue(e.target.value)}

@@ -13,5 +13,5 @@ public record RuleWithSourceDto(
         String teacherLastName,
         Integer groupId,
         String groupName,
-        int intValue
+        double intValue
 ) {}

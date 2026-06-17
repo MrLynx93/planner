@@ -14,6 +14,6 @@ public record TemplateViolationDto(
         String dayOfWeek,
         LocalTime startTime,
         LocalTime endTime,
-        Integer ruleValue,
-        Integer actualValue
+        Double ruleValue,
+        Double actualValue
 ) {}

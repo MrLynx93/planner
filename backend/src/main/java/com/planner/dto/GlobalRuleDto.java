@@ -10,5 +10,5 @@ public record GlobalRuleDto(
         Integer teacherId,
         String teacherFirstName,
         String teacherLastName,
-        Integer intValue
+        Double intValue
 ) {}

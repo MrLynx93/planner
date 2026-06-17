@@ -24,11 +24,11 @@ public class RuleResolutionService {
     private final AnnexRuleRepository annexRuleRepository;
     private final RuleRepository ruleRepository;
 
-    public Integer resolveForTeacher(Integer annexId, Integer teacherId, RuleType type) {
+    public Double resolveForTeacher(Integer annexId, Integer teacherId, RuleType type) {
         List<AnnexRule> annexRules = annexRuleRepository.findByAnnexId(annexId);
 
         // 1. Annex-teacher specific
-        Integer specific = annexRules.stream()
+        Double specific = annexRules.stream()
                 .map(AnnexRule::getRule)
                 .filter(r -> r.getType() == type
                         && r.getTeacher() != null
@@ -39,7 +39,7 @@ public class RuleResolutionService {
         if (specific != null) return specific;
 
         // 2. Annex default (no teacher)
-        Integer annexDefault = annexRules.stream()
+        Double annexDefault = annexRules.stream()
                 .map(AnnexRule::getRule)
                 .filter(r -> r.getType() == type && r.getTeacher() == null && r.getGroup() == null)
                 .map(Rule::getIntValue)
@@ -55,11 +55,11 @@ public class RuleResolutionService {
                 .orElse(null);
     }
 
-    public Integer resolveForGroup(Integer annexId, Integer groupId, RuleType type) {
+    public Double resolveForGroup(Integer annexId, Integer groupId, RuleType type) {
         List<AnnexRule> annexRules = annexRuleRepository.findByAnnexId(annexId);
 
         // 1. Annex-group specific
-        Integer specific = annexRules.stream()
+        Double specific = annexRules.stream()
                 .map(AnnexRule::getRule)
                 .filter(r -> r.getType() == type
                         && r.getGroup() != null
@@ -70,7 +70,7 @@ public class RuleResolutionService {
         if (specific != null) return specific;
 
         // 2. Annex default (no group)
-        Integer annexDefault = annexRules.stream()
+        Double annexDefault = annexRules.stream()
                 .map(AnnexRule::getRule)
                 .filter(r -> r.getType() == type && r.getGroup() == null && r.getTeacher() == null)
                 .map(Rule::getIntValue)

@@ -4,6 +4,12 @@ import { useOutletContext } from 'react-router-dom';
 import type { AnnexDto } from '@/components/schedule/types';
 import { ALL_RULE_TYPES, RULE_NEEDS_TEACHER, RULE_NEEDS_GROUP } from '@/types';
 import type { AnnexRuleDto, RuleWithSourceDto, RuleType } from '@/types';
+
+// Teacher-count rules (GROUP_MIN/MAX_TEACHERS) only make sense as whole numbers;
+// hour-based rules (TEACHER_WEEKLY_HOURS_MIN, TEACHER_MAX_HOURS_PER_DAY) allow partial hours.
+function ruleStep(ruleType: RuleType): string {
+  return RULE_NEEDS_GROUP.includes(ruleType) ? '1' : '0.25';
+}
 import {
   useGetAnnexRulesCombinedQuery,
   useGetAnnexTeachersQuery,
@@ -215,6 +221,7 @@ export function AnnexRulesPage() {
                               <input
                                 type="number"
                                 min="0"
+                                step={ruleStep(row.ruleType)}
                                 className="rounded-md border border-border bg-background px-2 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-20 h-7"
                                 value={editValue}
                                 onChange={(e) => setEditValue(e.target.value)}
@@ -225,6 +232,7 @@ export function AnnexRulesPage() {
                               <input
                                 type="number"
                                 min="0"
+                                step={ruleStep(row.ruleType)}
                                 className="rounded-md border border-border bg-background px-2 py-0 text-sm focus:outline-none focus:ring-2 focus:ring-ring w-20 h-7"
                                 value={defineValue}
                                 onChange={(e) => setDefineValue(e.target.value)}

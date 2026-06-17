@@ -88,14 +88,14 @@ public class ViolationService {
             String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
 
             // TEACHER_WEEKLY_HOURS_MIN — checked against the template (standard week)
-            Integer minWeeklyHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
+            Double minWeeklyHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
             if (minWeeklyHours != null) {
                 int weeklyMinutes = templateBlocks.stream()
                         .filter(atb -> atb.getTimeBlock().getTeacher().getId().equals(teacherId))
                         .mapToInt(atb -> (int) Duration.between(
                                 atb.getTimeBlock().getStartTime(), atb.getTimeBlock().getEndTime()).toMinutes())
                         .sum();
-                int actualWeeklyHours = weeklyMinutes / 60;
+                double actualWeeklyHours = weeklyMinutes / 60.0;
                 if (actualWeeklyHours < minWeeklyHours) {
                     violations.add(new ViolationDto(
                             ViolationType.TEACHER_WEEKLY_HOURS_TOO_LOW, "ERROR",
@@ -106,14 +106,14 @@ public class ViolationService {
             }
 
             // TEACHER_MAX_HOURS_PER_DAY
-            Integer maxPerDay = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
+            Double maxPerDay = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
             if (maxPerDay != null) {
                 for (LocalDate day : workingDays) {
                     int dayMinutes = blocksByDay.getOrDefault(day, List.of()).stream()
                             .filter(b -> b.teacherId == teacherId)
                             .mapToInt(BlockInfo::durationMinutes)
                             .sum();
-                    int dayHours = dayMinutes / 60;
+                    double dayHours = dayMinutes / 60.0;
                     if (dayHours > maxPerDay) {
                         violations.add(new ViolationDto(
                                 ViolationType.TEACHER_DAILY_HOURS_TOO_HIGH, "WARNING",
@@ -132,8 +132,8 @@ public class ViolationService {
             int groupId = ag.getGroup().getId();
             String groupName = ag.getGroup().getName();
 
-            Integer minTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
-            Integer maxTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
+            Double minTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
+            Double maxTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
 
             if (minTeachers == null && maxTeachers == null) continue;
 
@@ -151,7 +151,7 @@ public class ViolationService {
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, day,
                                 groupStart, groupEnd,
-                                minTeachers, 0
+                                minTeachers, 0.0
                         ));
                     }
                     continue;
@@ -184,7 +184,7 @@ public class ViolationService {
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, day,
                                 intervalStart, intervalEnd,
-                                minTeachers, (int) teacherCount
+                                minTeachers, (double) teacherCount
                         ));
                     }
                     if (maxTeachers != null && teacherCount > maxTeachers) {
@@ -192,7 +192,7 @@ public class ViolationService {
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_HIGH, "WARNING",
                                 null, null, groupId, groupName, day,
                                 intervalStart, intervalEnd,
-                                maxTeachers, (int) teacherCount
+                                maxTeachers, (double) teacherCount
                         ));
                     }
                 }
@@ -219,14 +219,14 @@ public class ViolationService {
             int teacherId = teacher.getId();
             String teacherName = teacher.getFirstName() + " " + teacher.getLastName();
 
-            Integer minWeeklyHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
+            Double minWeeklyHours = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_WEEKLY_HOURS_MIN);
             if (minWeeklyHours != null) {
                 int weeklyMinutes = templateBlocks.stream()
                         .filter(atb -> atb.getTimeBlock().getTeacher().getId().equals(teacherId))
                         .mapToInt(atb -> (int) Duration.between(
                                 atb.getTimeBlock().getStartTime(), atb.getTimeBlock().getEndTime()).toMinutes())
                         .sum();
-                int actualWeeklyHours = weeklyMinutes / 60;
+                double actualWeeklyHours = weeklyMinutes / 60.0;
                 if (actualWeeklyHours < minWeeklyHours) {
                     violations.add(new TemplateViolationDto(
                             ViolationType.TEACHER_WEEKLY_HOURS_TOO_LOW, "ERROR",
@@ -235,7 +235,7 @@ public class ViolationService {
                 }
             }
 
-            Integer maxPerDay = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
+            Double maxPerDay = ruleResolutionService.resolveForTeacher(annexId, teacherId, RuleType.TEACHER_MAX_HOURS_PER_DAY);
             if (maxPerDay != null) {
                 for (DayOfWeek dow : weekDays) {
                     int dayMinutes = templateBlocks.stream()
@@ -244,11 +244,11 @@ public class ViolationService {
                             .mapToInt(atb -> (int) Duration.between(
                                     atb.getTimeBlock().getStartTime(), atb.getTimeBlock().getEndTime()).toMinutes())
                             .sum();
-                    if (dayMinutes / 60 > maxPerDay) {
+                    if (dayMinutes / 60.0 > maxPerDay) {
                         violations.add(new TemplateViolationDto(
                                 ViolationType.TEACHER_DAILY_HOURS_TOO_HIGH, "ERROR",
                                 teacherId, teacherName, null, null, dow.name(),
-                                null, null, maxPerDay, dayMinutes / 60));
+                                null, null, maxPerDay, dayMinutes / 60.0));
                     }
                 }
             }
@@ -258,8 +258,8 @@ public class ViolationService {
             int groupId = ag.getGroup().getId();
             String groupName = ag.getGroup().getName();
 
-            Integer minTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
-            Integer maxTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
+            Double minTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MIN_TEACHERS);
+            Double maxTeachers = ruleResolutionService.resolveForGroup(annexId, groupId, RuleType.GROUP_MAX_TEACHERS);
 
             if (minTeachers == null && maxTeachers == null) continue;
 
@@ -283,7 +283,7 @@ public class ViolationService {
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, dow.name(),
                                 groupStart, groupEnd,
-                                minTeachers, 0));
+                                minTeachers, 0.0));
                     }
                     continue;
                 }
@@ -314,13 +314,13 @@ public class ViolationService {
                         violations.add(new TemplateViolationDto(
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_LOW, "ERROR",
                                 null, null, groupId, groupName, dow.name(),
-                                intervalStart, intervalEnd, minTeachers, (int) teacherCount));
+                                intervalStart, intervalEnd, minTeachers, (double) teacherCount));
                     }
                     if (maxTeachers != null && teacherCount > maxTeachers) {
                         violations.add(new TemplateViolationDto(
                                 ViolationType.GROUP_TEACHER_COUNT_TOO_HIGH, "ERROR",
                                 null, null, groupId, groupName, dow.name(),
-                                intervalStart, intervalEnd, maxTeachers, (int) teacherCount));
+                                intervalStart, intervalEnd, maxTeachers, (double) teacherCount));
                     }
                 }
             }

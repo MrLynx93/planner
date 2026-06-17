@@ -235,7 +235,7 @@ databaseChangeLog:
                     references: teacher(id)
               - column:
                   name: int_value
-                  type: INT
+                  type: DECIMAL(6,2)
                   constraints:
                     nullable: false
 
