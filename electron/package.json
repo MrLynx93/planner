@@ -1,6 +1,6 @@
 {
   "name": "planner-electron",
-  "version": "0.1.0",
+  "version": "1.0",
   "description": "Preschool Teacher Scheduling Application - Desktop",
   "main": "main.js",
   "scripts": {
