@@ -190,7 +190,7 @@ export async function exportPlanTableToExcel(
       orientation: 'landscape',
       fitToPage: true,
       fitToWidth: 1,
-      fitToHeight: 0,
+      fitToHeight: 1,
       paperSize: 9, // A4
       margins: { left: 0.5, right: 0.5, top: 0.75, bottom: 0.75, header: 0.3, footer: 0.3 },
     },
@@ -202,8 +202,8 @@ export async function exportPlanTableToExcel(
 
   sheet.columns = [
     { width: 24 },
-    { width: 11 },
-    ...WEEK_DAYS.map(() => ({ width: 18 })),
+    { width: 15 },
+    ...WEEK_DAYS.map(() => ({ width: 15 })),
     { width: 8 },
     { width: 10 },
   ];
@@ -275,7 +275,11 @@ export async function exportPlanTableToExcel(
     ]);
 
     const maxLines = Math.max(1, ...dayValues.map(countLines));
-    dataRow.height = Math.max(20, maxLines * 16);
+    const groupCellLineCount = isFirstInGroup ? groupCellText.split('\n').length : 0;
+    const minHeightForGroupCell = isFirstInGroup
+      ? Math.max(20, groupCellLineCount * 16 - (groupSize - 1) * 20)
+      : 20;
+    dataRow.height = Math.max(minHeightForGroupCell, maxLines * 16);
 
     dataRow.eachCell({ includeEmpty: true }, (cell, col) => {
       cell.font = { size: 10, color: { argb: 'FF1F2937' } };

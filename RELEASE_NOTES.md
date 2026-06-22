@@ -2,7 +2,8 @@
 
 ## Version 1.1
 
-- **Teacher's time blocks overlap detection** — the tabular plan view now checks whether a teacher is assigned to more than one group at the same time on any day. 
+- **Teacher's time blocks overlap detection** — the tabular plan view now checks whether a teacher is assigned to more than one group at the same time on any day.
+- **Excel export print improvements** — exported files now scale to fill the full page when printing, and cell heights are automatically adjusted so all content is visible.
 
 ---
 
