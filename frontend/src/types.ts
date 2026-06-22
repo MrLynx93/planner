@@ -90,7 +90,8 @@ export type ViolationType =
   | 'TEACHER_DAILY_HOURS_TOO_HIGH'
   | 'GROUP_TEACHER_COUNT_TOO_LOW'
   | 'GROUP_TEACHER_COUNT_TOO_HIGH'
-  | 'BLOCK_OUTSIDE_GROUP_HOURS';
+  | 'BLOCK_OUTSIDE_GROUP_HOURS'
+  | 'TEACHER_OVERLAPPING_TIME_BLOCKS';
 
 export interface ViolationDto {
   violationType: ViolationType;

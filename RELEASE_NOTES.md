@@ -1,5 +1,11 @@
 # Release Notes
 
+## Version 1.1
+
+- **Teacher's time blocks overlap detection** — the tabular plan view now checks whether a teacher is assigned to more than one group at the same time on any day. 
+
+---
+
 ## Version 1.0
 
 ### Annex Management

@@ -336,7 +336,8 @@
       "TEACHER_DAILY_HOURS_TOO_HIGH": "{{name}} w {{dayOfWeek}}: {{actual}}h, maks. {{rule}}h.",
       "GROUP_TEACHER_COUNT_TOO_LOW": "Grupa {{name}} w {{dayOfWeek}} ma {{actual}} nauczycieli w godzinach {{startTime}}–{{endTime}}. Powinna mieć {{rule}}.",
       "GROUP_TEACHER_COUNT_TOO_HIGH": "Grupa {{name}} w {{dayOfWeek}} ma {{actual}} nauczycieli w godzinach {{startTime}}–{{endTime}}. Powinna mieć maksymalnie {{rule}}.",
-      "BLOCK_OUTSIDE_GROUP_HOURS": "{{name}} ({{groupName}}), {{dayOfWeek}}: blok {{startTime}}–{{endTime}} poza godzinami pracy grupy"
+      "BLOCK_OUTSIDE_GROUP_HOURS": "{{name}} ({{groupName}}), {{dayOfWeek}}: blok {{startTime}}–{{endTime}} poza godzinami pracy grupy",
+      "TEACHER_OVERLAPPING_TIME_BLOCKS": "{{name}} jest przypisany/a do {{actual}} grup jednocześnie w {{dayOfWeek}}: {{groupName}}"
     },
     "months": {
       "1": "Styczeń",

@@ -210,6 +210,56 @@ function OpenCloseSummary({
   );
 }
 
+function computeOverlapViolations(
+  allBlocks: ScheduleBlock[],
+  teachers: AnnexTeacherDto[]
+): TemplateViolationDto[] {
+  const violations: TemplateViolationDto[] = [];
+  for (const day of WEEK_DAYS) {
+    const teacherIds = [...new Set(allBlocks.filter((b) => b.dayOfWeek === day).map((b) => b.teacherId))];
+    for (const teacherId of teacherIds) {
+      const dayBlocks = allBlocks.filter((b) => b.dayOfWeek === day && b.teacherId === teacherId);
+      const overlappingGroupIds = new Set<number>();
+      for (let i = 0; i < dayBlocks.length; i++) {
+        for (let j = i + 1; j < dayBlocks.length; j++) {
+          const a = dayBlocks[i];
+          const b = dayBlocks[j];
+          if (a.groupId !== b.groupId) {
+            const aStart = timeToMinutes(a.startTime);
+            const aEnd = timeToMinutes(a.endTime);
+            const bStart = timeToMinutes(b.startTime);
+            const bEnd = timeToMinutes(b.endTime);
+            if (aStart < bEnd && bStart < aEnd) {
+              overlappingGroupIds.add(a.groupId);
+              overlappingGroupIds.add(b.groupId);
+            }
+          }
+        }
+      }
+      if (overlappingGroupIds.size > 0) {
+        const teacher = teachers.find((t) => t.teacherId === teacherId);
+        const groupNames = [
+          ...new Set(dayBlocks.filter((b) => overlappingGroupIds.has(b.groupId)).map((b) => b.groupName)),
+        ].join(', ');
+        violations.push({
+          violationType: 'TEACHER_OVERLAPPING_TIME_BLOCKS',
+          severity: 'ERROR',
+          teacherId,
+          teacherName: teacher ? `${teacher.firstName} ${teacher.lastName}` : String(teacherId),
+          groupId: null,
+          groupName: groupNames,
+          dayOfWeek: day,
+          startTime: null,
+          endTime: null,
+          ruleValue: 0,
+          actualValue: overlappingGroupIds.size,
+        });
+      }
+    }
+  }
+  return violations;
+}
+
 function getGroupTimeHighlight(
   v: TemplateViolationDto | null,
   group: AnnexGroupDto
@@ -244,6 +294,9 @@ function isCellHighlighted(
       if (v.groupId !== row.groupId) return false;
       if (row.teacherId === null || v.teacherId !== row.teacherId) return false;
       return v.dayOfWeek === day;
+    case 'TEACHER_OVERLAPPING_TIME_BLOCKS':
+      if (!row.teacherId || v.teacherId !== row.teacherId) return false;
+      return day === null || v.dayOfWeek === day;
   }
   return false;
 }
@@ -301,6 +354,16 @@ export function AnnexPlanTablePage() {
   const { data: allBlocks = [] } = useGetAnnexTimeBlocksQuery(annexId);
   const { data: rules = [] } = useGetAnnexRulesCombinedQuery(annexId);
   const { data: templateViolations = [] } = useGetTemplateViolationsQuery(annexId);
+
+  const overlapViolations = useMemo(
+    () => computeOverlapViolations(allBlocks, teachers),
+    [allBlocks, teachers]
+  );
+
+  const allViolations = useMemo(
+    () => [...templateViolations, ...overlapViolations],
+    [templateViolations, overlapViolations]
+  );
 
   const [createTimeBlock] = useCreateAnnexTimeBlockMutation();
   const [updateTimeBlock] = useUpdateAnnexTimeBlockMutation();
@@ -683,10 +746,10 @@ export function AnnexPlanTablePage() {
                     </td>
                   );
                 })}
-                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground', hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId ? 'font-semibold' : 'text-muted-foreground', hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && hoveredViolation?.violationType !== 'TEACHER_OVERLAPPING_TIME_BLOCKS' && 'ring-2 ring-inset ring-destructive')}>
                   {teacher ? `${weeklyHours(allBlocks, group.groupId, teacher.teacherId)}h` : '—'}
                 </td>
-                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold', hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && 'ring-2 ring-inset ring-destructive')}>
+                <td className={cn('border border-border px-3 py-2 text-right font-mono text-xs transition-colors group-hover:bg-muted-foreground/20', teacher?.defaultGroupId === group.groupId && 'font-semibold', hoveredSummaryTeacherId === teacher?.teacherId && 'bg-muted-foreground/20', isCellHighlighted(hoveredViolation, { groupId: group.groupId, teacherId: teacher?.teacherId ?? null }, null) && hoveredViolation?.violationType !== 'TEACHER_OVERLAPPING_TIME_BLOCKS' && 'ring-2 ring-inset ring-destructive')}>
                   {(() => {
                     if (!teacher) return <span className="text-muted-foreground">—</span>;
                     const groupHours = parseFloat(weeklyHours(allBlocks, group.groupId, teacher.teacherId));
@@ -806,9 +869,9 @@ export function AnnexPlanTablePage() {
             )}
           >
             {t('violations.title')}
-            {templateViolations.length > 0 && (
+            {allViolations.length > 0 && (
               <span className={cn('ml-1.5', showViolations ? 'text-primary-foreground/80' : 'text-destructive')}>
-                ({templateViolations.length})
+                ({allViolations.length})
               </span>
             )}
           </button>
@@ -847,14 +910,16 @@ export function AnnexPlanTablePage() {
           <div className="flex flex-1 min-h-0">
             {showViolations && (
               <div className={cn('overflow-auto flex-1 px-4 py-3', (showSummary || showOpenClose) && 'border-r border-border')}>
-                {templateViolations.length === 0 ? (
+                {allViolations.length === 0 ? (
                   <p className="text-sm text-muted-foreground">{t('violations.noViolations')}</p>
                 ) : (
                   <table className="text-sm">
                     <tbody>
-                      {[...templateViolations]
+                      {[...allViolations]
                         .sort((a, b) =>
-                          a.violationType === 'BLOCK_OUTSIDE_GROUP_HOURS' && b.violationType !== 'BLOCK_OUTSIDE_GROUP_HOURS' ? -1
+                          a.violationType === 'TEACHER_OVERLAPPING_TIME_BLOCKS' && b.violationType !== 'TEACHER_OVERLAPPING_TIME_BLOCKS' ? -1
+                          : b.violationType === 'TEACHER_OVERLAPPING_TIME_BLOCKS' && a.violationType !== 'TEACHER_OVERLAPPING_TIME_BLOCKS' ? 1
+                          : a.violationType === 'BLOCK_OUTSIDE_GROUP_HOURS' && b.violationType !== 'BLOCK_OUTSIDE_GROUP_HOURS' ? -1
                           : b.violationType === 'BLOCK_OUTSIDE_GROUP_HOURS' && a.violationType !== 'BLOCK_OUTSIDE_GROUP_HOURS' ? 1
                           : 0
                         )
