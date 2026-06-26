@@ -2,8 +2,16 @@ package com.planner.service;
 
 import com.planner.dto.AnnexDto;
 import com.planner.entity.Annex;
+import com.planner.entity.AnnexGroup;
 import com.planner.entity.AnnexState;
+import com.planner.entity.AnnexTeacher;
+import com.planner.entity.Group;
+import com.planner.entity.Teacher;
+import com.planner.repository.AnnexGroupRepository;
 import com.planner.repository.AnnexRepository;
+import com.planner.repository.AnnexTeacherRepository;
+import com.planner.repository.GroupRepository;
+import com.planner.repository.TeacherRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,6 +25,10 @@ import java.util.List;
 public class AnnexService {
 
     private final AnnexRepository annexRepository;
+    private final TeacherRepository teacherRepository;
+    private final AnnexTeacherRepository annexTeacherRepository;
+    private final GroupRepository groupRepository;
+    private final AnnexGroupRepository annexGroupRepository;
 
     public List<AnnexDto> findAll() {
         return annexRepository.findAll().stream().map(this::toDto).toList();
@@ -26,6 +38,7 @@ public class AnnexService {
         return toDto(getOrThrow(id));
     }
 
+    @Transactional
     public AnnexDto create(AnnexDto dto) {
         if (annexRepository.existsByState(AnnexState.DRAFT)) {
             throw new IllegalStateException("A DRAFT annex already exists");
@@ -33,7 +46,29 @@ public class AnnexService {
         Annex annex = new Annex();
         annex.setState(AnnexState.DRAFT);
         apply(annex, dto);
-        return toDto(annexRepository.save(annex));
+        Annex saved = annexRepository.save(annex);
+        seedTeachers(saved);
+        seedGroups(saved);
+        return toDto(saved);
+    }
+
+    private void seedTeachers(Annex annex) {
+        for (Teacher teacher : teacherRepository.findAll()) {
+            AnnexTeacher at = new AnnexTeacher();
+            at.setAnnex(annex);
+            at.setTeacher(teacher);
+            at.setDefaultGroup(null);
+            annexTeacherRepository.save(at);
+        }
+    }
+
+    private void seedGroups(Annex annex) {
+        for (Group group : groupRepository.findAll()) {
+            AnnexGroup ag = new AnnexGroup();
+            ag.setAnnex(annex);
+            ag.setGroup(group);
+            annexGroupRepository.save(ag);
+        }
     }
 
     public AnnexDto update(Integer id, AnnexDto dto) {

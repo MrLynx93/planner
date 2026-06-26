@@ -59,6 +59,7 @@ export function AnnexStaffPage() {
   const [draggingAvailableTeacher, setDraggingAvailableTeacher] = useState(false);
   const [draggingTag, setDraggingTag] = useState(false);
   const [dropOverPanel, setDropOverPanel] = useState(false);
+  const [dragOverUnassigned, setDragOverUnassigned] = useState(false);
 
   const isDraggingTeacher = (draggingAnnexTeacher || draggingAvailableTeacher) && !isReadOnly;
   const isDraggingTagItem = draggingTag && !isReadOnly;
@@ -224,6 +225,38 @@ export function AnnexStaffPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/50">
+                {(unassignedTeachers.length > 0 || isDraggingTeacher) && (
+                  <tr className="transition-colors hover:bg-amber-100/60 bg-amber-50/70">
+                    <td className="px-3 py-3 text-center text-amber-700">—</td>
+                    <td className="px-3 py-3 font-bold text-amber-800 whitespace-nowrap">{t('pages.annexStaff.unassigned')}</td>
+                    <td className="px-3 py-3" />
+                    <td className="px-3 py-3" />
+                    <td className="px-3 py-3">
+                      <div
+                        className={cn(
+                          'flex flex-wrap gap-1.5 min-h-[36px] rounded p-1 transition-colors',
+                          dragOverUnassigned && !isReadOnly
+                            ? 'bg-primary/10 outline outline-2 outline-dashed outline-primary'
+                            : isDraggingTeacher
+                            ? 'outline outline-2 outline-dashed outline-border'
+                            : ''
+                        )}
+                        onDragOver={(e) => {
+                          if (!e.dataTransfer.types.some(t => t === KEY_ANNEX || t === KEY_AVAILABLE) || isReadOnly) return;
+                          e.preventDefault();
+                          setDragOverUnassigned(true);
+                        }}
+                        onDragLeave={() => setDragOverUnassigned(false)}
+                        onDrop={(e) => {
+                          setDragOverUnassigned(false);
+                          handleDrop(e, null);
+                        }}
+                      >
+                        {unassignedTeachers.map(renderTeacherChip)}
+                      </div>
+                    </td>
+                  </tr>
+                )}
                 {allGroups.map((g: GroupDto) => {
                   const ag = annexGroups.find((annexGroup) => annexGroup.groupId === g.id);
                   const isIncluded = !!ag;
@@ -383,19 +416,6 @@ export function AnnexStaffPage() {
                     </tr>
                   );
                 })}
-                {unassignedTeachers.length > 0 && (
-                  <tr className="transition-colors hover:bg-muted/20 text-muted-foreground">
-                    <td className="px-3 py-3 text-center">—</td>
-                    <td className="px-3 py-3 italic text-sm">{t('pages.annexStaff.unassigned')}</td>
-                    <td className="px-3 py-3" />
-                    <td className="px-3 py-3" />
-                    <td className="px-3 py-3">
-                      <div className="flex flex-wrap gap-1.5 min-h-[36px] rounded p-1">
-                        {unassignedTeachers.map(renderTeacherChip)}
-                      </div>
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
