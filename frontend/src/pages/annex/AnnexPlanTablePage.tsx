@@ -760,6 +760,16 @@ export function AnnexPlanTablePage() {
                       const label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h`;
                       const color = diff < 0 ? 'text-destructive' : '';
                       return <span className={color}>{label}</span>;
+                    } else if (!teacher.defaultGroupId) {
+                      const totalHours = allBlocks
+                        .filter((b) => b.teacherId === teacher.teacherId)
+                        .reduce((sum, b) => sum + timeToMinutes(b.endTime) - timeToMinutes(b.startTime), 0) / 60;
+                      const minH = effectiveMinHours(rules, teacher.teacherId);
+                      if (minH === null) return <span className="text-muted-foreground">—</span>;
+                      const diff = totalHours - minH;
+                      const label = `${diff >= 0 ? '+' : ''}${diff.toFixed(1)}h`;
+                      const color = diff < 0 ? 'text-destructive' : '';
+                      return <span className={color}>{label}</span>;
                     } else {
                       if (groupHours === 0) return <span className="text-muted-foreground">—</span>;
                       return <span>{`+${groupHours.toFixed(1)}h`}</span>;
